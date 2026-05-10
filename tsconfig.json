@@ -6,6 +6,7 @@
     "lib": ["esnext"],
     "types": ["bun"],
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "strict": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
