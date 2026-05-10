@@ -6,5 +6,10 @@
   "license": "UNLICENSED",
   "private": true,
   "type": "module",
-  "scripts": {}
+  "scripts": {},
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "prettier": "^3.8.3",
+    "prettier-plugin-jsdoc": "^1.8.0"
+  }
 }
