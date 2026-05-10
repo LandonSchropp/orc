@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "check-types": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "bun --bun eslint .",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 {
   "*": "prettier --check --cache --ignore-unknown",
   "*.{ts,d.ts}": "tsc-files --noEmit",
-  "*.{js,ts}": "eslint"
+  "*.{js,ts}": "bun --bun eslint"
 }
