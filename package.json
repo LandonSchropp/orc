@@ -1,0 +1,10 @@
+{
+  "name": "orc",
+  "description": "CLI orchestrator for parallel Claude Code work using Git worktrees, tmux, and Tmuxinator.",
+  "author": "Landon Schropp <schroppl@gmail.com>",
+  "repository": "https://github.com/LandonSchropp/orc",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "scripts": {}
+}
