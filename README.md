@@ -26,10 +26,10 @@ quite what I was looking for with _my_ workflow.
 
 Orc operates at two levels:
 
-- **Project**: Corresponds to a Tmuxinator project. Orc picks the template matching the current
-  directory (assumes one template per repo).
-- **Session**: An instance of a tmux session created from a specific Tmuxinator project, with its
-  own Git worktree.
+- **Project**: An Orc project groups related sessions and is created from a Tmuxinator project. Orc
+  resolves the current project from the directory you're in (one project per repo).
+- **Session**: A dedicated Git worktree paired with a tmux session spawned from a Tmuxinator
+  project. Each session lives in isolation — its own branch, its own terminal workspace.
 
 ## Commands
 
