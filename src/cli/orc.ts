@@ -1,4 +1,3 @@
-import { closeCommand } from "./close.ts";
 import { deleteCommand } from "./delete.ts";
 import { leaveCommand } from "./leave.ts";
 import { listCommand } from "./list.ts";
@@ -16,7 +15,6 @@ export const orc = defineCommand({
     list: listCommand,
     switch: switchCommand,
     leave: leaveCommand,
-    close: closeCommand,
     delete: deleteCommand,
   },
 });

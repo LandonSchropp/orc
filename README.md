@@ -44,10 +44,6 @@ Orc operates at two levels:
   - `--all`: Include closed sessions.
 - `orc switch [feature]`: Attach to a session by name. Without a name, opens the TUI selector.
 - `orc leave`: Detach from the current Orc session.
-- `orc close [feature]`: Kill the tmux session and leave the worktree and any state in place. The
-  feature still appears in the TUI under `--all`.
-- `orc resume <feature>`: Re-spawn the Tmuxinator template against a closed feature's worktree and
-  attach.
 - `orc delete <feature>`: Permanently delete the tmux session and worktree. Prompts for
   confirmation; `--force` skips the prompt.
 
@@ -58,8 +54,8 @@ UI](https://github.com/zippoxer/subtask). It's where you live when juggling seve
 flight at once.
 
 - **Unified view across projects**: All Orc sessions in one scrollable list, grouped by Tmuxinator
-  project, with active and closed counts in the header.
-- **Per-session status**: Each row surfaces whether the session is Working, Waiting, Idle, or
-  Closed, alongside its Git branch and time since last pane output.
-- **Inline lifecycle**: Create, attach, close, resume, and delete sessions with single-key
-  shortcuts. No need to drop back to the CLI.
+  project, with session counts in the header.
+- **Per-session status**: Each row surfaces whether the session is Working, Waiting, or Idle,
+  alongside its Git branch and time since last pane output.
+- **Inline lifecycle**: Create, attach, and delete sessions with single-key shortcuts. No need to
+  drop back to the CLI.
