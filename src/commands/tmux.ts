@@ -1,3 +1,4 @@
+import type { Session } from "../types.ts";
 import { runCommand, type RunCommandResult } from "./shell.ts";
 
 /** Socket name for orc's isolated tmux server. */
@@ -5,18 +6,6 @@ const ORC_SOCKET = "orc";
 
 /** Tab-separated `-F` template for `tmux list-sessions`: name, created timestamp, attached count. */
 const SESSION_FORMAT = "#S\t#{session_created}\t#{session_attached}";
-
-/** A tmux session running on the orc server. */
-export type TmuxSession = {
-  /** The project portion of the tmux session name (before the colon). */
-  project: string;
-  /** The session portion of the tmux session name (after the colon). */
-  session: string;
-  /** When the session was created. */
-  createdAt: Date;
-  /** True if a client is currently attached to the session. */
-  attached: boolean;
-};
 
 /**
  * Checks if tmux is installed and available on PATH.
@@ -44,7 +33,7 @@ function tmux(args: string[]): Promise<RunCommandResult> {
  * @returns The parsed tmux sessions.
  * @throws If a session name is malformed or tmux exits with an unexpected error.
  */
-export async function listTmuxSessions(): Promise<TmuxSession[]> {
+export async function listTmuxSessions(): Promise<Session[]> {
   const { exitCode, stdout, stderr } = await tmux(["list-sessions", "-F", SESSION_FORMAT]);
 
   if (exitCode !== 0) {
@@ -65,7 +54,7 @@ export async function listTmuxSessions(): Promise<TmuxSession[]> {
  * @returns The parsed session.
  * @throws If the session name does not contain a colon.
  */
-function parseSessionLine(line: string): TmuxSession {
+function parseSessionLine(line: string): Session {
   const [name, createdAt, attached] = line.split("\t");
   const colonIndex = name.indexOf(":");
 

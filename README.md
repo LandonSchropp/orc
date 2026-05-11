@@ -41,7 +41,6 @@ Orc operates at two levels:
     project matching the current directory; (3) an interactive selector.
 - `orc list`: Plain-text list of sessions for piping into other tools or for checking state without
   entering the TUI.
-  - `--all`: Include closed sessions.
 - `orc switch [feature]`: Attach to a session by name. Without a name, opens the TUI selector.
 - `orc leave`: Detach from the current Orc session.
 - `orc delete <feature>`: Permanently delete the tmux session and worktree. Prompts for

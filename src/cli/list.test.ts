@@ -1,23 +1,15 @@
-import type { TmuxSession } from "../commands/tmux.ts";
+import type { Session } from "../types.ts";
 import { listCommand } from "./list.ts";
 import { describe, expect, it, mock, spyOn } from "bun:test";
 import { runCommand } from "citty";
 
-const listTmuxSessionsMock = mock((): Promise<TmuxSession[]> => Promise.resolve([]));
+const listTmuxSessionsMock = mock((): Promise<Session[]> => Promise.resolve([]));
 
 await mock.module("../commands/tmux.ts", () => ({
   listTmuxSessions: listTmuxSessionsMock,
 }));
 
 describe("listCommand", () => {
-  describe("when --include-closed is passed", () => {
-    it("throws an error", () => {
-      expect(runCommand(listCommand, { rawArgs: ["--include-closed"] })).rejects.toThrowError(
-        /not yet supported/,
-      );
-    });
-  });
-
   describe("when there are no sessions", () => {
     it("prints nothing", async () => {
       listTmuxSessionsMock.mockResolvedValue([]);
