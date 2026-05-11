@@ -17,6 +17,16 @@ export async function isTmuxInstalled(): Promise<boolean> {
 }
 
 /**
+ * Returns `true` if the calling process is inside an orc tmux session. Detected via the `$TMUX`
+ * environment variable's socket path.
+ *
+ * @returns `true` when inside an orc tmux session, otherwise `false`.
+ */
+export function isInsideTmuxSession(): boolean {
+  return process.env.TMUX?.split(",")[0].endsWith(`/${ORC_SOCKET}`) ?? false;
+}
+
+/**
  * Runs a tmux command against orc's isolated server.
  *
  * @param args - Arguments to pass to tmux, after the socket flag.

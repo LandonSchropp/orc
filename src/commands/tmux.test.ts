@@ -1,4 +1,5 @@
-import { isTmuxInstalled, listTmuxSessions } from "./tmux.ts";
+import { stubEnv } from "../../test/helpers/env.ts";
+import { isInsideTmuxSession, isTmuxInstalled, listTmuxSessions } from "./tmux.ts";
 import { describe, expect, it, mock } from "bun:test";
 
 const runCommandMock = mock(() => Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }));
@@ -26,6 +27,29 @@ describe("isTmuxInstalled", () => {
     it("returns false", async () => {
       runCommandMock.mockResolvedValue({ exitCode: 127, stdout: "", stderr: "" });
       expect(await isTmuxInstalled()).toBe(false);
+    });
+  });
+});
+
+describe("isInsideTmuxSession", () => {
+  describe("when $TMUX is not set", () => {
+    it("returns false", () => {
+      stubEnv("TMUX", undefined);
+      expect(isInsideTmuxSession()).toBe(false);
+    });
+  });
+
+  describe("when $TMUX points to a different socket", () => {
+    it("returns false", () => {
+      stubEnv("TMUX", "/tmp/tmux-501/default,12345,0");
+      expect(isInsideTmuxSession()).toBe(false);
+    });
+  });
+
+  describe("when $TMUX points to the orc socket", () => {
+    it("returns true", () => {
+      stubEnv("TMUX", "/tmp/tmux-501/orc,12345,0");
+      expect(isInsideTmuxSession()).toBe(true);
     });
   });
 });
