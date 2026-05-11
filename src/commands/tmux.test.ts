@@ -1,5 +1,10 @@
 import { stubEnv } from "../../test/helpers/env.ts";
-import { isInsideTmuxSession, isTmuxInstalled, listTmuxSessions } from "./tmux.ts";
+import {
+  isInsideTmuxSession,
+  isTmuxInstalled,
+  listTmuxSessions,
+  switchTmuxSession,
+} from "./tmux.ts";
 import { describe, expect, it, mock } from "bun:test";
 
 const runCommandMock = mock(() => Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }));
@@ -119,5 +124,20 @@ describe("listTmuxSessions", () => {
       });
       expect(listTmuxSessions()).rejects.toThrowError(/some other tmux error/);
     });
+  });
+});
+
+describe("switchTmuxSession", () => {
+  it("invokes `tmux switch-client` against the orc server", async () => {
+    runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+    await switchTmuxSession("orc:feature-a");
+    expect(runCommandMock).toHaveBeenCalledWith([
+      "tmux",
+      "-L",
+      "orc",
+      "switch-client",
+      "-t",
+      "orc:feature-a",
+    ]);
   });
 });

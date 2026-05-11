@@ -37,6 +37,15 @@ function tmux(args: string[]): Promise<RunCommandResult> {
 }
 
 /**
+ * Switches the current orc tmux client to the session with the given name.
+ *
+ * @param name - The full `project:session` name to switch to.
+ */
+export async function switchTmuxSession(name: string): Promise<void> {
+  await tmux(["switch-client", "-t", name]);
+}
+
+/**
  * Lists the tmux sessions running on orc's isolated server. Returns an empty array when no server
  * is running.
  *
