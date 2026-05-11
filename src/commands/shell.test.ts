@@ -1,4 +1,4 @@
-import { runCommand } from "./shell.ts";
+import { runAttachedCommand, runCommand } from "./shell.ts";
 import { describe, expect, it } from "bun:test";
 
 describe("runCommand", () => {
@@ -43,6 +43,34 @@ describe("runCommand", () => {
       await Bun.write(tmpFile, "#!/bin/sh\necho hello");
       // No execute permission — Bun.spawn throws EACCES, not ENOENT
       expect(runCommand([tmpFile])).rejects.toThrow();
+    });
+  });
+});
+
+describe("runAttachedCommand", () => {
+  describe("when the command succeeds", () => {
+    it("returns exit code 0", async () => {
+      expect(await runAttachedCommand(["true"])).toBe(0);
+    });
+  });
+
+  describe("when the command fails", () => {
+    it("returns a non-zero exit code without throwing", async () => {
+      expect(await runAttachedCommand(["false"])).not.toBe(0);
+    });
+  });
+
+  describe("when the command is not found", () => {
+    it("returns exit code 127", async () => {
+      expect(await runAttachedCommand(["notarealcommand"])).toBe(127);
+    });
+  });
+
+  describe("when a non-spawn error occurs", () => {
+    it("rethrows the error", async () => {
+      const tmpFile = "/tmp/orc-test-no-exec-attached";
+      await Bun.write(tmpFile, "#!/bin/sh\ntrue");
+      expect(runAttachedCommand([tmpFile])).rejects.toThrow();
     });
   });
 });

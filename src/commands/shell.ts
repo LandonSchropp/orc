@@ -34,3 +34,27 @@ export async function runCommand(command: string[]): Promise<RunCommandResult> {
     throw error;
   }
 }
+
+/**
+ * Runs a command with stdio attached to the parent's terminal. Use this for subprocesses (e.g.
+ * `tmux attach-session`) that need to take over the terminal. Returns exit code 127 if the command
+ * is not found.
+ *
+ * @param command - The command and its arguments.
+ * @returns The exit code from the process.
+ */
+export async function runAttachedCommand(command: string[]): Promise<number> {
+  try {
+    const process = Bun.spawn(command, {
+      stdin: "inherit",
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+    return await process.exited;
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+      return 127;
+    }
+    throw error;
+  }
+}
