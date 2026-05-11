@@ -1,5 +1,6 @@
 import { stubEnv } from "../../test/helpers/env.ts";
 import {
+  attachTmuxSession,
   isInsideTmuxSession,
   isTmuxInstalled,
   listTmuxSessions,
@@ -8,9 +9,11 @@ import {
 import { describe, expect, it, mock } from "bun:test";
 
 const runCommandMock = mock(() => Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }));
+const runAttachedCommandMock = mock((): Promise<number> => Promise.resolve(0));
 
 await mock.module("./shell.ts", () => ({
   runCommand: runCommandMock,
+  runAttachedCommand: runAttachedCommandMock,
 }));
 
 describe("isTmuxInstalled", () => {
@@ -136,6 +139,21 @@ describe("switchTmuxSession", () => {
       "-L",
       "orc",
       "switch-client",
+      "-t",
+      "orc:feature-a",
+    ]);
+  });
+});
+
+describe("attachTmuxSession", () => {
+  it("invokes `tmux attach-session` against the orc server", async () => {
+    runAttachedCommandMock.mockResolvedValue(0);
+    await attachTmuxSession("orc:feature-a");
+    expect(runAttachedCommandMock).toHaveBeenCalledWith([
+      "tmux",
+      "-L",
+      "orc",
+      "attach-session",
       "-t",
       "orc:feature-a",
     ]);

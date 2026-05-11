@@ -1,5 +1,5 @@
 import type { Session } from "../types.ts";
-import { runCommand, type RunCommandResult } from "./shell.ts";
+import { runAttachedCommand, runCommand, type RunCommandResult } from "./shell.ts";
 
 /** Socket name for orc's isolated tmux server. */
 const ORC_SOCKET = "orc";
@@ -43,6 +43,16 @@ function tmux(args: string[]): Promise<RunCommandResult> {
  */
 export async function switchTmuxSession(name: string): Promise<void> {
   await tmux(["switch-client", "-t", name]);
+}
+
+/**
+ * Attaches the calling process's terminal to the orc tmux session with the given name. Replaces
+ * stdio for the duration of the session.
+ *
+ * @param name - The full `project:session` name to attach to.
+ */
+export async function attachTmuxSession(name: string): Promise<void> {
+  await runAttachedCommand(["tmux", "-L", ORC_SOCKET, "attach-session", "-t", name]);
 }
 
 /**
