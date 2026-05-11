@@ -1,3 +1,4 @@
+import { sessionFactory } from "../../test/factories/session.ts";
 import type { Session } from "../types.ts";
 import { listCommand } from "./list.ts";
 import { describe, expect, it, mock, spyOn } from "bun:test";
@@ -24,8 +25,8 @@ describe("listCommand", () => {
   describe("when there are sessions", () => {
     it("prints each session", async () => {
       listTmuxSessionsMock.mockResolvedValue([
-        { project: "orc", session: "feature-a", createdAt: new Date(), attached: false },
-        { project: "orc", session: "feature-b", createdAt: new Date(), attached: false },
+        sessionFactory.build({ session: "feature-a" }),
+        sessionFactory.build({ session: "feature-b" }),
       ]);
       const writeSpy = spyOn(process.stdout, "write").mockImplementation(() => true);
 
@@ -38,7 +39,7 @@ describe("listCommand", () => {
     describe("and a session is attached", () => {
       it("marks it as attached", async () => {
         listTmuxSessionsMock.mockResolvedValue([
-          { project: "orc", session: "feature-a", createdAt: new Date(), attached: true },
+          sessionFactory.build({ session: "feature-a", attached: true }),
         ]);
         const writeSpy = spyOn(process.stdout, "write").mockImplementation(() => true);
 

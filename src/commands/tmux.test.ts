@@ -60,12 +60,14 @@ describe("listTmuxSessions", () => {
         {
           project: "orc",
           session: "feature-a",
+          name: "orc:feature-a",
           createdAt: new Date(1_700_000_000 * 1000),
           attached: false,
         },
         {
           project: "orc",
           session: "feature-b",
+          name: "orc:feature-b",
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
         },

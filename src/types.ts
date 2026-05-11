@@ -4,6 +4,8 @@ export type Session = {
   project: string;
   /** The session name within the project. */
   session: string;
+  /** The fully qualified session identifier, `project:session`. */
+  name: string;
   /** When the session was created. */
   createdAt: Date;
   /** True if a client is currently attached to the session. */

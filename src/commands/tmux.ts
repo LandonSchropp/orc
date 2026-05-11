@@ -65,6 +65,7 @@ function parseSessionLine(line: string): Session {
   return {
     project: name.slice(0, colonIndex),
     session: name.slice(colonIndex + 1),
+    name,
     createdAt: new Date(Number(createdAt) * 1000),
     attached: attached === "1",
   };
