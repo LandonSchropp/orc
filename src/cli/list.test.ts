@@ -1,7 +1,8 @@
 import { sessionFactory } from "../../test/factories/session.ts";
+import { stdoutSpy } from "../../test/helpers/process.ts";
 import type { Session } from "../types.ts";
 import { listCommand } from "./list.ts";
-import { describe, expect, it, mock, spyOn } from "bun:test";
+import { describe, expect, it, mock } from "bun:test";
 import { runCommand } from "citty";
 
 const listTmuxSessionsMock = mock((): Promise<Session[]> => Promise.resolve([]));
@@ -14,11 +15,10 @@ describe("listCommand", () => {
   describe("when there are no sessions", () => {
     it("prints nothing", async () => {
       listTmuxSessionsMock.mockResolvedValue([]);
-      const writeSpy = spyOn(process.stdout, "write").mockImplementation(() => true);
 
       await runCommand(listCommand, { rawArgs: [] });
 
-      expect(writeSpy).not.toHaveBeenCalled();
+      expect(stdoutSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -28,12 +28,11 @@ describe("listCommand", () => {
         sessionFactory.build({ session: "feature-a" }),
         sessionFactory.build({ session: "feature-b" }),
       ]);
-      const writeSpy = spyOn(process.stdout, "write").mockImplementation(() => true);
 
       await runCommand(listCommand, { rawArgs: [] });
 
-      expect(writeSpy).toHaveBeenCalledWith("orc:feature-a\n");
-      expect(writeSpy).toHaveBeenCalledWith("orc:feature-b\n");
+      expect(stdoutSpy).toHaveBeenCalledWith("orc:feature-a\n");
+      expect(stdoutSpy).toHaveBeenCalledWith("orc:feature-b\n");
     });
 
     describe("and a session is attached", () => {
@@ -41,11 +40,10 @@ describe("listCommand", () => {
         listTmuxSessionsMock.mockResolvedValue([
           sessionFactory.build({ session: "feature-a", attached: true }),
         ]);
-        const writeSpy = spyOn(process.stdout, "write").mockImplementation(() => true);
 
         await runCommand(listCommand, { rawArgs: [] });
 
-        expect(writeSpy).toHaveBeenCalledWith("orc:feature-a (attached)\n");
+        expect(stdoutSpy).toHaveBeenCalledWith("orc:feature-a (attached)\n");
       });
     });
   });
