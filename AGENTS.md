@@ -10,6 +10,15 @@ The code is organized in three layers, lowest to highest:
 
 Tests live alongside their source as `*.test.ts`. Shared test infrastructure (`setup.ts`, `factories/`, `helpers/`) lives in `test/`.
 
+## CLI vs TUI
+
+Orc has two interaction modes:
+
+- **CLI**: every subcommand (`orc <subcommand>`) is non-interactive. All required arguments must be supplied; missing arguments produce an error rather than a prompt or interactive picker. This keeps subcommands predictable for agents and scripts.
+- **TUI**: launched by running `orc` with no subcommand. All interactive flows (session selection, confirmations, browsing) live here.
+
+Subcommands never fall back to interactive prompts. If a user needs interaction, they launch the TUI.
+
 ## CLI Output
 
 Use `process.stdout.write` for command output, not `console.log`. CLI output is program data that should pipe cleanly to other tools — `console.log` is for diagnostics and goes through Node's console formatting layer. Remember to include the trailing `\n` since `process.stdout.write` does not append one.

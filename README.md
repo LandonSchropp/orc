@@ -31,17 +31,28 @@ Orc operates at two levels:
 - **Session**: A dedicated Git worktree paired with a tmux session spawned from a Tmuxinator
   project. Each session lives in isolation — its own branch, its own terminal workspace.
 
+## Interfaces
+
+Orc has two main interfaces:
+
+- **CLI**: Run individual commands for one-off tasks and automation. Every subcommand is
+  non-interactive, so Orc fits cleanly into shell aliases, scripts, and AI agents.
+- **TUI**: Browse and juggle sessions interactively. Run `orc` with no subcommand to drop into a
+  full-screen manager where you can switch between sessions, see their status, and create new ones
+  without leaving the keyboard.
+
 ## Commands
 
-- `orc new [feature]`: Create a Git worktree under the conventional path, spawn the project's
+- `orc new <feature>`: Create a Git worktree under the conventional path, spawn the project's
   Tmuxinator template named for the feature, and attach.
   - `--from <branch>`: Base the worktree on a different branch than the project default.
-  - `--project <name>`: Tmuxinator project to spawn from. If omitted, Orc resolves the project in
-    this order: (1) the current Orc session's project if you're attached to one; (2) the Tmuxinator
-    project matching the current directory; (3) an interactive selector.
+  - `--project <name>`: Tmuxinator project to spawn from. If omitted, Orc uses the current Orc
+    session's project (if attached), falling back to the Tmuxinator project matching the current
+    directory.
 - `orc list`: Plain-text list of sessions for piping into other tools or for checking state without
   entering the TUI.
-- `orc switch [feature]`: Attach to a session by name. Without a name, opens the TUI selector.
+- `orc switch <feature>`: Switch to a session by name. If `<feature>` is ambiguous across projects,
+  Orc uses the current session's project to disambiguate.
 - `orc detach`: Detach from the current Orc session.
 - `orc delete <feature>`: Permanently delete the tmux session and worktree. Prompts for
   confirmation; `--force` skips the prompt.
