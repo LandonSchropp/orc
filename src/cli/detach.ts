@@ -1,8 +1,8 @@
 import { defineCommand } from "citty";
 
-export const leaveCommand = defineCommand({
+export const detachCommand = defineCommand({
   meta: {
-    name: "leave",
+    name: "detach",
     description: "Detach from the current Orc session",
   },
 });

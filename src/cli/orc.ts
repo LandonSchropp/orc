@@ -1,5 +1,5 @@
 import { deleteCommand } from "./delete.ts";
-import { leaveCommand } from "./leave.ts";
+import { detachCommand } from "./detach.ts";
 import { listCommand } from "./list.ts";
 import { newCommand } from "./new.ts";
 import { switchCommand } from "./switch.ts";
@@ -14,7 +14,7 @@ export const orc = defineCommand({
     new: newCommand,
     list: listCommand,
     switch: switchCommand,
-    leave: leaveCommand,
+    detach: detachCommand,
     delete: deleteCommand,
   },
 });
