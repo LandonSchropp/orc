@@ -1,4 +1,4 @@
-import { findMatchingSession } from "../sessions/find.ts";
+import { findSession } from "../sessions/find.ts";
 import { switchSession } from "../sessions/switch.ts";
 import { defineCommand } from "citty";
 
@@ -20,14 +20,13 @@ export const switchCommand = defineCommand({
     },
   },
   async run({ args }) {
-    const input = `${args.project}:${args.feature}`;
-    const session = await findMatchingSession(input);
+    const session = await findSession(args.project, args.feature);
 
     if (!session) {
-      process.stderr.write(`Session not found: ${input}\n`);
+      process.stderr.write(`Session not found: ${args.project}:${args.feature}\n`);
       return process.exit(1);
     }
 
-    await switchSession(session.name);
+    await switchSession(session.project, session.session);
   },
 });

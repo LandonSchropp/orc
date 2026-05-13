@@ -5,11 +5,11 @@ import { switchCommand } from "./switch.ts";
 import { describe, expect, it, mock } from "bun:test";
 import { runCommand } from "citty";
 
-const findMatchingSessionMock = mock((): Promise<Session | null> => Promise.resolve(null));
+const findSessionMock = mock((): Promise<Session | null> => Promise.resolve(null));
 const switchSessionMock = mock((): Promise<void> => Promise.resolve());
 
 await mock.module("../sessions/find.ts", () => ({
-  findMatchingSession: findMatchingSessionMock,
+  findSession: findSessionMock,
 }));
 
 await mock.module("../sessions/switch.ts", () => ({
@@ -20,18 +20,18 @@ describe("switchCommand", () => {
   describe("when a matching session is found", () => {
     it("switches to it", async () => {
       const session = sessionFactory.build({ project: "orc", session: "feature-a" });
-      findMatchingSessionMock.mockResolvedValue(session);
+      findSessionMock.mockResolvedValue(session);
 
       await runCommand(switchCommand, { rawArgs: ["orc", "feature-a"] });
 
-      expect(findMatchingSessionMock).toHaveBeenCalledWith("orc:feature-a");
-      expect(switchSessionMock).toHaveBeenCalledWith("orc:feature-a");
+      expect(findSessionMock).toHaveBeenCalledWith("orc", "feature-a");
+      expect(switchSessionMock).toHaveBeenCalledWith("orc", "feature-a");
     });
   });
 
   describe("when no matching session is found", () => {
     it("prints an error and exits with code 1", async () => {
-      findMatchingSessionMock.mockResolvedValue(null);
+      findSessionMock.mockResolvedValue(null);
 
       await runCommand(switchCommand, { rawArgs: ["orc", "missing"] });
 

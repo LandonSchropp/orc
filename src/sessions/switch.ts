@@ -1,12 +1,14 @@
 import { attachTmuxSession, isInsideTmuxSession, switchTmuxSession } from "../commands/tmux.ts";
 
 /**
- * Switches to the orc session with the given name. When called from inside an orc tmux session,
- * switches the current client; otherwise attaches the terminal to the session.
+ * Switches to the orc session identified by `project` and `session`. When called from inside an orc
+ * tmux session, switches the current client; otherwise attaches the terminal to the session.
  *
- * @param name - The full `project:session` name to switch to.
+ * @param project - The project name.
+ * @param session - The session name within the project.
  */
-export async function switchSession(name: string): Promise<void> {
+export async function switchSession(project: string, session: string): Promise<void> {
+  const name = `${project}:${session}`;
   if (isInsideTmuxSession()) {
     await switchTmuxSession(name);
   } else {

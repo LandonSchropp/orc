@@ -15,7 +15,7 @@ describe("switchSession", () => {
   describe("when inside a tmux session", () => {
     it("switches the client to the target session", async () => {
       isInsideTmuxSessionMock.mockReturnValue(true);
-      await switchSession("orc:feature-a");
+      await switchSession("orc", "feature-a");
       expect(switchTmuxSessionMock).toHaveBeenCalledWith("orc:feature-a");
       expect(attachTmuxSessionMock).not.toHaveBeenCalled();
     });
@@ -24,7 +24,7 @@ describe("switchSession", () => {
   describe("when not inside a tmux session", () => {
     it("attaches the terminal to the target session", async () => {
       isInsideTmuxSessionMock.mockReturnValue(false);
-      await switchSession("orc:feature-a");
+      await switchSession("orc", "feature-a");
       expect(attachTmuxSessionMock).toHaveBeenCalledWith("orc:feature-a");
       expect(switchTmuxSessionMock).not.toHaveBeenCalled();
     });
