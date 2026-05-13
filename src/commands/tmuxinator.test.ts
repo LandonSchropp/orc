@@ -1,4 +1,4 @@
-import { isTmuxinatorInstalled } from "./tmuxinator.ts";
+import { isTmuxinatorInstalled, listTmuxinatorProjects } from "./tmuxinator.ts";
 import { describe, expect, it, mock } from "bun:test";
 
 const runCommandMock = mock(() => Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }));
@@ -26,6 +26,30 @@ describe("isTmuxinatorInstalled", () => {
     it("returns false", async () => {
       runCommandMock.mockResolvedValue({ exitCode: 127, stdout: "", stderr: "" });
       expect(await isTmuxinatorInstalled()).toBe(false);
+    });
+  });
+});
+
+describe("listTmuxinatorProjects", () => {
+  describe("when projects exist", () => {
+    it("returns the project names without the header", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 0,
+        stdout: "tmuxinator projects:\nagent-toolkit\ndotfiles\nnotes\n",
+        stderr: "",
+      });
+      expect(await listTmuxinatorProjects()).toEqual(["agent-toolkit", "dotfiles", "notes"]);
+    });
+  });
+
+  describe("when no projects exist", () => {
+    it("returns an empty array", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 0,
+        stdout: "tmuxinator projects:\n",
+        stderr: "",
+      });
+      expect(await listTmuxinatorProjects()).toEqual([]);
     });
   });
 });
