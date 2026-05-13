@@ -6,20 +6,15 @@ export const newCommand = defineCommand({
     description: "Create a new Orc session",
   },
   args: {
+    project: {
+      type: "positional",
+      description: "Project name",
+      required: true,
+    },
     feature: {
       type: "positional",
-      description: "Name of the feature to create",
-      required: false,
-    },
-    from: {
-      type: "string",
-      description: "Base the worktree on a different branch than the project default",
-      required: false,
-    },
-    project: {
-      type: "string",
-      description: "Tmuxinator project to spawn from",
-      required: false,
+      description: "Feature name",
+      required: true,
     },
   },
 });

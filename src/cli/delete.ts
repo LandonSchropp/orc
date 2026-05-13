@@ -6,14 +6,15 @@ export const deleteCommand = defineCommand({
     description: "Permanently delete the Orc session and worktree",
   },
   args: {
-    feature: {
+    project: {
       type: "positional",
-      description: "Name of the feature to delete",
+      description: "Project name",
       required: true,
     },
-    force: {
-      type: "boolean",
-      description: "Skip the confirmation prompt",
+    feature: {
+      type: "positional",
+      description: "Feature name",
+      required: true,
     },
   },
 });

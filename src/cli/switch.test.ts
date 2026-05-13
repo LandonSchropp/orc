@@ -22,9 +22,9 @@ describe("switchCommand", () => {
       const session = sessionFactory.build({ project: "orc", session: "feature-a" });
       findMatchingSessionMock.mockResolvedValue(session);
 
-      await runCommand(switchCommand, { rawArgs: ["feature-a"] });
+      await runCommand(switchCommand, { rawArgs: ["orc", "feature-a"] });
 
-      expect(findMatchingSessionMock).toHaveBeenCalledWith("feature-a");
+      expect(findMatchingSessionMock).toHaveBeenCalledWith("orc:feature-a");
       expect(switchSessionMock).toHaveBeenCalledWith("orc:feature-a");
     });
   });
@@ -33,9 +33,9 @@ describe("switchCommand", () => {
     it("prints an error and exits with code 1", async () => {
       findMatchingSessionMock.mockResolvedValue(null);
 
-      await runCommand(switchCommand, { rawArgs: ["missing"] });
+      await runCommand(switchCommand, { rawArgs: ["orc", "missing"] });
 
-      expect(stderrSpy).toHaveBeenCalledWith("Session not found: missing\n");
+      expect(stderrSpy).toHaveBeenCalledWith("Session not found: orc:missing\n");
       expect(exitSpy).toHaveBeenCalledWith(1);
     });
   });

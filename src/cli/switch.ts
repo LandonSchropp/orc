@@ -8,17 +8,23 @@ export const switchCommand = defineCommand({
     description: "Switch to an Orc session by name",
   },
   args: {
+    project: {
+      type: "positional",
+      description: "Project name",
+      required: true,
+    },
     feature: {
       type: "positional",
-      description: "Name of the session to switch to",
+      description: "Feature name",
       required: true,
     },
   },
   async run({ args }) {
-    const session = await findMatchingSession(args.feature);
+    const input = `${args.project}:${args.feature}`;
+    const session = await findMatchingSession(input);
 
     if (!session) {
-      process.stderr.write(`Session not found: ${args.feature}\n`);
+      process.stderr.write(`Session not found: ${input}\n`);
       return process.exit(1);
     }
 
