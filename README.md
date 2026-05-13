@@ -43,19 +43,13 @@ Orc has two main interfaces:
 
 ## Commands
 
-- `orc new <feature>`: Create a Git worktree under the conventional path, spawn the project's
-  Tmuxinator template named for the feature, and attach.
-  - `--from <branch>`: Base the worktree on a different branch than the project default.
-  - `--project <name>`: Tmuxinator project to spawn from. If omitted, Orc uses the current Orc
-    session's project (if attached), falling back to the Tmuxinator project matching the current
-    directory.
+- `orc new <project> <feature>`: Create a Git worktree branched from the project's default branch,
+  spawn the project's Tmuxinator template named for the feature, and attach.
 - `orc list`: Plain-text list of sessions for piping into other tools or for checking state without
   entering the TUI.
-- `orc switch <feature>`: Switch to a session by name. If `<feature>` is ambiguous across projects,
-  Orc uses the current session's project to disambiguate.
+- `orc switch <project> <feature>`: Switch to a session by name.
 - `orc detach`: Detach from the current Orc session.
-- `orc delete <feature>`: Permanently delete the tmux session and worktree. Prompts for
-  confirmation; `--force` skips the prompt.
+- `orc delete <project> <feature>`: Permanently delete the tmux session and worktree.
 
 ## TUI
 
