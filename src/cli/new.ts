@@ -11,9 +11,9 @@ export const newCommand = defineCommand({
       description: "Project name",
       required: true,
     },
-    feature: {
+    session: {
       type: "positional",
-      description: "Feature name",
+      description: "Session name",
       required: true,
     },
   },

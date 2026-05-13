@@ -13,17 +13,17 @@ export const switchCommand = defineCommand({
       description: "Project name",
       required: true,
     },
-    feature: {
+    session: {
       type: "positional",
-      description: "Feature name",
+      description: "Session name",
       required: true,
     },
   },
   async run({ args }) {
-    const session = await findSession(args.project, args.feature);
+    const session = await findSession(args.project, args.session);
 
     if (!session) {
-      process.stderr.write(`Session not found: ${args.project}:${args.feature}\n`);
+      process.stderr.write(`Session not found: ${args.project}:${args.session}\n`);
       return process.exit(1);
     }
 

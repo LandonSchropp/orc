@@ -43,13 +43,13 @@ Orc has two main interfaces:
 
 ## Commands
 
-- `orc new <project> <feature>`: Create a Git worktree branched from the project's default branch,
-  spawn the project's Tmuxinator template named for the feature, and attach.
+- `orc new <project> <session>`: Create a Git worktree branched from the project's default branch,
+  spawn the project's Tmuxinator template named for the session, and attach.
 - `orc list`: Plain-text list of sessions for piping into other tools or for checking state without
   entering the TUI.
-- `orc switch <project> <feature>`: Switch to a session by name.
+- `orc switch <project> <session>`: Switch to a session by name.
 - `orc detach`: Detach from the current Orc session.
-- `orc delete <project> <feature>`: Permanently delete the tmux session and worktree.
+- `orc delete <project> <session>`: Permanently delete the tmux session and worktree.
 
 ## TUI
 
