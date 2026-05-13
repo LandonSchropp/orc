@@ -36,6 +36,11 @@ function tmux(args: string[]): Promise<RunCommandResult> {
   return runCommand(["tmux", "-L", ORC_SOCKET, ...args]);
 }
 
+/** Detaches the current client from the orc tmux server. */
+export async function detachTmuxClient(): Promise<void> {
+  await tmux(["detach-client"]);
+}
+
 /**
  * Switches the current orc tmux client to the session with the given name.
  *

@@ -1,6 +1,7 @@
 import { stubEnv } from "../../test/helpers/env.ts";
 import {
   attachTmuxSession,
+  detachTmuxClient,
   isInsideTmuxSession,
   isTmuxInstalled,
   listTmuxSessions,
@@ -157,5 +158,13 @@ describe("attachTmuxSession", () => {
       "-t",
       "orc:feature-a",
     ]);
+  });
+});
+
+describe("detachTmuxClient", () => {
+  it("invokes `tmux detach-client` against the orc server", async () => {
+    runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+    await detachTmuxClient();
+    expect(runCommandMock).toHaveBeenCalledWith(["tmux", "-L", "orc", "detach-client"]);
   });
 });
