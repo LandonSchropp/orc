@@ -44,3 +44,35 @@ export async function defaultBranch(repoPath: string): Promise<string | null> {
 
   return null;
 }
+
+/**
+ * Creates a git worktree at `worktreePath` with a new branch named `branch` based on `startPoint`.
+ *
+ * @param repoPath - The path to the git repository.
+ * @param worktreePath - The path where the worktree will be created.
+ * @param branch - The name of the new branch.
+ * @param startPoint - The branch, commit, or tag to base the new branch on.
+ * @throws If `git worktree add` fails.
+ */
+export async function addWorktree(
+  repoPath: string,
+  worktreePath: string,
+  branch: string,
+  startPoint: string,
+): Promise<void> {
+  const { exitCode, stderr } = await runCommand([
+    "git",
+    "-C",
+    repoPath,
+    "worktree",
+    "add",
+    worktreePath,
+    "-b",
+    branch,
+    startPoint,
+  ]);
+
+  if (exitCode !== 0) {
+    throw new Error(`git worktree add failed: ${stderr.trim()}`);
+  }
+}

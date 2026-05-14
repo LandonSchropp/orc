@@ -1,4 +1,4 @@
-import { defaultBranch, isGitInstalled } from "./git.ts";
+import { addWorktree, defaultBranch, isGitInstalled } from "./git.ts";
 import { describe, expect, it, mock } from "bun:test";
 
 const runCommandMock = mock(() => Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }));
@@ -65,6 +65,42 @@ describe("defaultBranch", () => {
         runCommandMock.mockResolvedValue({ exitCode: 1, stdout: "", stderr: "" });
         expect(await defaultBranch("/path/to/repo")).toBeNull();
       });
+    });
+  });
+});
+
+describe("addWorktree", () => {
+  describe("when the worktree is created successfully", () => {
+    it("invokes `git worktree add` with a new branch from the start point", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+
+      await addWorktree("/repo", "/worktree", "feature-a", "main");
+
+      expect(runCommandMock).toHaveBeenCalledWith([
+        "git",
+        "-C",
+        "/repo",
+        "worktree",
+        "add",
+        "/worktree",
+        "-b",
+        "feature-a",
+        "main",
+      ]);
+    });
+  });
+
+  describe("when git fails", () => {
+    it("throws an error with the stderr message", () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 128,
+        stdout: "",
+        stderr: "fatal: '/worktree' already exists\n",
+      });
+
+      expect(addWorktree("/repo", "/worktree", "feature-a", "main")).rejects.toThrowError(
+        /already exists/,
+      );
     });
   });
 });
