@@ -118,10 +118,10 @@ describe("readTmuxinatorProject", () => {
       );
     });
 
-    it("parses and returns the project", async () => {
+    it("parses the project and expands `~/` in `root`", async () => {
       expect(await readTmuxinatorProject("agent-toolkit")).toEqual({
         name: "agent-toolkit",
-        root: "~/Development/agent-toolkit",
+        root: `${homedir()}/Development/agent-toolkit`,
         windows: [{ shell: null }, { vim: "nvim" }],
       });
     });

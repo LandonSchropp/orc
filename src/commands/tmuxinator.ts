@@ -1,4 +1,5 @@
 import type { TmuxinatorProject, YamlObject } from "../types.ts";
+import { expandHome } from "../utilities/directory.ts";
 import { runCommand } from "./shell.ts";
 import { tmuxSessionName } from "./tmux.ts";
 import { YAML } from "bun";
@@ -46,10 +47,11 @@ export async function listTmuxinatorProjects(): Promise<string[]> {
 }
 
 /**
- * Reads and parses the tmuxinator project config for the given project name.
+ * Reads and parses the tmuxinator project config for the given project name. Expands a leading `~/`
+ * in the project's `root` to the user's home directory.
  *
  * @param project - The tmuxinator project name (the file in `~/.config/tmuxinator/<project>.yml`).
- * @returns The parsed tmuxinator project.
+ * @returns The parsed tmuxinator project with an absolute `root` path.
  * @throws If the file cannot be read, the YAML is invalid, or the project is missing a string
  *   `name` or `root` field.
  */
@@ -65,7 +67,7 @@ export async function readTmuxinatorProject(project: string): Promise<Tmuxinator
     throw new Error(`Tmuxinator config at ${path} is missing a string \`root\` field`);
   }
 
-  return parsed as TmuxinatorProject;
+  return { ...parsed, root: expandHome(parsed.root) } as TmuxinatorProject;
 }
 
 /**
