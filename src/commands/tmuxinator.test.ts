@@ -1,13 +1,19 @@
+import { stubEnv } from "../../test/helpers/env.ts";
 import {
   isTmuxinatorInstalled,
   listTmuxinatorProjects,
   readTmuxinatorProject,
   startTmuxinatorProject,
+  tmuxinatorConfigPath,
 } from "./tmuxinator.ts";
 import { YAML } from "bun";
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { rm } from "node:fs/promises";
+import { homedir } from "node:os";
 import { dedent } from "ts-dedent";
+
+const configHome = "/tmp/orc-test-config";
+const configPath = `${configHome}/tmuxinator/agent-toolkit.yml`;
 
 const runCommandMock = mock(() => Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }));
 
@@ -62,13 +68,43 @@ describe("listTmuxinatorProjects", () => {
   });
 });
 
-describe("readTmuxinatorProject", () => {
-  describe("when the file contains a valid YAML config", () => {
-    const path = "/tmp/orc-test-read-valid.yml";
+describe("tmuxinatorConfigPath", () => {
+  describe("when $XDG_CONFIG_HOME is set", () => {
+    beforeEach(() => {
+      stubEnv("XDG_CONFIG_HOME", configHome);
+    });
 
+    it("returns the project YAML under $XDG_CONFIG_HOME/tmuxinator", () => {
+      expect(tmuxinatorConfigPath("agent-toolkit")).toBe(configPath);
+    });
+  });
+
+  describe("when $XDG_CONFIG_HOME is not set", () => {
+    beforeEach(() => {
+      stubEnv("XDG_CONFIG_HOME", undefined);
+    });
+
+    it("returns the project YAML under ~/.config/tmuxinator", () => {
+      expect(tmuxinatorConfigPath("agent-toolkit")).toBe(
+        `${homedir()}/.config/tmuxinator/agent-toolkit.yml`,
+      );
+    });
+  });
+});
+
+describe("readTmuxinatorProject", () => {
+  beforeEach(() => {
+    stubEnv("XDG_CONFIG_HOME", configHome);
+  });
+
+  afterEach(async () => {
+    await rm(configHome, { recursive: true, force: true });
+  });
+
+  describe("when the file contains a valid YAML config", () => {
     beforeEach(async () => {
       await Bun.write(
-        path,
+        configPath,
         dedent`
           name: agent-toolkit
           root: ~/Development/agent-toolkit
@@ -79,12 +115,8 @@ describe("readTmuxinatorProject", () => {
       );
     });
 
-    afterEach(async () => {
-      await rm(path);
-    });
-
     it("parses and returns the project", async () => {
-      expect(await readTmuxinatorProject(path)).toEqual({
+      expect(await readTmuxinatorProject("agent-toolkit")).toEqual({
         name: "agent-toolkit",
         root: "~/Development/agent-toolkit",
         windows: [{ shell: null }, { vim: "nvim" }],
@@ -94,55 +126,37 @@ describe("readTmuxinatorProject", () => {
 
   describe("when the file does not exist", () => {
     it("throws an error", () => {
-      expect(readTmuxinatorProject("/tmp/orc-test-read-nonexistent.yml")).rejects.toThrow();
+      expect(readTmuxinatorProject("agent-toolkit")).rejects.toThrow();
     });
   });
 
   describe("when the YAML is malformed", () => {
-    const path = "/tmp/orc-test-read-malformed.yml";
-
     beforeEach(async () => {
-      await Bun.write(path, "name: agent-toolkit\nroot: [unclosed\n");
-    });
-
-    afterEach(async () => {
-      await rm(path);
+      await Bun.write(configPath, "name: agent-toolkit\nroot: [unclosed\n");
     });
 
     it("throws an error", () => {
-      expect(readTmuxinatorProject(path)).rejects.toThrow();
+      expect(readTmuxinatorProject("agent-toolkit")).rejects.toThrow();
     });
   });
 
   describe("when the project is missing a name field", () => {
-    const path = "/tmp/orc-test-read-no-name.yml";
-
     beforeEach(async () => {
-      await Bun.write(path, "root: ~/Development/agent-toolkit\n");
-    });
-
-    afterEach(async () => {
-      await rm(path);
+      await Bun.write(configPath, "root: ~/Development/agent-toolkit\n");
     });
 
     it("throws an error", () => {
-      expect(readTmuxinatorProject(path)).rejects.toThrow(/missing a string `name`/);
+      expect(readTmuxinatorProject("agent-toolkit")).rejects.toThrow(/missing a string `name`/);
     });
   });
 
   describe("when the project is missing a root field", () => {
-    const path = "/tmp/orc-test-read-no-root.yml";
-
     beforeEach(async () => {
-      await Bun.write(path, "name: agent-toolkit\n");
-    });
-
-    afterEach(async () => {
-      await rm(path);
+      await Bun.write(configPath, "name: agent-toolkit\n");
     });
 
     it("throws an error", () => {
-      expect(readTmuxinatorProject(path)).rejects.toThrow(/missing a string `root`/);
+      expect(readTmuxinatorProject("agent-toolkit")).rejects.toThrow(/missing a string `root`/);
     });
   });
 });

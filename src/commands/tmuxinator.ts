@@ -1,6 +1,20 @@
 import type { TmuxinatorProject, YamlObject } from "../types.ts";
 import { runCommand } from "./shell.ts";
 import { YAML } from "bun";
+import { homedir } from "node:os";
+import { join } from "node:path";
+
+/**
+ * Returns the path to the tmuxinator project config for the given project name. Honors
+ * `$XDG_CONFIG_HOME`, falling back to `~/.config` when unset.
+ *
+ * @param project - The tmuxinator project name.
+ * @returns The absolute path to the project's YAML config file.
+ */
+export function tmuxinatorConfigPath(project: string): string {
+  const configHome = process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
+  return join(configHome, "tmuxinator", `${project}.yml`);
+}
 
 /**
  * Checks if tmuxinator is installed and available on PATH.
@@ -27,25 +41,26 @@ export async function listTmuxinatorProjects(): Promise<string[]> {
 }
 
 /**
- * Reads and parses a tmuxinator project YAML at the given path.
+ * Reads and parses the tmuxinator project config for the given project name.
  *
- * @param path - The path to the tmuxinator YAML file.
+ * @param project - The tmuxinator project name (the file in `~/.config/tmuxinator/<project>.yml`).
  * @returns The parsed tmuxinator project.
  * @throws If the file cannot be read, the YAML is invalid, or the project is missing a string
  *   `name` or `root` field.
  */
-export async function readTmuxinatorProject(path: string): Promise<TmuxinatorProject> {
-  const project = YAML.parse(await Bun.file(path).text()) as YamlObject | null;
+export async function readTmuxinatorProject(project: string): Promise<TmuxinatorProject> {
+  const path = tmuxinatorConfigPath(project);
+  const parsed = YAML.parse(await Bun.file(path).text()) as YamlObject | null;
 
-  if (typeof project?.name !== "string") {
+  if (typeof parsed?.name !== "string") {
     throw new Error(`Tmuxinator config at ${path} is missing a string \`name\` field`);
   }
 
-  if (typeof project.root !== "string") {
+  if (typeof parsed.root !== "string") {
     throw new Error(`Tmuxinator config at ${path} is missing a string \`root\` field`);
   }
 
-  return project as TmuxinatorProject;
+  return parsed as TmuxinatorProject;
 }
 
 /**
