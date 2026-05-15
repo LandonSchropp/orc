@@ -6,6 +6,7 @@ import {
   isTmuxInstalled,
   listTmuxSessions,
   switchTmuxSession,
+  tmuxSessionName,
 } from "./tmux.ts";
 import { describe, expect, it, mock } from "bun:test";
 
@@ -60,6 +61,12 @@ describe("isInsideTmuxSession", () => {
       stubEnv("TMUX", "/tmp/tmux-501/orc,12345,0");
       expect(isInsideTmuxSession()).toBe(true);
     });
+  });
+});
+
+describe("tmuxSessionName", () => {
+  it("returns the project and session joined by a colon", () => {
+    expect(tmuxSessionName("agent-toolkit", "feature-a")).toBe("agent-toolkit:feature-a");
   });
 });
 

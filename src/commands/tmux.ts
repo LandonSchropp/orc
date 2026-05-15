@@ -27,6 +27,17 @@ export function isInsideTmuxSession(): boolean {
 }
 
 /**
+ * Builds the fully-qualified tmux session name from a project and session.
+ *
+ * @param project - The project name.
+ * @param session - The session name within the project.
+ * @returns The `project:session` identifier used as a tmux session name.
+ */
+export function tmuxSessionName(project: string, session: string): string {
+  return `${project}:${session}`;
+}
+
+/**
  * Runs a tmux command against orc's isolated server.
  *
  * @param args - Arguments to pass to tmux, after the socket flag.
