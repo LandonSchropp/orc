@@ -1,3 +1,4 @@
+import { createSession } from "../sessions/create.ts";
 import { defineCommand } from "citty";
 
 export const newCommand = defineCommand({
@@ -16,5 +17,8 @@ export const newCommand = defineCommand({
       description: "Session name",
       required: true,
     },
+  },
+  async run({ args }) {
+    await createSession(args.project, args.session);
   },
 });
