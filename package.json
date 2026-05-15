@@ -30,6 +30,7 @@
     "typescript-eslint": "^8.59.2"
   },
   "dependencies": {
-    "citty": "^0.2.2"
+    "citty": "^0.2.2",
+    "ts-dedent": "^2.2.0"
   }
 }
