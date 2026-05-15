@@ -17,3 +17,6 @@ export type YamlValue = string | number | boolean | null | YamlValue[] | YamlObj
 
 /** A YAML mapping (top-level object). */
 export type YamlObject = { [key: string]: YamlValue };
+
+/** A tmuxinator project — a YAML object with at least a `name` and `root`. */
+export type TmuxinatorProject = YamlObject & { name: string; root: string };

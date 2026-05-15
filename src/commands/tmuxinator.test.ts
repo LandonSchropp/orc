@@ -93,7 +93,7 @@ describe("readTmuxinatorProject", () => {
   });
 
   describe("when the file does not exist", () => {
-    it("throws", () => {
+    it("throws an error", () => {
       expect(readTmuxinatorProject("/tmp/orc-test-read-nonexistent.yml")).rejects.toThrow();
     });
   });
@@ -109,8 +109,24 @@ describe("readTmuxinatorProject", () => {
       await rm(path);
     });
 
-    it("throws", () => {
+    it("throws an error", () => {
       expect(readTmuxinatorProject(path)).rejects.toThrow();
+    });
+  });
+
+  describe("when the project is missing a name field", () => {
+    const path = "/tmp/orc-test-read-no-name.yml";
+
+    beforeEach(async () => {
+      await Bun.write(path, "root: ~/Development/agent-toolkit\n");
+    });
+
+    afterEach(async () => {
+      await rm(path);
+    });
+
+    it("throws an error", () => {
+      expect(readTmuxinatorProject(path)).rejects.toThrow(/missing a string `name`/);
     });
   });
 
@@ -125,7 +141,7 @@ describe("readTmuxinatorProject", () => {
       await rm(path);
     });
 
-    it("throws", () => {
+    it("throws an error", () => {
       expect(readTmuxinatorProject(path)).rejects.toThrow(/missing a string `root`/);
     });
   });

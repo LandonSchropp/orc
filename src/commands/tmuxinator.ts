@@ -1,4 +1,4 @@
-import type { YamlObject } from "../types.ts";
+import type { TmuxinatorProject, YamlObject } from "../types.ts";
 import { runCommand } from "./shell.ts";
 import { YAML } from "bun";
 
@@ -32,16 +32,20 @@ export async function listTmuxinatorProjects(): Promise<string[]> {
  * @param path - The path to the tmuxinator YAML file.
  * @returns The parsed tmuxinator project.
  * @throws If the file cannot be read, the YAML is invalid, or the project is missing a string
- *   `root` field.
+ *   `name` or `root` field.
  */
-export async function readTmuxinatorProject(path: string): Promise<YamlObject> {
-  const project = YAML.parse(await Bun.file(path).text()) as YamlObject;
+export async function readTmuxinatorProject(path: string): Promise<TmuxinatorProject> {
+  const project = YAML.parse(await Bun.file(path).text()) as YamlObject | null;
 
-  if (typeof project?.root !== "string") {
+  if (typeof project?.name !== "string") {
+    throw new Error(`Tmuxinator config at ${path} is missing a string \`name\` field`);
+  }
+
+  if (typeof project.root !== "string") {
     throw new Error(`Tmuxinator config at ${path} is missing a string \`root\` field`);
   }
 
-  return project;
+  return project as TmuxinatorProject;
 }
 
 /**
@@ -55,7 +59,7 @@ export async function readTmuxinatorProject(path: string): Promise<YamlObject> {
  * @throws If tmuxinator fails to start the project.
  */
 export async function startTmuxinatorProject(
-  project: YamlObject,
+  project: TmuxinatorProject,
   root: string,
   sessionName: string,
 ): Promise<void> {
