@@ -1,8 +1,13 @@
 import type { TmuxinatorProject, YamlObject } from "../types.ts";
 import { runCommand } from "./shell.ts";
+import { tmuxSessionName } from "./tmux.ts";
 import { YAML } from "bun";
 import { homedir } from "node:os";
 import { join } from "node:path";
+
+function tmuxinatorRuntimeConfigPath(project: string, session: string): string {
+  return `/tmp/orc-${project}-${session}.yml`;
+}
 
 /**
  * Returns the path to the tmuxinator project config for the given project name. Honors
@@ -64,22 +69,25 @@ export async function readTmuxinatorProject(project: string): Promise<Tmuxinator
 }
 
 /**
- * Starts a tmuxinator project with the given `root` overridden and a custom session name. Writes a
- * modified copy of the project's YAML to a temp file before invoking tmuxinator. Does not attach
- * the calling process to the session — callers attach separately.
+ * Starts a tmuxinator project, overriding the project's `root` with the given path and naming the
+ * tmux session `<project>:<session>`. Reads the project's YAML, writes a modified copy to a temp
+ * file, then invokes tmuxinator. Does not attach the calling process — callers attach separately.
  *
- * @param project - The tmuxinator project to start.
+ * @param project - The tmuxinator project name.
+ * @param session - The session name within the project.
  * @param root - The root directory to override in the project config.
- * @param sessionName - The tmux session name to use.
- * @throws If tmuxinator fails to start the project.
+ * @throws If the project config cannot be read, or tmuxinator fails to start the project.
  */
 export async function startTmuxinatorProject(
-  project: TmuxinatorProject,
+  project: string,
+  session: string,
   root: string,
-  sessionName: string,
 ): Promise<void> {
-  const configPath = `/tmp/orc-${sessionName.replace(/:/g, "-")}.yml`;
-  await Bun.write(configPath, YAML.stringify({ ...project, root }, null, 2));
+  const tmuxinatorProject = await readTmuxinatorProject(project);
+  const sessionName = tmuxSessionName(project, session);
+  const configPath = tmuxinatorRuntimeConfigPath(project, session);
+
+  await Bun.write(configPath, YAML.stringify({ ...tmuxinatorProject, root }, null, 2));
 
   const { exitCode, stderr } = await runCommand([
     "tmuxinator",

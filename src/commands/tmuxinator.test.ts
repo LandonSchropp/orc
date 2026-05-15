@@ -13,7 +13,6 @@ import { homedir } from "node:os";
 import { dedent } from "ts-dedent";
 
 const configHome = "/tmp/orc-test-config";
-const configPath = `${configHome}/tmuxinator/agent-toolkit.yml`;
 
 const runCommandMock = mock(() => Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }));
 
@@ -75,7 +74,9 @@ describe("tmuxinatorConfigPath", () => {
     });
 
     it("returns the project YAML under $XDG_CONFIG_HOME/tmuxinator", () => {
-      expect(tmuxinatorConfigPath("agent-toolkit")).toBe(configPath);
+      expect(tmuxinatorConfigPath("agent-toolkit")).toBe(
+        `${configHome}/tmuxinator/agent-toolkit.yml`,
+      );
     });
   });
 
@@ -93,6 +94,8 @@ describe("tmuxinatorConfigPath", () => {
 });
 
 describe("readTmuxinatorProject", () => {
+  const configPath = `${configHome}/tmuxinator/agent-toolkit.yml`;
+
   beforeEach(() => {
     stubEnv("XDG_CONFIG_HOME", configHome);
   });
@@ -164,7 +167,20 @@ describe("readTmuxinatorProject", () => {
 describe("startTmuxinatorProject", () => {
   const configPath = "/tmp/orc-agent-toolkit-feature-a.yml";
 
+  beforeEach(async () => {
+    stubEnv("XDG_CONFIG_HOME", configHome);
+    await Bun.write(
+      `${configHome}/tmuxinator/agent-toolkit.yml`,
+      dedent`
+        name: agent-toolkit
+        root: ~/Development/agent-toolkit
+        tmux_options: -L orc
+      `,
+    );
+  });
+
   afterEach(async () => {
+    await rm(configHome, { recursive: true, force: true });
     await rm(configPath, { force: true });
   });
 
@@ -174,11 +190,7 @@ describe("startTmuxinatorProject", () => {
     });
 
     it("writes a modified config with the overridden root and invokes `tmuxinator start`", async () => {
-      await startTmuxinatorProject(
-        { name: "agent-toolkit", root: "~/Development/agent-toolkit", tmux_options: "-L orc" },
-        "/tmp/worktree",
-        "agent-toolkit:feature-a",
-      );
+      await startTmuxinatorProject("agent-toolkit", "feature-a", "/tmp/worktree");
 
       expect(runCommandMock).toHaveBeenCalledWith([
         "tmuxinator",
@@ -208,13 +220,9 @@ describe("startTmuxinatorProject", () => {
     });
 
     it("throws an error with the stderr message", () => {
-      expect(
-        startTmuxinatorProject(
-          { name: "agent-toolkit", root: "~/Development/agent-toolkit" },
-          "/tmp/worktree",
-          "agent-toolkit:feature-a",
-        ),
-      ).rejects.toThrow(/could not start tmuxinator/);
+      expect(startTmuxinatorProject("agent-toolkit", "feature-a", "/tmp/worktree")).rejects.toThrow(
+        /could not start tmuxinator/,
+      );
     });
   });
 });
