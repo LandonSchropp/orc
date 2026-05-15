@@ -11,3 +11,9 @@ export type Session = {
   /** True if a client is currently attached to the session. */
   attached: boolean;
 };
+
+/** A YAML scalar, array, or mapping as returned by `Bun.YAML.parse`. */
+export type YamlValue = string | number | boolean | null | YamlValue[] | YamlObject;
+
+/** A YAML mapping (top-level object). */
+export type YamlObject = { [key: string]: YamlValue };
