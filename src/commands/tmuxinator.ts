@@ -1,7 +1,7 @@
 import type { TmuxinatorProject, YamlObject } from "../types.ts";
 import { expandHome } from "../utilities/directory.ts";
 import { runCommand } from "./shell.ts";
-import { tmuxSessionName } from "./tmux.ts";
+import { ORC_SOCKET, tmuxSessionName } from "./tmux.ts";
 import { YAML } from "bun";
 import { mkdtemp } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
@@ -87,7 +87,10 @@ export async function startTmuxinatorProject(
   const temporaryDirectory = await mkdtemp(join(tmpdir(), "orc-"));
   const configPath = join(temporaryDirectory, "project.yml");
 
-  await Bun.write(configPath, YAML.stringify({ ...tmuxinatorProject, root }, null, 2));
+  await Bun.write(
+    configPath,
+    YAML.stringify({ ...tmuxinatorProject, root, tmux_options: `-L ${ORC_SOCKET}` }, null, 2),
+  );
 
   const { exitCode, stderr } = await runCommand([
     "tmuxinator",

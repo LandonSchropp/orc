@@ -2,7 +2,7 @@ import type { Session } from "../types.ts";
 import { runAttachedCommand, runCommand, type RunCommandResult } from "./shell.ts";
 
 /** Socket name for orc's isolated tmux server. */
-const ORC_SOCKET = "orc";
+export const ORC_SOCKET = "orc";
 
 /** Tab-separated `-F` template for `tmux list-sessions`: name, created timestamp, attached count. */
 const SESSION_FORMAT = "#S\t#{session_created}\t#{session_attached}";

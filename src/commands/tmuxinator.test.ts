@@ -175,7 +175,6 @@ describe("startTmuxinatorProject", () => {
       dedent`
         name: agent-toolkit
         root: ~/Development/agent-toolkit
-        tmux_options: -L orc
       `,
     );
   });
