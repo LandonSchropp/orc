@@ -22,7 +22,7 @@ export async function isTmuxInstalled(): Promise<boolean> {
  *
  * @returns `true` when inside an orc tmux session, otherwise `false`.
  */
-export function isInsideTmuxSession(): boolean {
+export function isInsideOrcTmuxSession(): boolean {
   return process.env.TMUX?.split(",")[0].endsWith(`/${ORC_SOCKET}`) ?? false;
 }
 

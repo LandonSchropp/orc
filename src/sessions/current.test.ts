@@ -3,25 +3,25 @@ import type { Session } from "../types.ts";
 import { getCurrentSession } from "./current.ts";
 import { describe, expect, it, mock } from "bun:test";
 
-const isInsideTmuxSessionMock = mock((): boolean => false);
+const isInsideOrcTmuxSessionMock = mock((): boolean => false);
 const listTmuxSessionsMock = mock((): Promise<Session[]> => Promise.resolve([]));
 
 await mock.module("../commands/tmux.ts", () => ({
-  isInsideTmuxSession: isInsideTmuxSessionMock,
+  isInsideOrcTmuxSession: isInsideOrcTmuxSessionMock,
   listTmuxSessions: listTmuxSessionsMock,
 }));
 
 describe("getCurrentSession", () => {
-  describe("when not inside a tmux session", () => {
+  describe("when not inside an orc tmux session", () => {
     it("returns null", async () => {
-      isInsideTmuxSessionMock.mockReturnValue(false);
+      isInsideOrcTmuxSessionMock.mockReturnValue(false);
       expect(await getCurrentSession()).toBeNull();
     });
   });
 
-  describe("when inside a tmux session", () => {
+  describe("when inside an orc tmux session", () => {
     it("returns the attached session", async () => {
-      isInsideTmuxSessionMock.mockReturnValue(true);
+      isInsideOrcTmuxSessionMock.mockReturnValue(true);
       const attached = sessionFactory.build({ session: "feature-a", attached: true });
       const detached = sessionFactory.build({ session: "feature-b", attached: false });
       listTmuxSessionsMock.mockResolvedValue([detached, attached]);

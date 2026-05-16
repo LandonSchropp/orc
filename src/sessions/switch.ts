@@ -1,6 +1,6 @@
 import {
   attachTmuxSession,
-  isInsideTmuxSession,
+  isInsideOrcTmuxSession,
   switchTmuxSession,
   tmuxSessionName,
 } from "../commands/tmux.ts";
@@ -14,7 +14,7 @@ import {
  */
 export async function switchSession(project: string, session: string): Promise<void> {
   const name = tmuxSessionName(project, session);
-  if (isInsideTmuxSession()) {
+  if (isInsideOrcTmuxSession()) {
     await switchTmuxSession(name);
   } else {
     await attachTmuxSession(name);
