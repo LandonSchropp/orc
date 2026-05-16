@@ -22,3 +22,9 @@ Subcommands never fall back to interactive prompts. If a user needs interaction,
 ## CLI Output
 
 Use `process.stdout.write` for command output, not `console.log`. CLI output is program data that should pipe cleanly to other tools — `console.log` is for diagnostics and goes through Node's console formatting layer. Remember to include the trailing `\n` since `process.stdout.write` does not append one.
+
+## Git Workflow
+
+- REQUIRED: invoke the `git-atomic-commit` skill at the start of every session.
+- Each commit captures one logical change. Before presenting work, evaluate whether the diff could be split into atomic commits and propose the split.
+- Code under review must be unstaged. The unstaged diff should reflect exactly what will be committed — never present a staged diff for review.
