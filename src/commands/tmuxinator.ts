@@ -3,12 +3,9 @@ import { expandHome } from "../utilities/directory.ts";
 import { runCommand } from "./shell.ts";
 import { tmuxSessionName } from "./tmux.ts";
 import { YAML } from "bun";
-import { homedir } from "node:os";
+import { mkdtemp } from "node:fs/promises";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
-
-function tmuxinatorRuntimeConfigPath(project: string, session: string): string {
-  return `/tmp/orc-${project}-${session}.yml`;
-}
 
 /**
  * Returns the path to the tmuxinator project config for the given project name. Honors
@@ -87,7 +84,8 @@ export async function startTmuxinatorProject(
 ): Promise<void> {
   const tmuxinatorProject = await readTmuxinatorProject(project);
   const sessionName = tmuxSessionName(project, session);
-  const configPath = tmuxinatorRuntimeConfigPath(project, session);
+  const temporaryDirectory = await mkdtemp(join(tmpdir(), "orc-"));
+  const configPath = join(temporaryDirectory, "project.yml");
 
   await Bun.write(configPath, YAML.stringify({ ...tmuxinatorProject, root }, null, 2));
 

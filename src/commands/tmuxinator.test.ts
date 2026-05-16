@@ -1,4 +1,5 @@
 import { stubEnv } from "../../test/helpers/env.ts";
+import { runCommand } from "./shell.ts";
 import {
   isTmuxinatorInstalled,
   listTmuxinatorProjects,
@@ -14,7 +15,9 @@ import { dedent } from "ts-dedent";
 
 const configHome = "/tmp/orc-test-config";
 
-const runCommandMock = mock(() => Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }));
+const runCommandMock = mock<typeof runCommand>(() =>
+  Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }),
+);
 
 await mock.module("./shell.ts", () => ({
   runCommand: runCommandMock,
@@ -165,8 +168,6 @@ describe("readTmuxinatorProject", () => {
 });
 
 describe("startTmuxinatorProject", () => {
-  const configPath = "/tmp/orc-agent-toolkit-feature-a.yml";
-
   beforeEach(async () => {
     stubEnv("XDG_CONFIG_HOME", configHome);
     await Bun.write(
@@ -181,26 +182,29 @@ describe("startTmuxinatorProject", () => {
 
   afterEach(async () => {
     await rm(configHome, { recursive: true, force: true });
-    await rm(configPath, { force: true });
   });
 
   describe("when tmuxinator succeeds", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+      await startTmuxinatorProject("agent-toolkit", "feature-a", "/tmp/worktree");
     });
 
-    it("writes a modified config with the overridden root and invokes `tmuxinator start`", async () => {
-      await startTmuxinatorProject("agent-toolkit", "feature-a", "/tmp/worktree");
-
+    it("invokes `tmuxinator start` with the session name and `--no-attach`", () => {
       expect(runCommandMock).toHaveBeenCalledWith([
         "tmuxinator",
         "start",
         "-p",
-        configPath,
+        expect.stringMatching(/\/orc-[^/]+\/project\.yml$/),
         "-n",
         "agent-toolkit:feature-a",
         "--no-attach",
       ]);
+    });
+
+    it("writes the modified config with the overridden root", async () => {
+      const args = runCommandMock.mock.calls[0][0];
+      const configPath = args[args.indexOf("-p") + 1];
 
       expect(YAML.parse(await Bun.file(configPath).text())).toEqual({
         name: "agent-toolkit",
