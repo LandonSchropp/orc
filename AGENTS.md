@@ -37,3 +37,7 @@ Use `process.stdout.write` for command output, not `console.log`. CLI output is 
 - REQUIRED: invoke the `git-atomic-commit` skill at the start of every session.
 - Each commit captures one logical change. Before presenting work, evaluate whether the diff could be split into atomic commits and propose the split.
 - Code under review must be unstaged. The unstaged diff should reflect exactly what will be committed — never present a staged diff for review.
+
+## Naming
+
+Avoid unnecessary abbreviations in code identifiers and prose. The test: would you say it aloud when talking to someone? You'd say `config`, `repo`, `id` — those are fine. You wouldn't say `dir`, `func`, or `args` — write `directory`, `function`, and `arguments`. Well-known acronyms like CLI, TUI, XDG, JSON, YAML stay as acronyms.
