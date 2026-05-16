@@ -76,3 +76,27 @@ export async function addWorktree(
     throw new Error(`git worktree add failed: ${stderr.trim()}`);
   }
 }
+
+/**
+ * Removes the git worktree at `worktreePath`. Forces the removal so untracked or modified files in
+ * the worktree do not block deletion. Leaves the branch ref in the main repo untouched.
+ *
+ * @param repoPath - The path to the git repository.
+ * @param worktreePath - The path to the worktree to remove.
+ * @throws If `git worktree remove` fails.
+ */
+export async function removeWorktree(repoPath: string, worktreePath: string): Promise<void> {
+  const { exitCode, stderr } = await runCommand([
+    "git",
+    "-C",
+    repoPath,
+    "worktree",
+    "remove",
+    "--force",
+    worktreePath,
+  ]);
+
+  if (exitCode !== 0) {
+    throw new Error(`Failed to remove git worktree: ${stderr.trim()}`);
+  }
+}
