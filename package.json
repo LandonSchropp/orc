@@ -6,6 +6,9 @@
   "license": "UNLICENSED",
   "private": true,
   "type": "module",
+  "bin": {
+    "orc": "./src/index.ts"
+  },
   "scripts": {
     "check-types": "tsc --noEmit",
     "lint": "bun --bun eslint .",
