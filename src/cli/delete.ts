@@ -1,3 +1,4 @@
+import { deleteSession } from "../sessions/delete.ts";
 import { defineCommand } from "citty";
 
 export const deleteCommand = defineCommand({
@@ -16,5 +17,8 @@ export const deleteCommand = defineCommand({
       description: "Session name",
       required: true,
     },
+  },
+  async run({ args }) {
+    await deleteSession(args.project, args.session);
   },
 });
