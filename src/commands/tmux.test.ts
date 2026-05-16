@@ -4,6 +4,7 @@ import {
   detachTmuxClient,
   isInsideTmuxSession,
   isTmuxInstalled,
+  killTmuxSession,
   listTmuxSessions,
   switchTmuxSession,
   tmuxSessionName,
@@ -173,5 +174,34 @@ describe("detachTmuxClient", () => {
     runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
     await detachTmuxClient();
     expect(runCommandMock).toHaveBeenCalledWith(["tmux", "-L", "orc", "detach-client"]);
+  });
+});
+
+describe("killTmuxSession", () => {
+  it("invokes `tmux kill-session` against the orc server", async () => {
+    runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+
+    await killTmuxSession("orc:feature-a");
+
+    expect(runCommandMock).toHaveBeenCalledWith([
+      "tmux",
+      "-L",
+      "orc",
+      "kill-session",
+      "-t",
+      "orc:feature-a",
+    ]);
+  });
+
+  describe("when tmux fails", () => {
+    it("throws an error with the stderr message", () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 1,
+        stdout: "",
+        stderr: "can't find session: orc:feature-a\n",
+      });
+
+      expect(killTmuxSession("orc:feature-a")).rejects.toThrowError(/can't find session/);
+    });
   });
 });

@@ -53,6 +53,20 @@ export async function detachTmuxClient(): Promise<void> {
 }
 
 /**
+ * Kills the orc tmux session with the given name.
+ *
+ * @param name - The full `project:session` name to kill.
+ * @throws If tmux fails to kill the session.
+ */
+export async function killTmuxSession(name: string): Promise<void> {
+  const { exitCode, stderr } = await tmux(["kill-session", "-t", name]);
+
+  if (exitCode !== 0) {
+    throw new Error(`Failed to kill tmux session: ${stderr.trim()}`);
+  }
+}
+
+/**
  * Switches the current orc tmux client to the session with the given name.
  *
  * @param name - The full `project:session` name to switch to.
