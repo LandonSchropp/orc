@@ -35,7 +35,7 @@ describe("switchCommand", () => {
 
       await runCommand(switchCommand, { rawArgs: ["orc", "missing"] });
 
-      expect(stderrSpy).toHaveBeenCalledWith("Session not found: orc:missing\n");
+      expect(stderrSpy).toHaveBeenCalledWith("Session not found: orc/missing\n");
       expect(exitSpy).toHaveBeenCalledWith(1);
     });
   });

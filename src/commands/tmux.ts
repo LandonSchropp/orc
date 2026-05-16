@@ -34,7 +34,7 @@ export function isInsideOrcTmuxSession(): boolean {
  * @returns The `project:session` identifier used as a tmux session name.
  */
 export function tmuxSessionName(project: string, session: string): string {
-  return `${project}:${session}`;
+  return `${project}/${session}`;
 }
 
 /**
@@ -111,19 +111,19 @@ export async function listTmuxSessions(): Promise<Session[]> {
  *
  * @param line - A line of tmux output: `name<TAB>created<TAB>attached`.
  * @returns The parsed session.
- * @throws If the session name does not contain a colon.
+ * @throws If the session name does not contain a `/`.
  */
 function parseSessionLine(line: string): Session {
   const [name, createdAt, attached] = line.split("\t");
-  const colonIndex = name.indexOf(":");
+  const separatorIndex = name.indexOf("/");
 
-  if (colonIndex === -1) {
+  if (separatorIndex === -1) {
     throw new Error(`Invalid tmux session name: ${name}`);
   }
 
   return {
-    project: name.slice(0, colonIndex),
-    session: name.slice(colonIndex + 1),
+    project: name.slice(0, separatorIndex),
+    session: name.slice(separatorIndex + 1),
     name,
     createdAt: new Date(Number(createdAt) * 1000),
     attached: attached === "1",

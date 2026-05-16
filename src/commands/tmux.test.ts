@@ -66,8 +66,8 @@ describe("isInsideOrcTmuxSession", () => {
 });
 
 describe("tmuxSessionName", () => {
-  it("returns the project and session joined by a colon", () => {
-    expect(tmuxSessionName("agent-toolkit", "feature-a")).toBe("agent-toolkit:feature-a");
+  it("returns the project and session joined by a slash", () => {
+    expect(tmuxSessionName("agent-toolkit", "feature-a")).toBe("agent-toolkit/feature-a");
   });
 });
 
@@ -105,21 +105,21 @@ describe("listTmuxSessions", () => {
     it("returns an array of parsed session objects", async () => {
       runCommandMock.mockResolvedValue({
         exitCode: 0,
-        stdout: "orc:feature-a\t1700000000\t0\norc:feature-b\t1700000100\t1\n",
+        stdout: "orc/feature-a\t1700000000\t0\norc/feature-b\t1700000100\t1\n",
         stderr: "",
       });
       expect(await listTmuxSessions()).toEqual([
         {
           project: "orc",
           session: "feature-a",
-          name: "orc:feature-a",
+          name: "orc/feature-a",
           createdAt: new Date(1_700_000_000 * 1000),
           attached: false,
         },
         {
           project: "orc",
           session: "feature-b",
-          name: "orc:feature-b",
+          name: "orc/feature-b",
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
         },
@@ -127,14 +127,14 @@ describe("listTmuxSessions", () => {
     });
   });
 
-  describe("when a session name is missing a colon", () => {
+  describe("when a session name is missing a slash", () => {
     it("throws an error", () => {
       runCommandMock.mockResolvedValue({
         exitCode: 0,
-        stdout: "no-colon\t1700000000\t0\n",
+        stdout: "no-separator\t1700000000\t0\n",
         stderr: "",
       });
-      expect(listTmuxSessions()).rejects.toThrowError(/no-colon/);
+      expect(listTmuxSessions()).rejects.toThrowError(/no-separator/);
     });
   });
 
@@ -153,14 +153,14 @@ describe("listTmuxSessions", () => {
 describe("switchTmuxSession", () => {
   it("invokes `tmux switch-client` against the orc server", async () => {
     runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
-    await switchTmuxSession("orc:feature-a");
+    await switchTmuxSession("orc/feature-a");
     expect(runCommandMock).toHaveBeenCalledWith([
       "tmux",
       "-L",
       "orc",
       "switch-client",
       "-t",
-      "orc:feature-a",
+      "orc/feature-a",
     ]);
   });
 });
@@ -168,14 +168,14 @@ describe("switchTmuxSession", () => {
 describe("attachTmuxSession", () => {
   it("invokes `tmux attach-session` against the orc server", async () => {
     runAttachedCommandMock.mockResolvedValue(0);
-    await attachTmuxSession("orc:feature-a");
+    await attachTmuxSession("orc/feature-a");
     expect(runAttachedCommandMock).toHaveBeenCalledWith([
       "tmux",
       "-L",
       "orc",
       "attach-session",
       "-t",
-      "orc:feature-a",
+      "orc/feature-a",
     ]);
   });
 });
@@ -192,7 +192,7 @@ describe("killTmuxSession", () => {
   it("invokes `tmux kill-session` against the orc server", async () => {
     runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
 
-    await killTmuxSession("orc:feature-a");
+    await killTmuxSession("orc/feature-a");
 
     expect(runCommandMock).toHaveBeenCalledWith([
       "tmux",
@@ -200,7 +200,7 @@ describe("killTmuxSession", () => {
       "orc",
       "kill-session",
       "-t",
-      "orc:feature-a",
+      "orc/feature-a",
     ]);
   });
 
@@ -209,10 +209,10 @@ describe("killTmuxSession", () => {
       runCommandMock.mockResolvedValue({
         exitCode: 1,
         stdout: "",
-        stderr: "can't find session: orc:feature-a\n",
+        stderr: "can't find session: orc/feature-a\n",
       });
 
-      expect(killTmuxSession("orc:feature-a")).rejects.toThrowError(/can't find session/);
+      expect(killTmuxSession("orc/feature-a")).rejects.toThrowError(/can't find session/);
     });
   });
 });

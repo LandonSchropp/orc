@@ -31,8 +31,8 @@ describe("listCommand", () => {
 
       await runCommand(listCommand, { rawArgs: [] });
 
-      expect(stdoutSpy).toHaveBeenCalledWith("orc:feature-a\n");
-      expect(stdoutSpy).toHaveBeenCalledWith("orc:feature-b\n");
+      expect(stdoutSpy).toHaveBeenCalledWith("orc/feature-a\n");
+      expect(stdoutSpy).toHaveBeenCalledWith("orc/feature-b\n");
     });
 
     describe("and a session is attached", () => {
@@ -43,7 +43,7 @@ describe("listCommand", () => {
 
         await runCommand(listCommand, { rawArgs: [] });
 
-        expect(stdoutSpy).toHaveBeenCalledWith("orc:feature-a (attached)\n");
+        expect(stdoutSpy).toHaveBeenCalledWith("orc/feature-a (attached)\n");
       });
     });
   });

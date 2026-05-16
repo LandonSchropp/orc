@@ -204,7 +204,7 @@ describe("startTmuxinatorProject", () => {
       const configPath = args[args.indexOf("-p") + 1];
 
       expect(YAML.parse(await Bun.file(configPath).text())).toEqual({
-        name: "agent-toolkit:feature-a",
+        name: "agent-toolkit/feature-a",
         root: "/tmp/worktree",
         tmux_options: "-L orc",
       });

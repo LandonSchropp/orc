@@ -20,7 +20,7 @@ await mock.module("./current.ts", () => ({
 await mock.module("../commands/tmux.ts", () => ({
   detachTmuxClient: detachTmuxClientMock,
   killTmuxSession: killTmuxSessionMock,
-  tmuxSessionName: (project: string, session: string) => `${project}:${session}`,
+  tmuxSessionName: (project: string, session: string) => `${project}/${session}`,
 }));
 
 await mock.module("../commands/tmuxinator.ts", () => ({
@@ -55,7 +55,7 @@ describe("deleteSession", () => {
     });
 
     it("kills the tmux session", () => {
-      expect(killTmuxSessionMock).toHaveBeenCalledWith("test-project:feature-a");
+      expect(killTmuxSessionMock).toHaveBeenCalledWith("test-project/feature-a");
     });
   });
 
@@ -77,7 +77,7 @@ describe("deleteSession", () => {
     });
 
     it("kills the tmux session", () => {
-      expect(killTmuxSessionMock).toHaveBeenCalledWith("test-project:feature-a");
+      expect(killTmuxSessionMock).toHaveBeenCalledWith("test-project/feature-a");
     });
   });
 
@@ -107,7 +107,7 @@ describe("deleteSession", () => {
     });
 
     it("kills the tmux session", () => {
-      expect(killTmuxSessionMock).toHaveBeenCalledWith("test-project:feature-a");
+      expect(killTmuxSessionMock).toHaveBeenCalledWith("test-project/feature-a");
     });
   });
 });
