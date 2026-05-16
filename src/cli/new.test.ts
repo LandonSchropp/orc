@@ -9,8 +9,21 @@ await mock.module("../sessions/create.ts", () => ({
 }));
 
 describe("newCommand", () => {
-  it("creates a session for the given project and session name", async () => {
-    await runCommand(newCommand, { rawArgs: ["test-project", "feature-a"] });
-    expect(createSessionMock).toHaveBeenCalledWith("test-project", "feature-a");
+  describe("when no flags are provided", () => {
+    it("creates a session with the worktree option enabled", async () => {
+      await runCommand(newCommand, { rawArgs: ["test-project", "feature-a"] });
+      expect(createSessionMock).toHaveBeenCalledWith("test-project", "feature-a", {
+        worktree: true,
+      });
+    });
+  });
+
+  describe("when the --no-worktree flag is provided", () => {
+    it("creates a session with the worktree option disabled", async () => {
+      await runCommand(newCommand, { rawArgs: ["test-project", "feature-a", "--no-worktree"] });
+      expect(createSessionMock).toHaveBeenCalledWith("test-project", "feature-a", {
+        worktree: false,
+      });
+    });
   });
 });

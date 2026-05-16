@@ -37,37 +37,65 @@ const worktreeParent = `${homedir()}/.cache/orc/worktrees/test-project`;
 const worktreePath = `${worktreeParent}/feature-a`;
 
 describe("createSession", () => {
-  describe("when the default branch can be determined", () => {
+  describe("when the worktree option is enabled", () => {
+    describe("when the default branch can be determined", () => {
+      beforeEach(async () => {
+        defaultBranchMock.mockResolvedValue("main");
+        await createSession("test-project", "feature-a");
+      });
+
+      it("creates the worktree parent directory", () => {
+        expect(mkdirSpy).toHaveBeenCalledWith(worktreeParent, { recursive: true });
+      });
+
+      it("adds a Git worktree at the orc cache path", () => {
+        expect(addWorktreeMock).toHaveBeenCalledWith(repoPath, worktreePath, "feature-a", "main");
+      });
+
+      it("starts the tmuxinator project with the worktree as the root", () => {
+        expect(startTmuxinatorProjectMock).toHaveBeenCalledWith(
+          "test-project",
+          "feature-a",
+          worktreePath,
+        );
+      });
+
+      it("switches to the new session", () => {
+        expect(switchSessionMock).toHaveBeenCalledWith("test-project", "feature-a");
+      });
+    });
+
+    describe("when the default branch cannot be determined", () => {
+      it("throws an error", () => {
+        defaultBranchMock.mockResolvedValue(null);
+        expect(createSession("test-project", "feature-a")).rejects.toThrow(/default branch/i);
+      });
+    });
+  });
+
+  describe("when the worktree option is disabled", () => {
     beforeEach(async () => {
-      defaultBranchMock.mockResolvedValue("main");
-      await createSession("test-project", "feature-a");
+      await createSession("test-project", "feature-a", { worktree: false });
     });
 
-    it("creates the worktree parent directory", () => {
-      expect(mkdirSpy).toHaveBeenCalledWith(worktreeParent, { recursive: true });
+    it("does not look up the default branch", () => {
+      expect(defaultBranchMock).not.toHaveBeenCalled();
     });
 
-    it("adds a Git worktree at the orc cache path", () => {
-      expect(addWorktreeMock).toHaveBeenCalledWith(repoPath, worktreePath, "feature-a", "main");
+    it("does not add a Git worktree", () => {
+      expect(addWorktreeMock).not.toHaveBeenCalled();
     });
 
-    it("starts the tmuxinator project with the worktree as the root", () => {
+    it("starts the tmuxinator project at the project root", () => {
       expect(startTmuxinatorProjectMock).toHaveBeenCalledWith(
         "test-project",
         "feature-a",
-        worktreePath,
+        repoPath,
       );
     });
 
     it("switches to the new session", () => {
       expect(switchSessionMock).toHaveBeenCalledWith("test-project", "feature-a");
-    });
-  });
-
-  describe("when the default branch cannot be determined", () => {
-    it("throws an error", () => {
-      defaultBranchMock.mockResolvedValue(null);
-      expect(createSession("test-project", "feature-a")).rejects.toThrow(/default branch/i);
     });
   });
 });
