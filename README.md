@@ -22,6 +22,33 @@ quite what I was looking for with _my_ workflow.
   [sesh](https://github.com/joshmedeski/sesh)) gets you most of the way, but misses the unified
   per-session status view across all features.
 
+## Installation
+
+Orc is not published to a package registry. Install it from a clone of this repo:
+
+1. Install [Bun](https://bun.sh) (the runtime Orc executes against), plus [tmux](https://github.com/tmux/tmux), [Tmuxinator](https://github.com/tmuxinator/tmuxinator), and [Git](https://git-scm.com).
+2. Clone this repo and install dependencies:
+
+   ```sh
+   git clone https://github.com/LandonSchropp/orc.git
+   cd orc
+   bun install
+   ```
+
+3. Symlink the `orc` entrypoint into a directory on your `PATH` (e.g. `~/.local/bin`):
+
+   ```sh
+   ln -sf "$PWD/src/index.ts" ~/.local/bin/orc
+   ```
+
+4. Verify the install:
+
+   ```sh
+   orc --help
+   ```
+
+The symlink points at your local checkout, so edits to the source are picked up on the next invocation — no rebuild step.
+
 ## How It Works
 
 Orc operates at two levels:
