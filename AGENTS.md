@@ -10,6 +10,15 @@ The code is organized in three layers, lowest to highest:
 
 Tests live alongside their source as `*.test.ts`. Shared test infrastructure (`setup.ts`, `factories/`, `helpers/`) lives in `test/`.
 
+## On-Disk Paths
+
+Orc follows the XDG Base Directory Specification for all on-disk data:
+
+- **Config**: `$XDG_CONFIG_HOME` (fallback `~/.config`). Used to locate Tmuxinator project files.
+- **Cache / state**: `$XDG_CACHE_HOME` (fallback `~/.cache`). Used for worktrees and any orc-managed runtime state.
+
+When reading or writing new on-disk paths, always go through `process.env.XDG_*` with the specified fallback rather than hardcoding `~/.cache` or `~/.config`. See `src/commands/tmuxinator.ts` for the pattern.
+
 ## CLI vs TUI
 
 Orc has two interaction modes:
