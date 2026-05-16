@@ -189,24 +189,22 @@ describe("startTmuxinatorProject", () => {
       await startTmuxinatorProject("agent-toolkit", "feature-a", "/tmp/worktree");
     });
 
-    it("invokes `tmuxinator start` with the session name and `--no-attach`", () => {
+    it("invokes `tmuxinator start` with `--no-attach`", () => {
       expect(runCommandMock).toHaveBeenCalledWith([
         "tmuxinator",
         "start",
         "-p",
         expect.stringMatching(/\/orc-[^/]+\/project\.yml$/),
-        "-n",
-        "agent-toolkit:feature-a",
         "--no-attach",
       ]);
     });
 
-    it("writes the modified config with the overridden root", async () => {
+    it("writes the modified config with the qualified session name, overridden root, and orc socket", async () => {
       const args = runCommandMock.mock.calls[0][0];
       const configPath = args[args.indexOf("-p") + 1];
 
       expect(YAML.parse(await Bun.file(configPath).text())).toEqual({
-        name: "agent-toolkit",
+        name: "agent-toolkit:feature-a",
         root: "/tmp/worktree",
         tmux_options: "-L orc",
       });

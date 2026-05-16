@@ -89,7 +89,11 @@ export async function startTmuxinatorProject(
 
   await Bun.write(
     configPath,
-    YAML.stringify({ ...tmuxinatorProject, root, tmux_options: `-L ${ORC_SOCKET}` }, null, 2),
+    YAML.stringify(
+      { ...tmuxinatorProject, name: sessionName, root, tmux_options: `-L ${ORC_SOCKET}` },
+      null,
+      2,
+    ),
   );
 
   const { exitCode, stderr } = await runCommand([
@@ -97,8 +101,6 @@ export async function startTmuxinatorProject(
     "start",
     "-p",
     configPath,
-    "-n",
-    sessionName,
     "--no-attach",
   ]);
 
