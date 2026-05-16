@@ -83,6 +83,17 @@ describe("listTmuxSessions", () => {
     });
   });
 
+  describe("when the socket does not exist", () => {
+    it("returns an empty array", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 1,
+        stdout: "",
+        stderr: "error connecting to /private/tmp/tmux-501/orc (No such file or directory)\n",
+      });
+      expect(await listTmuxSessions()).toEqual([]);
+    });
+  });
+
   describe("when there are no sessions", () => {
     it("returns an empty array", async () => {
       runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });

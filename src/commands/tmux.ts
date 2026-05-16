@@ -96,7 +96,7 @@ export async function listTmuxSessions(): Promise<Session[]> {
   const { exitCode, stdout, stderr } = await tmux(["list-sessions", "-F", SESSION_FORMAT]);
 
   if (exitCode !== 0) {
-    if (stderr.includes("no server running")) return [];
+    if (stderr.includes("no server running") || stderr.includes("error connecting")) return [];
     throw new Error(`tmux list-sessions failed: ${stderr.trim()}`);
   }
 
