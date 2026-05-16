@@ -1,9 +1,9 @@
 import { addWorktree, defaultBranch } from "../commands/git.ts";
 import { readTmuxinatorProject, startTmuxinatorProject } from "../commands/tmuxinator.ts";
+import { worktreePath } from "./paths.ts";
 import { switchSession } from "./switch.ts";
 import { mkdir } from "node:fs/promises";
-import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname } from "node:path";
 
 /**
  * Creates a new orc session. When `worktree` is `true` (the default), makes a Git worktree from the
@@ -35,9 +35,9 @@ async function createWorktree(repoPath: string, project: string, session: string
     throw new Error(`Could not determine default branch for ${repoPath}`);
   }
 
-  const worktreePath = join(homedir(), ".cache", "orc", "worktrees", project, session);
-  await mkdir(dirname(worktreePath), { recursive: true });
+  const path = worktreePath(project, session);
+  await mkdir(dirname(path), { recursive: true });
 
-  await addWorktree(repoPath, worktreePath, session, branch);
-  return worktreePath;
+  await addWorktree(repoPath, path, session, branch);
+  return path;
 }
