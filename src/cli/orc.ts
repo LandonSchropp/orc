@@ -1,3 +1,4 @@
+import { runTui } from "../tui/index.ts";
 import { deleteCommand } from "./delete.ts";
 import { detachCommand } from "./detach.ts";
 import { hookCommand } from "./hook.ts";
@@ -18,5 +19,8 @@ export const orc = defineCommand({
     detach: detachCommand,
     delete: deleteCommand,
     hook: hookCommand,
+  },
+  async run() {
+    await runTui();
   },
 });

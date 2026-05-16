@@ -6,10 +6,6 @@ import { runMain } from "citty";
 export { orc } from "./cli/orc.ts";
 
 export async function main(args: string[]) {
-  if (args.length === 0) {
-    args = ["--help"];
-  }
-
   await runMain(orc, { rawArgs: args });
 }
 
