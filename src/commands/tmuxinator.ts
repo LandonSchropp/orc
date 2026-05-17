@@ -1,10 +1,11 @@
 import type { TmuxinatorProject, YamlObject } from "../types.ts";
 import { expandHome } from "../utilities/directory.ts";
+import { xdgConfigHome } from "../utilities/xdg.ts";
 import { runCommand } from "./shell.ts";
 import { ORC_SOCKET, tmuxSessionName } from "./tmux.ts";
 import { YAML } from "bun";
 import { mkdtemp } from "node:fs/promises";
-import { homedir, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 /**
@@ -15,8 +16,7 @@ import { join } from "node:path";
  * @returns The absolute path to the project's YAML config file.
  */
 export function tmuxinatorConfigPath(project: string): string {
-  const configHome = process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
-  return join(configHome, "tmuxinator", `${project}.yml`);
+  return join(xdgConfigHome(), "tmuxinator", `${project}.yml`);
 }
 
 /**

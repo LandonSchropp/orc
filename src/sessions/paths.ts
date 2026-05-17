@@ -1,4 +1,4 @@
-import { homedir } from "node:os";
+import { orcCacheDirectory } from "../utilities/xdg.ts";
 import { join } from "node:path";
 
 /**
@@ -6,8 +6,8 @@ import { join } from "node:path";
  *
  * @param project - The project name.
  * @param session - The session name within the project.
- * @returns The absolute path under `~/.cache/orc/worktrees`.
+ * @returns The absolute path under `$XDG_CACHE_HOME/orc/worktrees`.
  */
 export function worktreePath(project: string, session: string): string {
-  return join(homedir(), ".cache", "orc", "worktrees", project, session);
+  return join(orcCacheDirectory(), "worktrees", project, session);
 }
