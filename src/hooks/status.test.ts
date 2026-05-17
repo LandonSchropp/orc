@@ -5,6 +5,7 @@ import { runCommand } from "citty";
 
 const writeStateFileMock = mock();
 const sessionNameMock = mock();
+const isInsideOrcTmuxSessionMock = mock();
 
 await mock.module("../sessions/state.ts", () => ({
   writeStateFile: writeStateFileMock,
@@ -12,10 +13,12 @@ await mock.module("../sessions/state.ts", () => ({
 
 await mock.module("../commands/tmux.ts", () => ({
   sessionName: sessionNameMock,
+  isInsideOrcTmuxSession: isInsideOrcTmuxSessionMock,
 }));
 
 beforeEach(() => {
   stubEnv("TMUX_PANE", "%5");
+  isInsideOrcTmuxSessionMock.mockReturnValue(true);
 });
 
 describe("statusHookCommand", () => {
@@ -27,6 +30,16 @@ describe("statusHookCommand", () => {
       await runCommand(statusHookCommand, { rawArgs: [] });
 
       expect(writeStateFileMock).toHaveBeenCalledWith("test-project/feature-a", "%5", "Idle");
+    });
+  });
+
+  describe("when not inside an orc tmux session", () => {
+    it("returns silently without writing state", async () => {
+      isInsideOrcTmuxSessionMock.mockReturnValue(false);
+
+      await runCommand(statusHookCommand, { rawArgs: [] });
+
+      expect(writeStateFileMock).not.toHaveBeenCalled();
     });
   });
 

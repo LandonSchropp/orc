@@ -1,3 +1,4 @@
+import { isInsideOrcTmuxSession } from "../commands/tmux.ts";
 import { processHookEvent } from "../sessions/hook-events.ts";
 import { isHookPayload } from "../type-guards.ts";
 import { defineCommand } from "citty";
@@ -9,6 +10,8 @@ export const statusHookCommand = defineCommand({
     hidden: true,
   },
   async run() {
+    if (!isInsideOrcTmuxSession()) return;
+
     const paneId = process.env.TMUX_PANE;
 
     if (!paneId) {
