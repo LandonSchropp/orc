@@ -15,7 +15,7 @@ export const statusHookCommand = defineCommand({
       throw new Error("TMUX_PANE is not set; hook must run inside a tmux pane");
     }
 
-    const payload = (await Bun.stdin.json()) as unknown;
+    const payload = await Bun.stdin.json();
 
     if (!isHookPayload(payload)) {
       throw new Error("Hook payload is missing hook_event_name");

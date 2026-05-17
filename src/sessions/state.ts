@@ -50,7 +50,7 @@ export async function readStateFile(
   const file = Bun.file(path);
   if (!(await file.exists())) return null;
 
-  const parsed = (await file.json()) as unknown;
+  const parsed = await file.json();
 
   if (!isAgentState(parsed)) {
     throw new Error(`Agent state file at ${path} has an invalid shape`);
