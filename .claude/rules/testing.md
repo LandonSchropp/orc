@@ -5,6 +5,8 @@ paths:
 
 # Testing Conventions
 
+REQUIRED: fetch the [Bun mocks documentation](https://bun.com/docs/test/mocks.md) before writing or modifying tests.
+
 ## `describe` context blocks
 
 Context `describe` blocks (the ones nested inside a top-level `describe` for the unit under test) should almost always start with `when`. They describe the state, input, or condition the assertions below apply to.
@@ -28,6 +30,40 @@ Prefer the specific mock helpers over `mockImplementation` when possible:
 - `mockReturnValueOnce(value)` — single-call variant
 
 Only reach for `mockImplementation` when behavior depends on arguments or call count.
+
+## Spying on object methods
+
+Never reassign properties on global or imported objects to stub them. Use `spyOn` instead. Re-spy in `beforeEach` so each test starts from a known state.
+
+Bad:
+
+```ts
+const originalStdin = Bun.stdin;
+let stdinPayload = "";
+
+beforeEach(() => {
+  // @ts-expect-error - reassigning Bun.stdin for test isolation
+  Bun.stdin = { json: () => Promise.resolve(JSON.parse(stdinPayload)) };
+});
+
+afterEach(() => {
+  // @ts-expect-error - restoring original Bun.stdin
+  Bun.stdin = originalStdin;
+});
+```
+
+Good:
+
+```ts
+import { spyOn } from "bun:test";
+
+it("processes the payload", async () => {
+  spyOn(Bun.stdin, "json").mockResolvedValue({ hook_event_name: "Stop" });
+  // ... assertions
+});
+```
+
+Set mock return values close to the test that asserts on them, with the concrete value the test needs. Indirection through shared variables or transformations makes tests harder to read.
 
 ## Mocking modules
 
