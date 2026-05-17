@@ -47,6 +47,23 @@ Orc is not published to a package registry. Install it from a clone of this repo
    orc --help
    ```
 
+5. Register the status hook with Claude Code. Orc detects per-agent status by reading state files
+   that Claude Code writes via hooks. Without this step, status detection silently does nothing.
+   Add the following to either `~/.claude/settings.json` (global) or `.claude/settings.local.json`
+   in a specific project:
+
+   ```json
+   {
+     "hooks": {
+       "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "orc hook status" }] }],
+       "Stop": [{ "hooks": [{ "type": "command", "command": "orc hook status" }] }],
+       "Notification": [{ "hooks": [{ "type": "command", "command": "orc hook status" }] }]
+     }
+   }
+   ```
+
+   A future release may package this as a Claude Code plugin so the manual step goes away.
+
 The symlink points at your local checkout, so edits to the source are picked up on the next invocation — no rebuild step.
 
 ## How It Works
