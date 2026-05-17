@@ -39,11 +39,17 @@ export type HookPayload = {
   hook_event_name: string;
 };
 
-/** A YAML scalar, array, or mapping as returned by `Bun.YAML.parse`. */
-export type YamlValue = string | number | boolean | null | YamlValue[] | YamlObject;
+/** A JSON value: scalar, array, or object. */
+export type JsonValue = string | number | boolean | null | JsonValue[] | JsonObject;
+
+/** A JSON object (top-level mapping). */
+export type JsonObject = { [key: string]: JsonValue };
+
+/** A YAML scalar, array, or mapping as returned by `Bun.YAML.parse`. Structurally identical to JSON. */
+export type YamlValue = JsonValue;
 
 /** A YAML mapping (top-level object). */
-export type YamlObject = { [key: string]: YamlValue };
+export type YamlObject = JsonObject;
 
 /** A tmuxinator project — a YAML object with at least a `name` and `root`. */
 export type TmuxinatorProject = YamlObject & { name: string; root: string };
