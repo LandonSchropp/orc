@@ -13,3 +13,19 @@ export const AGENT_STATUSES = [
   WAITING_AGENT_STATUS,
   IDLE_AGENT_STATUS,
 ] as const;
+
+/** Claude Code hook event fired when the user submits a prompt. */
+export const USER_PROMPT_SUBMIT_HOOK_EVENT = "UserPromptSubmit";
+
+/** Claude Code hook event fired when Claude finishes a turn. */
+export const STOP_HOOK_EVENT = "Stop";
+
+/** Claude Code hook event fired for notifications such as permission prompts. */
+export const NOTIFICATION_HOOK_EVENT = "Notification";
+
+/** Claude Code hook events orc subscribes to. */
+export const HOOK_EVENTS = [
+  USER_PROMPT_SUBMIT_HOOK_EVENT,
+  STOP_HOOK_EVENT,
+  NOTIFICATION_HOOK_EVENT,
+] as const;
