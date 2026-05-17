@@ -53,6 +53,24 @@ export async function detachTmuxClient(): Promise<void> {
 }
 
 /**
+ * Returns the name of the tmux session the given pane belongs to. Runs `tmux display-message`
+ * against orc's isolated server.
+ *
+ * @param paneId - The tmux pane identifier (e.g. `%5`).
+ * @returns The session name (e.g. `project:feature-a`).
+ * @throws If tmux exits with an error.
+ */
+export async function sessionName(paneId: string): Promise<string> {
+  const { exitCode, stdout, stderr } = await tmux(["display-message", "-p", "-t", paneId, "#S"]);
+
+  if (exitCode !== 0) {
+    throw new Error(`tmux display-message failed: ${stderr.trim()}`);
+  }
+
+  return stdout.trim();
+}
+
+/**
  * Kills the orc tmux session with the given name.
  *
  * @param name - The full `project:session` name to kill.

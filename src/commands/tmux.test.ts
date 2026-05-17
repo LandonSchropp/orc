@@ -1,6 +1,7 @@
 import { stubEnv } from "../../test/helpers/env.ts";
 import {
   attachTmuxSession,
+  sessionName,
   detachTmuxClient,
   isInsideOrcTmuxSession,
   isTmuxInstalled,
@@ -213,6 +214,51 @@ describe("killTmuxSession", () => {
       });
 
       expect(killTmuxSession("orc/feature-a")).rejects.toThrowError(/can't find session/);
+    });
+  });
+});
+
+describe("sessionName", () => {
+  it("invokes `tmux display-message` against the orc server for the given pane", async () => {
+    runCommandMock.mockResolvedValue({
+      exitCode: 0,
+      stdout: "test-project:feature-a\n",
+      stderr: "",
+    });
+
+    await sessionName("%5");
+
+    expect(runCommandMock).toHaveBeenCalledWith([
+      "tmux",
+      "-L",
+      "orc",
+      "display-message",
+      "-p",
+      "-t",
+      "%5",
+      "#S",
+    ]);
+  });
+
+  it("returns the trimmed session name", async () => {
+    runCommandMock.mockResolvedValue({
+      exitCode: 0,
+      stdout: "test-project:feature-a\n",
+      stderr: "",
+    });
+
+    expect(await sessionName("%5")).toBe("test-project:feature-a");
+  });
+
+  describe("when tmux fails", () => {
+    it("throws an error with the stderr message", () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 1,
+        stdout: "",
+        stderr: "can't find pane: %5\n",
+      });
+
+      expect(sessionName("%5")).rejects.toThrowError(/can't find pane/);
     });
   });
 });
