@@ -1,5 +1,5 @@
 import { AGENT_STATUSES } from "./constants.ts";
-import type { AgentState, AgentStatus } from "./types.ts";
+import type { AgentState, AgentStatus, HookPayload } from "./types.ts";
 
 /**
  * Type guard for {@link AgentStatus}. Returns `true` when the value is one of the agent status
@@ -28,5 +28,21 @@ export function isAgentState(value: unknown): value is AgentState {
     "timestamp" in value &&
     isAgentStatus(value.status) &&
     typeof value.timestamp === "string"
+  );
+}
+
+/**
+ * Type guard for {@link HookPayload}. Returns `true` when the value has a string `hook_event_name`.
+ *
+ * @param value - The value to check.
+ * @returns `true` if `value` is a valid {@link HookPayload}, otherwise `false`.
+ */
+export function isHookPayload(value: unknown): value is HookPayload {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    "hook_event_name" in value &&
+    typeof value.hook_event_name === "string"
   );
 }

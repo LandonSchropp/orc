@@ -1,4 +1,4 @@
-import { isAgentState, isAgentStatus } from "./type-guards.ts";
+import { isAgentState, isAgentStatus, isHookPayload } from "./type-guards.ts";
 import { describe, expect, it } from "bun:test";
 
 describe("isAgentStatus", () => {
@@ -93,6 +93,46 @@ describe("isAgentState", () => {
 
     it("returns false for arrays", () => {
       expect(isAgentState(["Working"])).toBe(false);
+    });
+  });
+});
+
+describe("isHookPayload", () => {
+  describe("when the value has a string hook_event_name", () => {
+    it("returns true", () => {
+      expect(isHookPayload({ hook_event_name: "Stop" })).toBe(true);
+    });
+
+    it("returns true even with additional fields", () => {
+      expect(isHookPayload({ hook_event_name: "Stop", session_id: "abc", extra: 42 })).toBe(true);
+    });
+  });
+
+  describe("when hook_event_name is missing", () => {
+    it("returns false", () => {
+      expect(isHookPayload({ session_id: "abc" })).toBe(false);
+    });
+  });
+
+  describe("when hook_event_name is not a string", () => {
+    it("returns false", () => {
+      expect(isHookPayload({ hook_event_name: 42 })).toBe(false);
+    });
+  });
+
+  describe("when the value is null", () => {
+    it("returns false", () => {
+      expect(isHookPayload(null)).toBe(false);
+    });
+  });
+
+  describe("when the value is not an object", () => {
+    it("returns false for strings", () => {
+      expect(isHookPayload("Stop")).toBe(false);
+    });
+
+    it("returns false for arrays", () => {
+      expect(isHookPayload(["Stop"])).toBe(false);
     });
   });
 });

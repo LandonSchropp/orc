@@ -33,6 +33,12 @@ export type AgentState = {
   timestamp: string;
 };
 
+/** The shape of a Claude Code hook payload read from stdin by `orc hook status`. */
+export type HookPayload = {
+  /** The hook event name (e.g. `UserPromptSubmit`, `Stop`, `Notification`). */
+  hook_event_name: string;
+};
+
 /** A YAML scalar, array, or mapping as returned by `Bun.YAML.parse`. */
 export type YamlValue = string | number | boolean | null | YamlValue[] | YamlObject;
 
