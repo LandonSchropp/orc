@@ -1,5 +1,5 @@
 import { AGENT_STATUSES } from "./constants.ts";
-import type { AgentState, AgentStatus, HookPayload } from "./types.ts";
+import type { AgentState, AgentStatus, ClaudeSettings, HookPayload, JsonValue } from "./types.ts";
 
 /**
  * Type guard for {@link AgentStatus}. Returns `true` when the value is one of the agent status
@@ -45,4 +45,20 @@ export function isHookPayload(value: unknown): value is HookPayload {
     "hook_event_name" in value &&
     typeof value.hook_event_name === "string"
   );
+}
+
+/**
+ * Type guard for {@link ClaudeSettings}. Returns `true` when the value is a JSON object whose
+ * optional `hooks` field is itself an object of arrays. Does not deeply validate the matcher /
+ * handler entries inside each event array — callers can iterate defensively.
+ *
+ * @param value - The parsed JSON value to check.
+ * @returns `true` if `value` is a valid {@link ClaudeSettings}, otherwise `false`.
+ */
+export function isClaudeSettings(value: JsonValue): value is ClaudeSettings {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  if (!("hooks" in value)) return true;
+  const { hooks } = value;
+  if (typeof hooks !== "object" || hooks === null || Array.isArray(hooks)) return false;
+  return Object.values(hooks).every(Array.isArray);
 }

@@ -1,4 +1,4 @@
-import { isAgentState, isAgentStatus, isHookPayload } from "./type-guards.ts";
+import { isAgentState, isAgentStatus, isClaudeSettings, isHookPayload } from "./type-guards.ts";
 import { describe, expect, it } from "bun:test";
 
 describe("isAgentStatus", () => {
@@ -133,6 +133,75 @@ describe("isHookPayload", () => {
 
     it("returns false for arrays", () => {
       expect(isHookPayload(["Stop"])).toBe(false);
+    });
+  });
+});
+
+describe("isClaudeSettings", () => {
+  describe("when the value is an empty object", () => {
+    it("returns true", () => {
+      expect(isClaudeSettings({})).toBe(true);
+    });
+  });
+
+  describe("when the value has hooks with the expected shape", () => {
+    it("returns true", () => {
+      expect(
+        isClaudeSettings({
+          hooks: {
+            Stop: [{ hooks: [{ type: "command", command: "echo stop" }] }],
+          },
+        }),
+      ).toBe(true);
+    });
+  });
+
+  describe("when the value has unrelated fields alongside hooks", () => {
+    it("returns true", () => {
+      expect(
+        isClaudeSettings({
+          permissions: { allow: ["Read"] },
+          hooks: {},
+        }),
+      ).toBe(true);
+    });
+  });
+
+  describe("when hooks is not an object", () => {
+    it("returns false for an array", () => {
+      expect(isClaudeSettings({ hooks: [] })).toBe(false);
+    });
+
+    it("returns false for a string", () => {
+      expect(isClaudeSettings({ hooks: "Stop" })).toBe(false);
+    });
+
+    it("returns false for null", () => {
+      expect(isClaudeSettings({ hooks: null })).toBe(false);
+    });
+  });
+
+  describe("when a hooks event value is not an array", () => {
+    it("returns false", () => {
+      expect(isClaudeSettings({ hooks: { Stop: "not an array" } })).toBe(false);
+    });
+  });
+
+  describe("when the value is null", () => {
+    it("returns false", () => {
+      expect(isClaudeSettings(null)).toBe(false);
+    });
+  });
+
+  describe("when the value is an array", () => {
+    it("returns false", () => {
+      expect(isClaudeSettings([])).toBe(false);
+    });
+  });
+
+  describe("when the value is not an object", () => {
+    it("returns false", () => {
+      expect(isClaudeSettings("settings")).toBe(false);
     });
   });
 });

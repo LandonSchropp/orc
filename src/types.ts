@@ -39,6 +39,15 @@ export type HookPayload = {
   hook_event_name: string;
 };
 
+/** A single Claude Code hook handler entry. */
+export type HookHandler = { type: "command"; command: string };
+
+/** A matcher + handlers group within a Claude Code hook event array. */
+export type HookMatcher = { matcher?: string; hooks: HookHandler[] };
+
+/** The shape of a Claude Code settings file (e.g. `.claude/settings.local.json`). */
+export type ClaudeSettings = JsonObject & { hooks?: Record<string, HookMatcher[]> };
+
 /** A JSON value: scalar, array, or object. */
 export type JsonValue = string | number | boolean | null | JsonValue[] | JsonObject;
 
