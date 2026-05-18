@@ -11,6 +11,7 @@ const readTmuxinatorProjectMock = mock(() =>
   Promise.resolve({ name: "test-project", root: "/repos/test-project" }),
 );
 const removeWorktreeMock = mock((): Promise<void> => Promise.resolve());
+const removeSessionStateFilesMock = mock((): Promise<void> => Promise.resolve());
 const existsSyncMock = mock((): boolean => true);
 
 await mock.module("./current.ts", () => ({
@@ -32,6 +33,10 @@ await mock.module("../commands/tmuxinator.ts", () => ({
 
 await mock.module("../commands/git.ts", () => ({
   removeWorktree: removeWorktreeMock,
+}));
+
+await mock.module("./state.ts", () => ({
+  removeSessionStateFiles: removeSessionStateFilesMock,
 }));
 
 await mock.module("node:fs", () => ({
@@ -59,6 +64,10 @@ describe("deleteSession", () => {
 
     it("kills the tmux session", () => {
       expect(killTmuxSessionMock).toHaveBeenCalledWith("test-project/feature-a");
+    });
+
+    it("removes the agent state files for the session", () => {
+      expect(removeSessionStateFilesMock).toHaveBeenCalledWith("test-project", "feature-a");
     });
   });
 
