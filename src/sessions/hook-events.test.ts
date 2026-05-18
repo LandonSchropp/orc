@@ -13,34 +13,42 @@ await mock.module("../commands/tmux.ts", () => ({
 }));
 
 beforeEach(() => {
-  sessionIdentifierMock.mockResolvedValue("test-project:feature-a");
+  sessionIdentifierMock.mockResolvedValue("test-project/feature-a");
 });
 
 describe("processHookEvent", () => {
   describe("when the event is UserPromptSubmit", () => {
     it("writes Working status for the firing pane", async () => {
       await processHookEvent("UserPromptSubmit", "%5");
-      expect(writeStateFileMock).toHaveBeenCalledWith("test-project:feature-a", "%5", "Working");
+      expect(writeStateFileMock).toHaveBeenCalledWith("test-project", "feature-a", "%5", "Working");
     });
   });
 
   describe("when the event is Stop", () => {
     it("writes Idle status for the firing pane", async () => {
       await processHookEvent("Stop", "%5");
-      expect(writeStateFileMock).toHaveBeenCalledWith("test-project:feature-a", "%5", "Idle");
+      expect(writeStateFileMock).toHaveBeenCalledWith("test-project", "feature-a", "%5", "Idle");
     });
   });
 
   describe("when the event is Notification", () => {
     it("writes Waiting status for the firing pane", async () => {
       await processHookEvent("Notification", "%5");
-      expect(writeStateFileMock).toHaveBeenCalledWith("test-project:feature-a", "%5", "Waiting");
+      expect(writeStateFileMock).toHaveBeenCalledWith("test-project", "feature-a", "%5", "Waiting");
     });
   });
 
   describe("when the event is unknown", () => {
     it("does not write a state file", async () => {
       await processHookEvent("Unrecognized", "%5");
+      expect(writeStateFileMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("when the tmux session identifier has no slash separator", () => {
+    it("does not write a state file", async () => {
+      sessionIdentifierMock.mockResolvedValue("foreign-session");
+      await processHookEvent("Stop", "%5");
       expect(writeStateFileMock).not.toHaveBeenCalled();
     });
   });

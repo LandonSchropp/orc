@@ -29,7 +29,7 @@ describe("statusHookCommand", () => {
 
       await runCommand(statusHookCommand, { rawArgs: [] });
 
-      expect(writeStateFileMock).toHaveBeenCalledWith("test-project/feature-a", "%5", "Idle");
+      expect(writeStateFileMock).toHaveBeenCalledWith("test-project", "feature-a", "%5", "Idle");
     });
   });
 

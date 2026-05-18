@@ -8,6 +8,7 @@ import {
   WORKING_AGENT_STATUS,
 } from "../constants.ts";
 import { type AgentStatus } from "../types.ts";
+import { parseSessionIdentifier } from "./identifier.ts";
 import { writeStateFile } from "./state.ts";
 
 /**
@@ -42,6 +43,8 @@ export async function processHookEvent(event: string, paneId: string): Promise<v
   const status = eventToStatus(event);
   if (!status) return;
 
-  const identifier = await sessionIdentifier(paneId);
-  await writeStateFile(identifier, paneId, status);
+  const identifier = parseSessionIdentifier(await sessionIdentifier(paneId));
+  if (!identifier) return;
+
+  await writeStateFile(identifier[0], identifier[1], paneId, status);
 }

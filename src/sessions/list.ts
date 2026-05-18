@@ -9,12 +9,18 @@ import { readStateFile } from "./state.ts";
  * state file has not been written yet (e.g. Claude just started and no hook has fired), defaults to
  * {@link IDLE_AGENT_STATUS}.
  *
+ * @param project - The project name owning the pane.
+ * @param session - The session name within the project.
  * @param pane - The Claude-hosting pane to inspect.
  * @returns The agent for that pane.
  */
-async function buildAgent(pane: TmuxPane): Promise<Agent> {
-  const state = await readStateFile(pane.sessionIdentifier, pane.paneId);
-  return { paneId: pane.paneId, status: state?.status ?? IDLE_AGENT_STATUS };
+async function buildAgent(project: string, session: string, pane: TmuxPane): Promise<Agent> {
+  const state = await readStateFile(project, session, pane.paneId);
+
+  return {
+    paneId: pane.paneId,
+    status: state === null ? IDLE_AGENT_STATUS : state.status,
+  };
 }
 
 /**
@@ -32,7 +38,9 @@ export async function listSessions(): Promise<Session[]> {
     sessions.map(async (session) => ({
       ...session,
       agents: await Promise.all(
-        agentPanes.filter((pane) => pane.sessionIdentifier === session.identifier).map(buildAgent),
+        agentPanes
+          .filter((pane) => pane.sessionIdentifier === session.identifier)
+          .map((pane) => buildAgent(session.project, session.session, pane)),
       ),
     })),
   );
