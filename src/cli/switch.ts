@@ -1,5 +1,5 @@
-import { tmuxSessionName } from "../commands/tmux.ts";
 import { findSession } from "../sessions/find.ts";
+import { sessionIdentifier } from "../sessions/identifier.ts";
 import { switchSession } from "../sessions/switch.ts";
 import { defineCommand } from "citty";
 
@@ -24,7 +24,7 @@ export const switchCommand = defineCommand({
     const session = await findSession(args.project, args.session);
 
     if (!session) {
-      const name = tmuxSessionName(args.project, args.session);
+      const name = sessionIdentifier(args.project, args.session);
       process.stderr.write(`Session not found: ${name}\n`);
       return process.exit(1);
     }

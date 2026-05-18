@@ -2,18 +2,18 @@ import { processHookEvent } from "./hook-events.ts";
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 const writeStateFileMock = mock((): Promise<void> => Promise.resolve());
-const sessionNameMock = mock((): Promise<string> => Promise.resolve(""));
+const sessionIdentifierMock = mock((): Promise<string> => Promise.resolve(""));
 
 await mock.module("./state.ts", () => ({
   writeStateFile: writeStateFileMock,
 }));
 
 await mock.module("../commands/tmux.ts", () => ({
-  sessionName: sessionNameMock,
+  sessionIdentifier: sessionIdentifierMock,
 }));
 
 beforeEach(() => {
-  sessionNameMock.mockResolvedValue("test-project:feature-a");
+  sessionIdentifierMock.mockResolvedValue("test-project:feature-a");
 });
 
 describe("processHookEvent", () => {

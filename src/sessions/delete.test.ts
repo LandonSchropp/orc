@@ -20,7 +20,10 @@ await mock.module("./current.ts", () => ({
 await mock.module("../commands/tmux.ts", () => ({
   detachTmuxClient: detachTmuxClientMock,
   killTmuxSession: killTmuxSessionMock,
-  tmuxSessionName: (project: string, session: string) => `${project}/${session}`,
+}));
+
+await mock.module("./identifier.ts", () => ({
+  sessionIdentifier: (project: string, session: string) => `${project}/${session}`,
 }));
 
 await mock.module("../commands/tmuxinator.ts", () => ({

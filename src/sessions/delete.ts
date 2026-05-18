@@ -1,7 +1,8 @@
 import { removeWorktree } from "../commands/git.ts";
-import { detachTmuxClient, killTmuxSession, tmuxSessionName } from "../commands/tmux.ts";
+import { detachTmuxClient, killTmuxSession } from "../commands/tmux.ts";
 import { readTmuxinatorProject } from "../commands/tmuxinator.ts";
 import { getCurrentSession } from "./current.ts";
+import { sessionIdentifier } from "./identifier.ts";
 import { worktreePath } from "./paths.ts";
 import { existsSync } from "node:fs";
 
@@ -27,5 +28,5 @@ export async function deleteSession(project: string, session: string): Promise<v
     await removeWorktree(repoPath, path);
   }
 
-  await killTmuxSession(tmuxSessionName(project, session));
+  await killTmuxSession(sessionIdentifier(project, session));
 }

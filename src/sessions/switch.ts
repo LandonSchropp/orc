@@ -1,9 +1,5 @@
-import {
-  attachTmuxSession,
-  isInsideOrcTmuxSession,
-  switchTmuxSession,
-  tmuxSessionName,
-} from "../commands/tmux.ts";
+import { attachTmuxSession, isInsideOrcTmuxSession, switchTmuxSession } from "../commands/tmux.ts";
+import { sessionIdentifier } from "./identifier.ts";
 
 /**
  * Switches to the orc session identified by `project` and `session`. When called from inside an orc
@@ -13,10 +9,10 @@ import {
  * @param session - The session name within the project.
  */
 export async function switchSession(project: string, session: string): Promise<void> {
-  const name = tmuxSessionName(project, session);
+  const identifier = sessionIdentifier(project, session);
   if (isInsideOrcTmuxSession()) {
-    await switchTmuxSession(name);
+    await switchTmuxSession(identifier);
   } else {
-    await attachTmuxSession(name);
+    await attachTmuxSession(identifier);
   }
 }

@@ -30,17 +30,6 @@ export function isInsideOrcTmuxSession(): boolean {
 }
 
 /**
- * Builds the fully-qualified tmux session name from a project and session.
- *
- * @param project - The project name.
- * @param session - The session name within the project.
- * @returns The `project:session` identifier used as a tmux session name.
- */
-export function tmuxSessionName(project: string, session: string): string {
-  return `${project}/${session}`;
-}
-
-/**
  * Runs a tmux command against orc's isolated server.
  *
  * @param args - Arguments to pass to tmux, after the socket flag.
@@ -56,14 +45,14 @@ export async function detachTmuxClient(): Promise<void> {
 }
 
 /**
- * Returns the name of the tmux session the given pane belongs to. Runs `tmux display-message`
+ * Returns the orc identifier for the session the given pane belongs to. Runs `tmux display-message`
  * against orc's isolated server.
  *
  * @param paneId - The tmux pane identifier (e.g. `%5`).
- * @returns The session name (e.g. `project:feature-a`).
+ * @returns The session identifier (e.g. `project/feature-a`).
  * @throws If tmux exits with an error.
  */
-export async function sessionName(paneId: string): Promise<string> {
+export async function sessionIdentifier(paneId: string): Promise<string> {
   const { exitCode, stdout, stderr } = await tmux(["display-message", "-p", "-t", paneId, "#S"]);
 
   if (exitCode !== 0) {

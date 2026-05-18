@@ -1,4 +1,4 @@
-import { sessionName } from "../commands/tmux.ts";
+import { sessionIdentifier } from "../commands/tmux.ts";
 import {
   IDLE_AGENT_STATUS,
   NOTIFICATION_HOOK_EVENT,
@@ -42,6 +42,6 @@ export async function processHookEvent(event: string, paneId: string): Promise<v
   const status = eventToStatus(event);
   if (!status) return;
 
-  const session = await sessionName(paneId);
-  await writeStateFile(session, paneId, status);
+  const identifier = await sessionIdentifier(paneId);
+  await writeStateFile(identifier, paneId, status);
 }

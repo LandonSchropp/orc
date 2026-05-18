@@ -1,7 +1,7 @@
 import { stubEnv } from "../../test/helpers/env.ts";
 import {
   attachTmuxSession,
-  sessionName,
+  sessionIdentifier,
   detachTmuxClient,
   isInsideOrcTmuxSession,
   isTmuxInstalled,
@@ -9,7 +9,6 @@ import {
   listTmuxPanes,
   listTmuxSessions,
   switchTmuxSession,
-  tmuxSessionName,
 } from "./tmux.ts";
 import { describe, expect, it, mock } from "bun:test";
 
@@ -64,12 +63,6 @@ describe("isInsideOrcTmuxSession", () => {
       stubEnv("TMUX", "/tmp/tmux-501/orc,12345,0");
       expect(isInsideOrcTmuxSession()).toBe(true);
     });
-  });
-});
-
-describe("tmuxSessionName", () => {
-  it("returns the project and session joined by a slash", () => {
-    expect(tmuxSessionName("agent-toolkit", "feature-a")).toBe("agent-toolkit/feature-a");
   });
 });
 
@@ -230,7 +223,7 @@ describe("killTmuxSession", () => {
   });
 });
 
-describe("sessionName", () => {
+describe("sessionIdentifier", () => {
   it("invokes `tmux display-message` against the orc server for the given pane", async () => {
     runCommandMock.mockResolvedValue({
       exitCode: 0,
@@ -238,7 +231,7 @@ describe("sessionName", () => {
       stderr: "",
     });
 
-    await sessionName("%5");
+    await sessionIdentifier("%5");
 
     expect(runCommandMock).toHaveBeenCalledWith([
       "tmux",
@@ -259,7 +252,7 @@ describe("sessionName", () => {
       stderr: "",
     });
 
-    expect(await sessionName("%5")).toBe("test-project:feature-a");
+    expect(await sessionIdentifier("%5")).toBe("test-project:feature-a");
   });
 
   describe("when tmux fails", () => {
@@ -270,7 +263,7 @@ describe("sessionName", () => {
         stderr: "can't find pane: %5\n",
       });
 
-      expect(sessionName("%5")).rejects.toThrowError(/can't find pane/);
+      expect(sessionIdentifier("%5")).rejects.toThrowError(/can't find pane/);
     });
   });
 });
