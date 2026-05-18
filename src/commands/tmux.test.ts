@@ -6,6 +6,7 @@ import {
   isInsideOrcTmuxSession,
   isTmuxInstalled,
   killTmuxSession,
+  listTmuxPanes,
   listTmuxSessions,
   switchTmuxSession,
   tmuxSessionName,
@@ -73,7 +74,7 @@ describe("tmuxSessionName", () => {
 });
 
 describe("listTmuxSessions", () => {
-  describe("when no server is running", () => {
+  describe("when the orc tmux server is not running", () => {
     it("returns an empty array", async () => {
       runCommandMock.mockResolvedValue({
         exitCode: 1,
@@ -84,7 +85,7 @@ describe("listTmuxSessions", () => {
     });
   });
 
-  describe("when the socket does not exist", () => {
+  describe("when the orc socket does not exist", () => {
     it("returns an empty array", async () => {
       runCommandMock.mockResolvedValue({
         exitCode: 1,
@@ -267,6 +268,93 @@ describe("sessionName", () => {
       });
 
       expect(sessionName("%5")).rejects.toThrowError(/can't find pane/);
+    });
+  });
+});
+
+describe("listTmuxPanes", () => {
+  describe("when the orc tmux server is not running", () => {
+    it("returns an empty array", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 1,
+        stdout: "",
+        stderr: "no server running on /tmp/tmux-501/orc\n",
+      });
+
+      expect(await listTmuxPanes()).toEqual([]);
+    });
+  });
+
+  describe("when the orc socket does not exist", () => {
+    it("returns an empty array", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 1,
+        stdout: "",
+        stderr: "error connecting to /private/tmp/tmux-501/orc (No such file or directory)\n",
+      });
+
+      expect(await listTmuxPanes()).toEqual([]);
+    });
+  });
+
+  describe("when there are panes", () => {
+    it("invokes `tmux list-panes -a` against the orc server", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 0,
+        stdout: "orc/feature-a\t%1\tnvim\n",
+        stderr: "",
+      });
+
+      await listTmuxPanes();
+
+      expect(runCommandMock).toHaveBeenCalledWith([
+        "tmux",
+        "-L",
+        "orc",
+        "list-panes",
+        "-a",
+        "-F",
+        "#{session_name}\t#{pane_id}\t#{pane_title}",
+      ]);
+    });
+
+    it("returns an array of parsed pane objects", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 0,
+        stdout: "orc/feature-a\t%1\tnvim\norc/feature-a\t%2\t⠂ Working on something\n",
+        stderr: "",
+      });
+
+      expect(await listTmuxPanes()).toEqual([
+        { sessionName: "orc/feature-a", paneId: "%1", paneTitle: "nvim" },
+        { sessionName: "orc/feature-a", paneId: "%2", paneTitle: "⠂ Working on something" },
+      ]);
+    });
+  });
+
+  describe("when a pane belongs to a foreign session on the orc socket", () => {
+    it("skips that pane", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 0,
+        stdout: "foreign-session\t%1\tnvim\norc/feature-a\t%2\tclaude\n",
+        stderr: "",
+      });
+
+      expect(await listTmuxPanes()).toEqual([
+        { sessionName: "orc/feature-a", paneId: "%2", paneTitle: "claude" },
+      ]);
+    });
+  });
+
+  describe("when tmux exits with an unexpected error", () => {
+    it("throws an error", () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 1,
+        stdout: "",
+        stderr: "some other tmux error\n",
+      });
+
+      expect(listTmuxPanes()).rejects.toThrowError(/some other tmux error/);
     });
   });
 });

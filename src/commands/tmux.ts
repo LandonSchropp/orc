@@ -1,4 +1,4 @@
-import type { Session } from "../types.ts";
+import type { Session, TmuxPane } from "../types.ts";
 import { runAttachedCommand, runCommand, type RunCommandResult } from "./shell.ts";
 
 /** Socket name for orc's isolated tmux server. */
@@ -6,6 +6,9 @@ export const ORC_SOCKET = "orc";
 
 /** Tab-separated `-F` template for `tmux list-sessions`: name, created timestamp, attached count. */
 const SESSION_FORMAT = "#S\t#{session_created}\t#{session_attached}";
+
+/** Tab-separated `-F` template for `tmux list-panes`: session name, pane id, pane title. */
+const PANE_FORMAT = "#{session_name}\t#{pane_id}\t#{pane_title}";
 
 /**
  * Checks if tmux is installed and available on PATH.
@@ -147,4 +150,43 @@ function parseSessionLine(line: string): Session | null {
     createdAt: new Date(Number(createdAt) * 1000),
     attached: attached === "1",
   };
+}
+
+/**
+ * Lists every tmux pane across every session on orc's isolated server. Returns an empty array when
+ * no server is running. Panes whose session names do not follow orc's `project/session` convention
+ * are skipped so foreign sessions on the orc socket do not pollute orc's view.
+ *
+ * @returns The parsed tmux panes.
+ * @throws If tmux exits with an unexpected error.
+ */
+export async function listTmuxPanes(): Promise<TmuxPane[]> {
+  const { exitCode, stdout, stderr } = await tmux(["list-panes", "-a", "-F", PANE_FORMAT]);
+
+  if (exitCode !== 0) {
+    if (stderr.includes("no server running") || stderr.includes("error connecting")) return [];
+    throw new Error(`tmux list-panes failed: ${stderr.trim()}`);
+  }
+
+  return stdout
+    .split("\n")
+    .filter((line) => line.length > 0)
+    .map(parsePaneLine)
+    .filter((pane) => pane !== null);
+}
+
+/**
+ * Parses a single tab-separated line emitted by `tmux list-panes` using `PANE_FORMAT`. Returns
+ * `null` for session names that do not contain a `/`, signalling a foreign session on the orc
+ * socket that should be skipped.
+ *
+ * @param line - A line of tmux output: `sessionName<TAB>paneId<TAB>paneTitle`.
+ * @returns The parsed pane, or `null` if the session is not in `project/session` form.
+ */
+function parsePaneLine(line: string): TmuxPane | null {
+  const [sessionName, paneId, paneTitle] = line.split("\t");
+
+  if (!sessionName.includes("/")) return null;
+
+  return { sessionName, paneId, paneTitle };
 }
