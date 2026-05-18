@@ -107,7 +107,7 @@ describe("listTmuxSessions", () => {
         {
           project: "orc",
           session: "feature-a",
-          name: "orc/feature-a",
+          identifier: "orc/feature-a",
           createdAt: new Date(1_700_000_000 * 1000),
           attached: false,
           agents: [],
@@ -115,7 +115,7 @@ describe("listTmuxSessions", () => {
         {
           project: "orc",
           session: "feature-b",
-          name: "orc/feature-b",
+          identifier: "orc/feature-b",
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
           agents: [],
@@ -135,7 +135,7 @@ describe("listTmuxSessions", () => {
         {
           project: "orc",
           session: "feature-a",
-          name: "orc/feature-a",
+          identifier: "orc/feature-a",
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
           agents: [],
@@ -322,8 +322,8 @@ describe("listTmuxPanes", () => {
       });
 
       expect(await listTmuxPanes()).toEqual([
-        { sessionName: "orc/feature-a", paneId: "%1", paneTitle: "nvim" },
-        { sessionName: "orc/feature-a", paneId: "%2", paneTitle: "⠂ Working on something" },
+        { sessionIdentifier: "orc/feature-a", paneId: "%1", paneTitle: "nvim" },
+        { sessionIdentifier: "orc/feature-a", paneId: "%2", paneTitle: "⠂ Working on something" },
       ]);
     });
   });
@@ -337,7 +337,7 @@ describe("listTmuxPanes", () => {
       });
 
       expect(await listTmuxPanes()).toEqual([
-        { sessionName: "orc/feature-a", paneId: "%2", paneTitle: "claude" },
+        { sessionIdentifier: "orc/feature-a", paneId: "%2", paneTitle: "claude" },
       ]);
     });
   });

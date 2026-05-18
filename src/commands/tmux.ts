@@ -127,15 +127,15 @@ export async function listTmuxSessions(): Promise<Session[]> {
  * @returns The parsed session, or `null` if the name is not in `project/session` form.
  */
 function parseSessionLine(line: string): Session | null {
-  const [name, createdAt, attached] = line.split("\t");
-  const separatorIndex = name.indexOf("/");
+  const [identifier, createdAt, attached] = line.split("\t");
+  const separatorIndex = identifier.indexOf("/");
 
   if (separatorIndex === -1) return null;
 
   return {
-    project: name.slice(0, separatorIndex),
-    session: name.slice(separatorIndex + 1),
-    name,
+    project: identifier.slice(0, separatorIndex),
+    session: identifier.slice(separatorIndex + 1),
+    identifier,
     createdAt: new Date(Number(createdAt) * 1000),
     attached: attached === "1",
     agents: [],
@@ -170,13 +170,13 @@ export async function listTmuxPanes(): Promise<TmuxPane[]> {
  * `null` for session names that do not contain a `/`, signalling a foreign session on the orc
  * socket that should be skipped.
  *
- * @param line - A line of tmux output: `sessionName<TAB>paneId<TAB>paneTitle`.
+ * @param line - A line of tmux output: `sessionIdentifier<TAB>paneId<TAB>paneTitle`.
  * @returns The parsed pane, or `null` if the session is not in `project/session` form.
  */
 function parsePaneLine(line: string): TmuxPane | null {
-  const [sessionName, paneId, paneTitle] = line.split("\t");
+  const [sessionIdentifier, paneId, paneTitle] = line.split("\t");
 
-  if (!sessionName.includes("/")) return null;
+  if (!sessionIdentifier.includes("/")) return null;
 
-  return { sessionName, paneId, paneTitle };
+  return { sessionIdentifier, paneId, paneTitle };
 }

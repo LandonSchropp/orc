@@ -2,8 +2,8 @@ import { AGENT_STATUSES } from "./constants.ts";
 
 /** A tmux pane on orc's isolated server. */
 export type TmuxPane = {
-  /** The fully qualified tmux session name (e.g. `project/feature-a`). */
-  sessionName: string;
+  /** The orc identifier of the session this pane belongs to (e.g. `project/feature-a`). */
+  sessionIdentifier: string;
   /** The tmux pane identifier (e.g. `%5`). */
   paneId: string;
   /** The pane's current title, as set by the running program via OSC 2. */
@@ -16,8 +16,8 @@ export type Session = {
   project: string;
   /** The session name within the project. */
   session: string;
-  /** The fully qualified session identifier, `project:session`. */
-  name: string;
+  /** The fully qualified session identifier, `project/session`. */
+  identifier: string;
   /** When the session was created. */
   createdAt: Date;
   /** True if a client is currently attached to the session. */

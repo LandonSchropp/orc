@@ -9,8 +9,8 @@ export const listCommand = defineCommand({
   async run() {
     const sessions = await listTmuxSessions();
 
-    for (const { name, attached } of sessions) {
-      process.stdout.write(`${name}${attached ? " (attached)" : ""}\n`);
+    for (const { identifier, attached } of sessions) {
+      process.stdout.write(`${identifier}${attached ? " (attached)" : ""}\n`);
     }
   },
 });

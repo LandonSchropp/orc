@@ -13,7 +13,7 @@ import { readStateFile } from "./state.ts";
  * @returns The agent for that pane.
  */
 async function buildAgent(pane: TmuxPane): Promise<Agent> {
-  const state = await readStateFile(pane.sessionName, pane.paneId);
+  const state = await readStateFile(pane.sessionIdentifier, pane.paneId);
   return { paneId: pane.paneId, status: state?.status ?? IDLE_AGENT_STATUS };
 }
 
@@ -32,7 +32,7 @@ export async function listSessions(): Promise<Session[]> {
     sessions.map(async (session) => ({
       ...session,
       agents: await Promise.all(
-        agentPanes.filter((pane) => pane.sessionName === session.name).map(buildAgent),
+        agentPanes.filter((pane) => pane.sessionIdentifier === session.identifier).map(buildAgent),
       ),
     })),
   );
