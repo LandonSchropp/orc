@@ -7,6 +7,12 @@ paths:
 
 REQUIRED: fetch the [Bun mocks documentation](https://bun.com/docs/test/mocks.md) before writing or modifying tests.
 
+## Running the suite
+
+Always run the full suite via `bun run test` — never `bun test` directly. The script passes `--isolate`, which runs each test file in its own worker. Without it, `mock.module()` calls leak across files and tests fail in confusing, order-dependent ways.
+
+For ad-hoc single-file runs, use `bun test --isolate <file>` directly. (`bun run test <file>` works but fails the coverage threshold gate when only one file is exercised.)
+
 ## `describe` context blocks
 
 Context `describe` blocks (the ones nested inside a top-level `describe` for the unit under test) should almost always start with `when`. They describe the state, input, or condition the assertions below apply to.
