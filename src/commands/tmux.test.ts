@@ -129,13 +129,21 @@ describe("listTmuxSessions", () => {
   });
 
   describe("when a session name is missing a slash", () => {
-    it("throws an error", () => {
+    it("skips that session and returns the rest", async () => {
       runCommandMock.mockResolvedValue({
         exitCode: 0,
-        stdout: "no-separator\t1700000000\t0\n",
+        stdout: "dotfiles\t1700000000\t0\norc/feature-a\t1700000100\t1\n",
         stderr: "",
       });
-      expect(listTmuxSessions()).rejects.toThrowError(/no-separator/);
+      expect(await listTmuxSessions()).toEqual([
+        {
+          project: "orc",
+          session: "feature-a",
+          name: "orc/feature-a",
+          createdAt: new Date(1_700_000_100 * 1000),
+          attached: true,
+        },
+      ]);
     });
   });
 

@@ -105,10 +105,11 @@ export async function attachTmuxSession(name: string): Promise<void> {
 
 /**
  * Lists the tmux sessions running on orc's isolated server. Returns an empty array when no server
- * is running.
+ * is running. Sessions whose names do not follow orc's `project/session` convention are skipped so
+ * foreign sessions on the orc socket do not break orc commands.
  *
  * @returns The parsed tmux sessions.
- * @throws If a session name is malformed or tmux exits with an unexpected error.
+ * @throws If tmux exits with an unexpected error.
  */
 export async function listTmuxSessions(): Promise<Session[]> {
   const { exitCode, stdout, stderr } = await tmux(["list-sessions", "-F", SESSION_FORMAT]);
@@ -121,23 +122,23 @@ export async function listTmuxSessions(): Promise<Session[]> {
   return stdout
     .split("\n")
     .filter((line) => line.length > 0)
-    .map(parseSessionLine);
+    .map(parseSessionLine)
+    .filter((session) => session !== null);
 }
 
 /**
  * Parses a single tab-separated line emitted by `tmux list-sessions` using `SESSION_FORMAT`.
+ * Returns `null` for session names that do not contain a `/`, signalling a foreign session that
+ * should be skipped.
  *
  * @param line - A line of tmux output: `name<TAB>created<TAB>attached`.
- * @returns The parsed session.
- * @throws If the session name does not contain a `/`.
+ * @returns The parsed session, or `null` if the name is not in `project/session` form.
  */
-function parseSessionLine(line: string): Session {
+function parseSessionLine(line: string): Session | null {
   const [name, createdAt, attached] = line.split("\t");
   const separatorIndex = name.indexOf("/");
 
-  if (separatorIndex === -1) {
-    throw new Error(`Invalid tmux session name: ${name}`);
-  }
+  if (separatorIndex === -1) return null;
 
   return {
     project: name.slice(0, separatorIndex),
