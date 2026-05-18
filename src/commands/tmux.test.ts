@@ -117,6 +117,7 @@ describe("listTmuxSessions", () => {
           name: "orc/feature-a",
           createdAt: new Date(1_700_000_000 * 1000),
           attached: false,
+          agents: [],
         },
         {
           project: "orc",
@@ -124,6 +125,7 @@ describe("listTmuxSessions", () => {
           name: "orc/feature-b",
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
+          agents: [],
         },
       ]);
     });
@@ -143,6 +145,7 @@ describe("listTmuxSessions", () => {
           name: "orc/feature-a",
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
+          agents: [],
         },
       ]);
     });

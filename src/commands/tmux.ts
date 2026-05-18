@@ -149,6 +149,7 @@ function parseSessionLine(line: string): Session | null {
     name,
     createdAt: new Date(Number(createdAt) * 1000),
     attached: attached === "1",
+    agents: [],
   };
 }
 

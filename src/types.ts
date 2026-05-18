@@ -22,6 +22,8 @@ export type Session = {
   createdAt: Date;
   /** True if a client is currently attached to the session. */
   attached: boolean;
+  /** Claude agents currently running in this session. Empty when there are none. */
+  agents: Agent[];
 };
 
 /** The current status of a Claude agent running in an orc session. */

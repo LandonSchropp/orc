@@ -11,5 +11,6 @@ export const sessionFactory = Factory.define<Session>(({ sequence, afterBuild })
     name: "",
     createdAt: new Date(),
     attached: false,
+    agents: [],
   };
 });
