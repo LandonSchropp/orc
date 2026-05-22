@@ -6,8 +6,10 @@ import type { ReactNode } from "react";
 
 GlobalRegistrator.register();
 
-function wrapper({ children }: { children: ReactNode }) {
-  return <StoreProvider>{children}</StoreProvider>;
+function wrapper(initialNumberOfColumns: number) {
+  return ({ children }: { children: ReactNode }) => (
+    <StoreProvider initialNumberOfColumns={initialNumberOfColumns}>{children}</StoreProvider>
+  );
 }
 
 describe("useStore", () => {
@@ -19,16 +21,20 @@ describe("useStore", () => {
 
   describe("when used inside a StoreProvider", () => {
     it("returns the store's state", () => {
-      const { result } = renderHook(() => useStore(), { wrapper });
+      const { result } = renderHook(() => useStore(), { wrapper: wrapper(3) });
+
       expect(result.current).toMatchObject({
         projects: [],
         selectedSessionIdentifier: null,
+        numberOfColumns: 3,
       });
     });
 
     it("returns the store actions", () => {
-      const { result } = renderHook(() => useStore(), { wrapper });
+      const { result } = renderHook(() => useStore(), { wrapper: wrapper(3) });
+
       expect(typeof result.current.setSessions).toBe("function");
+      expect(typeof result.current.setNumberOfColumns).toBe("function");
     });
   });
 });
