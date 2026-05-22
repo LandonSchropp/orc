@@ -1,4 +1,4 @@
-import { Footer } from "./Footer.tsx";
+import { Footer } from "./footer.tsx";
 import { describe, expect, it } from "bun:test";
 import { render } from "ink-testing-library";
 

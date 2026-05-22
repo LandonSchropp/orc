@@ -1,4 +1,4 @@
-import { useInterval } from "./useInterval.ts";
+import { useInterval } from "./use-interval.ts";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, jest } from "bun:test";

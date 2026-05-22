@@ -1,4 +1,4 @@
-import { Header } from "./Header.tsx";
+import { Header } from "./header.tsx";
 import { describe, expect, it } from "bun:test";
 import { render } from "ink-testing-library";
 

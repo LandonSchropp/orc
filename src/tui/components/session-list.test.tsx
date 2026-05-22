@@ -1,4 +1,4 @@
-import { SessionList } from "./SessionList.tsx";
+import { SessionList } from "./session-list.tsx";
 import { describe, expect, it } from "bun:test";
 import { render } from "ink-testing-library";
 

@@ -1,10 +1,10 @@
-import { AgentStatus } from "./AgentStatus.tsx";
+import { AgentStatus } from "./agent-status.tsx";
 import { describe, expect, it, mock } from "bun:test";
 import { render } from "ink-testing-library";
 
 const useIntervalMock = mock(() => 0);
 
-await mock.module("../hooks/useInterval.ts", () => ({
+await mock.module("../hooks/use-interval.ts", () => ({
   useInterval: useIntervalMock,
 }));
 

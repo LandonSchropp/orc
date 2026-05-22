@@ -1,6 +1,6 @@
-import { Footer } from "./components/Footer.tsx";
-import { Header } from "./components/Header.tsx";
-import { SessionList } from "./components/SessionList.tsx";
+import { Footer } from "./components/footer.tsx";
+import { Header } from "./components/header.tsx";
+import { SessionList } from "./components/session-list.tsx";
 import { Box } from "ink";
 
 export function App() {
