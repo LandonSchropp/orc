@@ -1,5 +1,6 @@
 import type { Session } from "../../types.ts";
 import { groupSessionsByProject } from "./group-sessions-by-project.ts";
+import { pickNextSelection } from "./pick-next-selection.ts";
 import type { StoreAction, StoreState } from "./types.ts";
 import { useCallback, useReducer } from "react";
 
@@ -12,16 +13,22 @@ export const INITIAL_STORE_STATE: StoreState = {
 /**
  * A pure reducer function that handles store state updates based on action types.
  *
- * @param _state The current store state prior to the action update.
+ * @param state The current store state prior to the action update.
  * @param action The action to apply to the state.
  * @returns The new store state after applying the action.
  */
-function storeReducer(_state: StoreState, action: StoreAction): StoreState {
+function storeReducer(state: StoreState, action: StoreAction): StoreState {
   switch (action.type) {
     case "SET_SESSIONS": {
+      const projects = groupSessionsByProject(action.sessions);
+
       return {
-        projects: groupSessionsByProject(action.sessions),
-        selectedSessionIdentifier: null,
+        projects,
+        selectedSessionIdentifier: pickNextSelection(
+          state.projects,
+          state.selectedSessionIdentifier,
+          projects,
+        ),
       };
     }
   }
