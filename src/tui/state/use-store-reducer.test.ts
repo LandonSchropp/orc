@@ -26,8 +26,8 @@ describe("useStoreReducer", () => {
       const { result } = renderHook(() => useStoreReducer());
       act(() => result.current.setSessions([a, b]));
       expect(result.current.projects).toEqual([
-        { project: "orc", sessions: [a] },
         { project: "notes", sessions: [b] },
+        { project: "orc", sessions: [a] },
       ]);
     });
   });

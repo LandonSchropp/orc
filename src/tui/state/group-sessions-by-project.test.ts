@@ -20,14 +20,21 @@ describe("groupSessionsByProject", () => {
   });
 
   describe("when sessions span multiple projects", () => {
-    it("groups them by project in first-occurrence order", () => {
+    it("groups them by project in alphabetical order", () => {
       const a = sessionFactory.build({ project: "orc", session: "a" });
       const b = sessionFactory.build({ project: "notes", session: "b" });
       const c = sessionFactory.build({ project: "orc", session: "c" });
       expect(groupSessionsByProject([a, b, c])).toEqual([
-        { project: "orc", sessions: [a, c] },
         { project: "notes", sessions: [b] },
+        { project: "orc", sessions: [a, c] },
       ]);
+    });
+
+    it("preserves input order of sessions within each project", () => {
+      const a = sessionFactory.build({ project: "orc", session: "a" });
+      const b = sessionFactory.build({ project: "orc", session: "b" });
+      const c = sessionFactory.build({ project: "orc", session: "c" });
+      expect(groupSessionsByProject([c, a, b])).toEqual([{ project: "orc", sessions: [c, a, b] }]);
     });
   });
 });

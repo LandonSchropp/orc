@@ -3,7 +3,7 @@ import type { Project, Session } from "../../types.ts";
 /**
  * Groups a flat list of sessions by their project.
  *
- * Projects appear in the order they are first encountered. Sessions within a project preserve their
+ * Projects are returned sorted alphabetically by name. Sessions within a project preserve their
  * input order.
  */
 export function groupSessionsByProject(sessions: Session[]): Project[] {
@@ -18,5 +18,5 @@ export function groupSessionsByProject(sessions: Session[]): Project[] {
   return Array.from(groups, ([project, projectSessions]) => ({
     project,
     sessions: projectSessions,
-  }));
+  })).sort((a, b) => a.project.localeCompare(b.project));
 }
