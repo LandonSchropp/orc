@@ -1,10 +1,11 @@
 import type { Session } from "../../types.ts";
+import { groupSessionsByProject } from "./group-sessions-by-project.ts";
 import type { StoreAction, StoreState } from "./types.ts";
 import { useCallback, useReducer } from "react";
 
-/** The initial store state used when the TUI first mounts: no sessions, no selection. */
+/** The initial store state used when the TUI first mounts: no projects, no selection. */
 export const INITIAL_STORE_STATE: StoreState = {
-  sessions: [],
+  projects: [],
   selectedSessionIdentifier: null,
 };
 
@@ -18,7 +19,10 @@ export const INITIAL_STORE_STATE: StoreState = {
 function storeReducer(_state: StoreState, action: StoreAction): StoreState {
   switch (action.type) {
     case "SET_SESSIONS": {
-      return { sessions: action.sessions, selectedSessionIdentifier: null };
+      return {
+        projects: groupSessionsByProject(action.sessions),
+        selectedSessionIdentifier: null,
+      };
     }
   }
 }

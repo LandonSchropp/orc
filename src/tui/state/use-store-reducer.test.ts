@@ -8,9 +8,9 @@ GlobalRegistrator.register();
 
 describe("useStoreReducer", () => {
   describe("when first called", () => {
-    it("returns an empty sessions list", () => {
+    it("returns an empty projects list", () => {
       const { result } = renderHook(() => useStoreReducer());
-      expect(result.current.sessions).toEqual([]);
+      expect(result.current.projects).toEqual([]);
     });
 
     it("returns a null selected session identifier", () => {
@@ -20,11 +20,15 @@ describe("useStoreReducer", () => {
   });
 
   describe("when setSessions is called", () => {
-    it("replaces the sessions list", () => {
-      const sessions = sessionFactory.buildList(2);
+    it("groups the sessions by project", () => {
+      const a = sessionFactory.build({ project: "orc", session: "a" });
+      const b = sessionFactory.build({ project: "notes", session: "b" });
       const { result } = renderHook(() => useStoreReducer());
-      act(() => result.current.setSessions(sessions));
-      expect(result.current.sessions).toEqual(sessions);
+      act(() => result.current.setSessions([a, b]));
+      expect(result.current.projects).toEqual([
+        { project: "orc", sessions: [a] },
+        { project: "notes", sessions: [b] },
+      ]);
     });
   });
 });

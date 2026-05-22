@@ -26,6 +26,14 @@ export type Session = {
   agents: Agent[];
 };
 
+/** A group of sessions that share a Tmuxinator project. */
+export type Project = {
+  /** The Tmuxinator project name. */
+  project: string;
+  /** Sessions belonging to this project, in display order. */
+  sessions: Session[];
+};
+
 /** The current status of a Claude agent running in an orc session. */
 export type AgentStatus = (typeof AGENT_STATUSES)[number];
 

@@ -1,8 +1,8 @@
-import type { Session } from "../../types.ts";
+import type { Project, Session } from "../../types.ts";
 
 export type StoreState = {
-  /** The current list of sessions, in display order. */
-  sessions: Session[];
+  /** The current list of projects, each holding its grouped sessions. */
+  projects: Project[];
   /** The identifier of the currently selected session, or `null` if none. */
   selectedSessionIdentifier: string | null;
 };

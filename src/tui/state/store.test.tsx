@@ -21,7 +21,7 @@ describe("useStore", () => {
     it("returns the store's state", () => {
       const { result } = renderHook(() => useStore(), { wrapper });
       expect(result.current).toMatchObject({
-        sessions: [],
+        projects: [],
         selectedSessionIdentifier: null,
       });
     });
