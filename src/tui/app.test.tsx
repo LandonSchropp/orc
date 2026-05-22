@@ -3,8 +3,18 @@ import { describe, expect, it } from "bun:test";
 import { render } from "ink-testing-library";
 
 describe("App", () => {
-  it("renders a hello message", () => {
+  it("renders the header", () => {
     const { lastFrame } = render(<App />);
-    expect(lastFrame()).toContain("Hello, orc!");
+    expect(lastFrame()).toContain("Header");
+  });
+
+  it("renders the session list", () => {
+    const { lastFrame } = render(<App />);
+    expect(lastFrame()).toContain("Sessions");
+  });
+
+  it("renders the footer", () => {
+    const { lastFrame } = render(<App />);
+    expect(lastFrame()).toContain("Footer");
   });
 });
