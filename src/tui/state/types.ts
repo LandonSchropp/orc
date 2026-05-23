@@ -7,6 +7,8 @@ export type StoreState = {
   selectedSessionId: string | null;
   /** The number of session cards that fit across the viewport in a single row. */
   numberOfColumns: number;
+  /** The preferred column for vertical movement, remembered across up/down moves. */
+  lastSelectedColumn: number | null;
 };
 
 /** Actions for the state reducer. */

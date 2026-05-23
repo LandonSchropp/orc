@@ -25,6 +25,12 @@ describe("useStoreReducer", () => {
 
       expect(result.current.numberOfColumns).toBe(4);
     });
+
+    it("returns a null last selected column", () => {
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      expect(result.current.lastSelectedColumn).toBeNull();
+    });
   });
 
   describe("when setSessions is called", () => {
@@ -84,6 +90,20 @@ describe("useStoreReducer", () => {
         expect(result.current.selectedSessionId).toBe("orc/b");
       });
     });
+
+    it("recomputes the last selected column from the new projects", () => {
+      const a = sessionFactory.build({ project: "orc", session: "a" });
+      const aa = sessionFactory.build({ project: "orc", session: "aa" });
+      const b = sessionFactory.build({ project: "orc", session: "b" });
+
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      act(() => result.current.setSessions([a, b]));
+      act(() => result.current.moveRight());
+      act(() => result.current.setSessions([a, aa, b]));
+
+      expect(result.current.lastSelectedColumn).toBe(2);
+    });
   });
 
   describe("when setNumberOfColumns is called", () => {
@@ -93,6 +113,21 @@ describe("useStoreReducer", () => {
       act(() => result.current.setNumberOfColumns(5));
 
       expect(result.current.numberOfColumns).toBe(5);
+    });
+
+    it("recomputes the last selected column for the new number of columns", () => {
+      const sessions = ["a", "b", "c"].map((session) =>
+        sessionFactory.build({ project: "orc", session }),
+      );
+
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      act(() => result.current.setSessions(sessions));
+      act(() => result.current.moveRight());
+      act(() => result.current.moveRight());
+      act(() => result.current.setNumberOfColumns(2));
+
+      expect(result.current.lastSelectedColumn).toBe(0);
     });
   });
 
@@ -109,6 +144,19 @@ describe("useStoreReducer", () => {
 
       expect(result.current.selectedSessionId).toBe("orc/a");
     });
+
+    it("sets the last selected column to the new column", () => {
+      const a = sessionFactory.build({ project: "orc", session: "a" });
+      const b = sessionFactory.build({ project: "orc", session: "b" });
+
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      act(() => result.current.setSessions([a, b]));
+      act(() => result.current.moveRight());
+      act(() => result.current.moveLeft());
+
+      expect(result.current.lastSelectedColumn).toBe(0);
+    });
   });
 
   describe("when moveRight is called", () => {
@@ -122,6 +170,18 @@ describe("useStoreReducer", () => {
       act(() => result.current.moveRight());
 
       expect(result.current.selectedSessionId).toBe("orc/b");
+    });
+
+    it("sets the last selected column to the new column", () => {
+      const a = sessionFactory.build({ project: "orc", session: "a" });
+      const b = sessionFactory.build({ project: "orc", session: "b" });
+
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      act(() => result.current.setSessions([a, b]));
+      act(() => result.current.moveRight());
+
+      expect(result.current.lastSelectedColumn).toBe(1);
     });
   });
 });

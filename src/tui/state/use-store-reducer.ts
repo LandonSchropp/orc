@@ -2,6 +2,7 @@ import type { Session } from "../../types.ts";
 import { groupSessionsByProject } from "./group-sessions-by-project.ts";
 import * as move from "./move.ts";
 import { pickNextSelection } from "./pick-next-selection.ts";
+import { sessionColumn } from "./session-column.ts";
 import type { StoreAction, StoreState } from "./types.ts";
 import { useCallback, useReducer } from "react";
 
@@ -16,34 +17,54 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
   switch (action.type) {
     case "SET_SESSIONS": {
       const projects = groupSessionsByProject(action.sessions);
+      const selectedSessionId = pickNextSelection(
+        state.projects,
+        state.selectedSessionId,
+        projects,
+      );
 
       return {
         ...state,
         projects,
-        selectedSessionId: pickNextSelection(state.projects, state.selectedSessionId, projects),
+        selectedSessionId,
+        lastSelectedColumn: sessionColumn(projects, selectedSessionId, state.numberOfColumns),
       };
     }
     case "SET_NUMBER_OF_COLUMNS": {
-      return { ...state, numberOfColumns: action.numberOfColumns };
-    }
-    case "MOVE_LEFT": {
       return {
         ...state,
-        selectedSessionId: move.moveLeft(
+        numberOfColumns: action.numberOfColumns,
+        lastSelectedColumn: sessionColumn(
           state.projects,
           state.selectedSessionId,
-          state.numberOfColumns,
+          action.numberOfColumns,
         ),
       };
     }
-    case "MOVE_RIGHT": {
+    case "MOVE_LEFT": {
+      const selectedSessionId = move.moveLeft(
+        state.projects,
+        state.selectedSessionId,
+        state.numberOfColumns,
+      );
+
       return {
         ...state,
-        selectedSessionId: move.moveRight(
-          state.projects,
-          state.selectedSessionId,
-          state.numberOfColumns,
-        ),
+        selectedSessionId,
+        lastSelectedColumn: sessionColumn(state.projects, selectedSessionId, state.numberOfColumns),
+      };
+    }
+    case "MOVE_RIGHT": {
+      const selectedSessionId = move.moveRight(
+        state.projects,
+        state.selectedSessionId,
+        state.numberOfColumns,
+      );
+
+      return {
+        ...state,
+        selectedSessionId,
+        lastSelectedColumn: sessionColumn(state.projects, selectedSessionId, state.numberOfColumns),
       };
     }
   }
@@ -60,6 +81,7 @@ export function useStoreReducer(initialNumberOfColumns: number) {
     projects: [],
     selectedSessionId: null,
     numberOfColumns: initialNumberOfColumns,
+    lastSelectedColumn: null,
   });
 
   const setSessions = useCallback(
