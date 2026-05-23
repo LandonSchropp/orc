@@ -3,6 +3,15 @@ import { findProjectContaining } from "./find-project-containing.ts";
 import { firstSessionId } from "./first-session-id.ts";
 
 /**
+ * Returns the number of cells in the row that contains the given session, accounting for a partial
+ * last row.
+ */
+function rowSize(project: Project, sessionIndex: number, numberOfColumns: number): number {
+  const currentColumn = sessionIndex % numberOfColumns;
+  return Math.min(numberOfColumns, project.sessions.length - (sessionIndex - currentColumn));
+}
+
+/**
  * Moves the selection one cell to the left.
  *
  * Clamps at the start of the current row and does not wrap across rows.
@@ -64,12 +73,7 @@ export function moveRight(
   const sessionIndex = project.sessions.findIndex(({ id }) => id === selectedSessionId);
 
   const currentColumn = sessionIndex % numberOfColumns;
-
-  // Determine the number of columns in the current row, accounting for a partial last row.
-  const numberOfColumnsInCurrentRow = Math.min(
-    numberOfColumns,
-    project.sessions.length - (sessionIndex - currentColumn),
-  );
+  const numberOfColumnsInCurrentRow = rowSize(project, sessionIndex, numberOfColumns);
 
   // When the selection is at the last cell of its row (whether the row is full or partial), don't
   // move right.
