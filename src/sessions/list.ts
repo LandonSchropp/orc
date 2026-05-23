@@ -39,7 +39,7 @@ export async function listSessions(): Promise<Session[]> {
       ...session,
       agents: await Promise.all(
         agentPanes
-          .filter((pane) => pane.sessionIdentifier === session.identifier)
+          .filter((pane) => pane.sessionId === session.id)
           .map((pane) => buildAgent(session.project, session.session, pane)),
       ),
     })),

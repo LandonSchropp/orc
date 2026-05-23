@@ -2,9 +2,9 @@ import { AGENT_STATUSES } from "./constants.ts";
 
 /** A tmux pane on orc's isolated server. */
 export type TmuxPane = {
-  /** The orc identifier of the session this pane belongs to (e.g. `project/feature-a`). */
-  sessionIdentifier: string;
-  /** The tmux pane identifier (e.g. `%5`). */
+  /** The orc id of the session this pane belongs to (e.g. `project/feature-a`). */
+  sessionId: string;
+  /** The tmux pane id (e.g. `%5`). */
   paneId: string;
   /** The pane's current title, as set by the running program via OSC 2. */
   paneTitle: string;
@@ -16,8 +16,8 @@ export type Session = {
   project: string;
   /** The session name within the project. */
   session: string;
-  /** The fully qualified session identifier, `project/session`. */
-  identifier: string;
+  /** The fully qualified session id, `project/session`. */
+  id: string;
   /** When the session was created. */
   createdAt: Date;
   /** True if a client is currently attached to the session. */
@@ -39,7 +39,7 @@ export type AgentStatus = (typeof AGENT_STATUSES)[number];
 
 /** A Claude agent running in a tmux pane within an orc session. */
 export type Agent = {
-  /** The tmux pane identifier (e.g. `%5`) that hosts the agent. */
+  /** The tmux pane id (e.g. `%5`) that hosts the agent. */
   paneId: string;
   /** The current status of the agent. */
   status: AgentStatus;

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { runCommand } from "citty";
 
 const writeStateFileMock = mock();
-const sessionIdentifierMock = mock();
+const sessionIdMock = mock();
 const isInsideOrcTmuxSessionMock = mock();
 
 await mock.module("../sessions/state.ts", () => ({
@@ -12,7 +12,7 @@ await mock.module("../sessions/state.ts", () => ({
 }));
 
 await mock.module("../commands/tmux.ts", () => ({
-  sessionIdentifier: sessionIdentifierMock,
+  sessionId: sessionIdMock,
   isInsideOrcTmuxSession: isInsideOrcTmuxSessionMock,
 }));
 
@@ -24,7 +24,7 @@ beforeEach(() => {
 describe("statusHookCommand", () => {
   describe("when given a valid payload", () => {
     it("writes the corresponding state for the firing pane", async () => {
-      sessionIdentifierMock.mockResolvedValue("test-project/feature-a");
+      sessionIdMock.mockResolvedValue("test-project/feature-a");
       spyOn(Bun.stdin, "json").mockResolvedValue({ hook_event_name: "Stop" });
 
       await runCommand(statusHookCommand, { rawArgs: [] });

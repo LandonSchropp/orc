@@ -1,4 +1,4 @@
-import { sessionIdentifier } from "../commands/tmux.ts";
+import { sessionId } from "../commands/tmux.ts";
 import {
   IDLE_AGENT_STATUS,
   NOTIFICATION_HOOK_EVENT,
@@ -8,7 +8,7 @@ import {
   WORKING_AGENT_STATUS,
 } from "../constants.ts";
 import { type AgentStatus } from "../types.ts";
-import { parseSessionIdentifier } from "./identifier.ts";
+import { parseSessionId } from "./id.ts";
 import { writeStateFile } from "./state.ts";
 
 /**
@@ -37,14 +37,14 @@ function eventToStatus(event: string): AgentStatus | null {
  * not map to a known status.
  *
  * @param event - The hook event name from Claude Code.
- * @param paneId - The tmux pane identifier where the hook fired.
+ * @param paneId - The tmux pane id where the hook fired.
  */
 export async function processHookEvent(event: string, paneId: string): Promise<void> {
   const status = eventToStatus(event);
   if (!status) return;
 
-  const identifier = parseSessionIdentifier(await sessionIdentifier(paneId));
-  if (!identifier) return;
+  const id = parseSessionId(await sessionId(paneId));
+  if (!id) return;
 
-  await writeStateFile(identifier[0], identifier[1], paneId, status);
+  await writeStateFile(id[0], id[1], paneId, status);
 }

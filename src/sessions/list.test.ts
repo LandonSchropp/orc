@@ -36,8 +36,8 @@ describe("listSessions", () => {
         sessionFactory.build({ project: "orc", session: "feature-a" }),
       ]);
       listTmuxPanesMock.mockResolvedValue([
-        paneFactory.build({ sessionIdentifier: "orc/feature-a", paneId: "%1", paneTitle: "nvim" }),
-        paneFactory.build({ sessionIdentifier: "orc/feature-a", paneId: "%2", paneTitle: "zsh" }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%1", paneTitle: "nvim" }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%2", paneTitle: "zsh" }),
       ]);
 
       const [session] = await listSessions();
@@ -52,7 +52,7 @@ describe("listSessions", () => {
       ]);
       listTmuxPanesMock.mockResolvedValue([
         paneFactory.build({
-          sessionIdentifier: "orc/feature-a",
+          sessionId: "orc/feature-a",
           paneId: "%3",
           paneTitle: "⠂ Working",
         }),
@@ -74,7 +74,7 @@ describe("listSessions", () => {
       ]);
       listTmuxPanesMock.mockResolvedValue([
         paneFactory.build({
-          sessionIdentifier: "orc/feature-a",
+          sessionId: "orc/feature-a",
           paneId: "%3",
           paneTitle: "✳ Idle",
         }),
@@ -92,8 +92,8 @@ describe("listSessions", () => {
         sessionFactory.build({ project: "orc", session: "feature-a" }),
       ]);
       listTmuxPanesMock.mockResolvedValue([
-        paneFactory.build({ sessionIdentifier: "orc/feature-a", paneId: "%3", paneTitle: "⠂ A" }),
-        paneFactory.build({ sessionIdentifier: "orc/feature-a", paneId: "%4", paneTitle: "✳ B" }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%3", paneTitle: "⠂ A" }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%4", paneTitle: "✳ B" }),
       ]);
 
       const [session] = await listSessions();
@@ -108,15 +108,15 @@ describe("listSessions", () => {
         sessionFactory.build({ project: "orc", session: "feature-b" }),
       ]);
       listTmuxPanesMock.mockResolvedValue([
-        paneFactory.build({ sessionIdentifier: "orc/feature-a", paneId: "%3", paneTitle: "⠂ A" }),
-        paneFactory.build({ sessionIdentifier: "orc/feature-b", paneId: "%5", paneTitle: "⠂ B" }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%3", paneTitle: "⠂ A" }),
+        paneFactory.build({ sessionId: "orc/feature-b", paneId: "%5", paneTitle: "⠂ B" }),
       ]);
 
       const sessions = await listSessions();
-      expect(sessions.find((session) => session.identifier === "orc/feature-a")?.agents).toEqual([
+      expect(sessions.find((session) => session.id === "orc/feature-a")?.agents).toEqual([
         { paneId: "%3", status: "Idle" },
       ]);
-      expect(sessions.find((session) => session.identifier === "orc/feature-b")?.agents).toEqual([
+      expect(sessions.find((session) => session.id === "orc/feature-b")?.agents).toEqual([
         { paneId: "%5", status: "Idle" },
       ]);
     });

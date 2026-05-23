@@ -14,10 +14,10 @@ describe("useStoreReducer", () => {
       expect(result.current.projects).toEqual([]);
     });
 
-    it("returns a null selected session identifier", () => {
+    it("returns a null selected session id", () => {
       const { result } = renderHook(() => useStoreReducer(3));
 
-      expect(result.current.selectedSessionIdentifier).toBeNull();
+      expect(result.current.selectedSessionId).toBeNull();
     });
 
     it("returns the initial number of columns", () => {
@@ -51,7 +51,7 @@ describe("useStoreReducer", () => {
 
         act(() => result.current.setSessions([a, b]));
 
-        expect(result.current.selectedSessionIdentifier).toBe("notes/b");
+        expect(result.current.selectedSessionId).toBe("notes/b");
       });
     });
 
@@ -66,7 +66,7 @@ describe("useStoreReducer", () => {
         act(() => result.current.setSessions([a, b]));
         act(() => result.current.setSessions([a, b, c]));
 
-        expect(result.current.selectedSessionIdentifier).toBe("orc/a");
+        expect(result.current.selectedSessionId).toBe("orc/a");
       });
     });
 
@@ -81,7 +81,7 @@ describe("useStoreReducer", () => {
         act(() => result.current.setSessions([a, b, c]));
         act(() => result.current.setSessions([b, c]));
 
-        expect(result.current.selectedSessionIdentifier).toBe("orc/b");
+        expect(result.current.selectedSessionId).toBe("orc/b");
       });
     });
   });
@@ -107,7 +107,7 @@ describe("useStoreReducer", () => {
       act(() => result.current.moveLeft());
       act(() => result.current.moveLeft());
 
-      expect(result.current.selectedSessionIdentifier).toBe("orc/a");
+      expect(result.current.selectedSessionId).toBe("orc/a");
     });
   });
 
@@ -121,7 +121,7 @@ describe("useStoreReducer", () => {
       act(() => result.current.setSessions([a, b]));
       act(() => result.current.moveRight());
 
-      expect(result.current.selectedSessionIdentifier).toBe("orc/b");
+      expect(result.current.selectedSessionId).toBe("orc/b");
     });
   });
 });

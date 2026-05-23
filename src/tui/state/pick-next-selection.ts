@@ -1,18 +1,16 @@
 import type { Project } from "../../types.ts";
 import { findProjectContaining } from "./find-project-containing.ts";
-import { firstSessionIdentifier } from "./first-session-identifier.ts";
+import { firstSessionId } from "./first-session-id.ts";
 
 /**
- * Checks whether any project in the list owns a session with the given identifier.
+ * Checks whether any project in the list owns a session with the given id.
  *
  * @param projects The projects to search.
- * @param identifier The session identifier to look up.
- * @returns `true` if any project owns a session with that identifier, otherwise `false`.
+ * @param id The session id to look up.
+ * @returns `true` if any project owns a session with that id, otherwise `false`.
  */
-function isPresent(projects: Project[], identifier: string): boolean {
-  return projects.some(({ sessions }) =>
-    sessions.some((session) => session.identifier === identifier),
-  );
+function isPresent(projects: Project[], id: string): boolean {
+  return projects.some(({ sessions }) => sessions.some((session) => session.id === id));
 }
 
 /**
@@ -27,7 +25,7 @@ function findProjectByName(projects: Project[], name: string): Project | undefin
 }
 
 /**
- * Picks the session identifier to select after the sessions list changes.
+ * Picks the session id to select after the sessions list changes.
  *
  * Tries, in order, to keep the cursor as close to its previous position as possible:
  *
@@ -42,7 +40,7 @@ function findProjectByName(projects: Project[], name: string): Project | undefin
  */
 export function pickNextSelection(
   previousProjects: Project[],
-  previousSelectionSessionIdentifier: string | null,
+  previousSelectionSessionId: string | null,
   nextProjects: Project[],
 ): string | null {
   // If there are no sessions left, there is nothing to select.
@@ -51,23 +49,23 @@ export function pickNextSelection(
   }
 
   // If nothing was selected before, default to the first session in the list.
-  if (previousSelectionSessionIdentifier === null) {
-    return firstSessionIdentifier(nextProjects);
+  if (previousSelectionSessionId === null) {
+    return firstSessionId(nextProjects);
   }
 
   // If the previously selected session is still present, keep it selected.
-  if (isPresent(nextProjects, previousSelectionSessionIdentifier)) {
-    return previousSelectionSessionIdentifier;
+  if (isPresent(nextProjects, previousSelectionSessionId)) {
+    return previousSelectionSessionId;
   }
 
   const previousSelectedProject = findProjectContaining(
     previousProjects,
-    previousSelectionSessionIdentifier,
+    previousSelectionSessionId,
   );
 
   // If we can't locate the project that owned the previous selection, default to the first session.
   if (!previousSelectedProject) {
-    return firstSessionIdentifier(nextProjects);
+    return firstSessionId(nextProjects);
   }
 
   const matchingProject = findProjectByName(nextProjects, previousSelectedProject.project);
@@ -77,60 +75,58 @@ export function pickNextSelection(
   if (matchingProject) {
     const { sessions: previousSessions } = previousSelectedProject;
 
-    const previousIndex = previousSessions.findIndex(
-      ({ identifier }) => identifier === previousSelectionSessionIdentifier,
-    );
+    const previousIndex = previousSessions.findIndex(({ id }) => id === previousSelectionSessionId);
 
     // Walk the previous order to the right of the removed session, returning the first session
     // that still exists.
     for (let index = previousIndex + 1; index < previousSessions.length; index++) {
-      const { identifier } = previousSessions[index];
+      const { id } = previousSessions[index];
 
-      if (matchingProject.sessions.some((session) => session.identifier === identifier)) {
-        return identifier;
+      if (matchingProject.sessions.some((session) => session.id === id)) {
+        return id;
       }
     }
 
     // Walk the previous order to the left of the removed session, returning the first session that
     // still exists.
     for (let index = previousIndex - 1; index >= 0; index--) {
-      const { identifier } = previousSessions[index];
+      const { id } = previousSessions[index];
 
-      if (matchingProject.sessions.some((session) => session.identifier === identifier)) {
-        return identifier;
+      if (matchingProject.sessions.some((session) => session.id === id)) {
+        return id;
       }
     }
 
     // If none of the previous sessions in that project survived, fall back to the first session of
     // the matching project.
-    return matchingProject.sessions[0].identifier;
+    return matchingProject.sessions[0].id;
   }
 
   const flattenedPreviousSessions = previousProjects.flatMap(({ sessions }) => sessions);
 
   const previousFlatIndex = flattenedPreviousSessions.findIndex(
-    ({ identifier }) => identifier === previousSelectionSessionIdentifier,
+    ({ id }) => id === previousSelectionSessionId,
   );
 
   // Walk the flat previous order to the right, returning the first session that still exists.
   for (let index = previousFlatIndex + 1; index < flattenedPreviousSessions.length; index++) {
-    const { identifier } = flattenedPreviousSessions[index];
+    const { id } = flattenedPreviousSessions[index];
 
-    if (isPresent(nextProjects, identifier)) {
-      return identifier;
+    if (isPresent(nextProjects, id)) {
+      return id;
     }
   }
 
   // Walk the flat previous order to the left, returning the first session that still exists.
   for (let index = previousFlatIndex - 1; index >= 0; index--) {
-    const { identifier } = flattenedPreviousSessions[index];
+    const { id } = flattenedPreviousSessions[index];
 
-    if (isPresent(nextProjects, identifier)) {
-      return identifier;
+    if (isPresent(nextProjects, id)) {
+      return id;
     }
   }
 
   // If none of the previous sessions survived, fall back to the first session of the first
   // project.
-  return firstSessionIdentifier(nextProjects);
+  return firstSessionId(nextProjects);
 }

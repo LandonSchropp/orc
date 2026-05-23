@@ -12,7 +12,7 @@ import { dirname, join } from "node:path";
  *
  * @param project - The project name.
  * @param session - The session name within the project.
- * @param paneId - The tmux pane identifier (e.g. `%5`).
+ * @param paneId - The tmux pane id (e.g. `%5`).
  * @returns The absolute path under `$XDG_CACHE_HOME/orc/state/<project>-<session>-<paneId>.json`.
  */
 export function stateFilePath(project: string, session: string, paneId: string): string {
@@ -25,7 +25,7 @@ export function stateFilePath(project: string, session: string, paneId: string):
  *
  * @param project - The project name.
  * @param session - The session name within the project.
- * @param paneId - The tmux pane identifier.
+ * @param paneId - The tmux pane id.
  * @param status - The agent status to record.
  */
 export async function writeStateFile(
@@ -45,7 +45,7 @@ export async function writeStateFile(
  *
  * @param project - The project name.
  * @param session - The session name within the project.
- * @param paneId - The tmux pane identifier.
+ * @param paneId - The tmux pane id.
  * @returns The parsed agent state, or `null` if the file does not exist.
  * @throws If the file exists but cannot be parsed or has an invalid shape.
  */

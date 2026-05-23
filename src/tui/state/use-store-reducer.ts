@@ -20,11 +20,7 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
       return {
         ...state,
         projects,
-        selectedSessionIdentifier: pickNextSelection(
-          state.projects,
-          state.selectedSessionIdentifier,
-          projects,
-        ),
+        selectedSessionId: pickNextSelection(state.projects, state.selectedSessionId, projects),
       };
     }
     case "SET_NUMBER_OF_COLUMNS": {
@@ -33,9 +29,9 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
     case "MOVE_LEFT": {
       return {
         ...state,
-        selectedSessionIdentifier: move.moveLeft(
+        selectedSessionId: move.moveLeft(
           state.projects,
-          state.selectedSessionIdentifier,
+          state.selectedSessionId,
           state.numberOfColumns,
         ),
       };
@@ -43,9 +39,9 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
     case "MOVE_RIGHT": {
       return {
         ...state,
-        selectedSessionIdentifier: move.moveRight(
+        selectedSessionId: move.moveRight(
           state.projects,
-          state.selectedSessionIdentifier,
+          state.selectedSessionId,
           state.numberOfColumns,
         ),
       };
@@ -62,7 +58,7 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
 export function useStoreReducer(initialNumberOfColumns: number) {
   const [state, dispatch] = useReducer(storeReducer, {
     projects: [],
-    selectedSessionIdentifier: null,
+    selectedSessionId: null,
     numberOfColumns: initialNumberOfColumns,
   });
 

@@ -25,7 +25,7 @@ describe("useStore", () => {
 
       expect(result.current).toMatchObject({
         projects: [],
-        selectedSessionIdentifier: null,
+        selectedSessionId: null,
         numberOfColumns: 3,
       });
     });

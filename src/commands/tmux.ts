@@ -45,14 +45,14 @@ export async function detachTmuxClient(): Promise<void> {
 }
 
 /**
- * Returns the orc identifier for the session the given pane belongs to. Runs `tmux display-message`
- * against orc's isolated server.
+ * Returns the orc id for the session the given pane belongs to. Runs `tmux display-message` against
+ * orc's isolated server.
  *
- * @param paneId - The tmux pane identifier (e.g. `%5`).
- * @returns The session identifier (e.g. `project/feature-a`).
+ * @param paneId - The tmux pane id (e.g. `%5`).
+ * @returns The session id (e.g. `project/feature-a`).
  * @throws If tmux exits with an error.
  */
-export async function sessionIdentifier(paneId: string): Promise<string> {
+export async function sessionId(paneId: string): Promise<string> {
   const { exitCode, stdout, stderr } = await tmux(["display-message", "-p", "-t", paneId, "#S"]);
 
   if (exitCode !== 0) {
@@ -127,15 +127,15 @@ export async function listTmuxSessions(): Promise<Session[]> {
  * @returns The parsed session, or `null` if the name is not in `project/session` form.
  */
 function parseSessionLine(line: string): Session | null {
-  const [identifier, createdAt, attached] = line.split("\t");
-  const separatorIndex = identifier.indexOf("/");
+  const [id, createdAt, attached] = line.split("\t");
+  const separatorIndex = id.indexOf("/");
 
   if (separatorIndex === -1) return null;
 
   return {
-    project: identifier.slice(0, separatorIndex),
-    session: identifier.slice(separatorIndex + 1),
-    identifier,
+    project: id.slice(0, separatorIndex),
+    session: id.slice(separatorIndex + 1),
+    id,
     createdAt: new Date(Number(createdAt) * 1000),
     attached: attached === "1",
     agents: [],
@@ -170,13 +170,13 @@ export async function listTmuxPanes(): Promise<TmuxPane[]> {
  * `null` for session names that do not contain a `/`, signalling a foreign session on the orc
  * socket that should be skipped.
  *
- * @param line - A line of tmux output: `sessionIdentifier<TAB>paneId<TAB>paneTitle`.
+ * @param line - A line of tmux output: `sessionId<TAB>paneId<TAB>paneTitle`.
  * @returns The parsed pane, or `null` if the session is not in `project/session` form.
  */
 function parsePaneLine(line: string): TmuxPane | null {
-  const [sessionIdentifier, paneId, paneTitle] = line.split("\t");
+  const [sessionId, paneId, paneTitle] = line.split("\t");
 
-  if (!sessionIdentifier.includes("/")) return null;
+  if (!sessionId.includes("/")) return null;
 
-  return { sessionIdentifier, paneId, paneTitle };
+  return { sessionId, paneId, paneTitle };
 }
