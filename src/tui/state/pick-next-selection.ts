@@ -1,5 +1,6 @@
 import type { Project } from "../../types.ts";
 import { findProjectContaining } from "./find-project-containing.ts";
+import { firstSessionIdentifier } from "./first-session-identifier.ts";
 
 /**
  * Checks whether any project in the list owns a session with the given identifier.
@@ -12,16 +13,6 @@ function isPresent(projects: Project[], identifier: string): boolean {
   return projects.some(({ sessions }) =>
     sessions.some((session) => session.identifier === identifier),
   );
-}
-
-/**
- * Returns the identifier of the first session of the first project.
- *
- * @param projects The projects to read from.
- * @returns The identifier of the first session, or `null` when there are no sessions.
- */
-function firstSessionIdentifier(projects: Project[]): string | null {
-  return projects[0]?.sessions[0]?.identifier ?? null;
 }
 
 /**
