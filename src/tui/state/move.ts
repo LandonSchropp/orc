@@ -98,3 +98,120 @@ export function moveRight(
 
   return project.sessions[sessionIndex + 1].id;
 }
+
+/**
+ * Moves the selection one row up.
+ *
+ * The last selected column is used as the target (clamped to the target row's width when shorter).
+ * The previous row in the same project is preferred; otherwise the cursor crosses to the last row
+ * of the previous project. The cursor stays put when no row above exists anywhere.
+ *
+ * @param projects The current list of projects.
+ * @param selectedSessionId The currently selected session id, or `null`.
+ * @param lastSelectedColumn The column to aim for, or `null` to use the current column.
+ * @param numberOfColumns The number of cards rendered per row in the viewport.
+ * @returns The new selected session id.
+ */
+export function moveUp(
+  projects: Project[],
+  selectedSessionId: string | null,
+  lastSelectedColumn: number | null,
+  numberOfColumns: number,
+): string | null {
+  const projectIndex = projects.findIndex((project) =>
+    project.sessions.some(({ id }) => id === selectedSessionId),
+  );
+
+  // If the selection isn't found in any project, fall back to the first session of the first
+  // project.
+  if (projectIndex === -1) {
+    return firstSessionId(projects);
+  }
+
+  const project = projects[projectIndex];
+  const sessionIndex = project.sessions.findIndex(({ id }) => id === selectedSessionId);
+
+  const currentRowStart = rowStart(sessionIndex, numberOfColumns);
+  const currentColumn = sessionIndex - currentRowStart;
+  let targetColumn = lastSelectedColumn ?? currentColumn;
+
+  // Previous rows within the same project are always full, so the target column maps directly.
+  if (currentRowStart > 0) {
+    const previousRowStart = currentRowStart - numberOfColumns;
+    return project.sessions[previousRowStart + targetColumn].id;
+  }
+
+  const previousSessions = projects[projectIndex - 1]?.sessions;
+
+  // No row above in the current project. Cross to the previous project's last row, clamping the
+  // column when that row is partial.
+  if (previousSessions) {
+    const lastIndex = previousSessions.length - 1;
+    targetColumn = Math.min(
+      targetColumn,
+      rowSize(previousSessions, lastIndex, numberOfColumns) - 1,
+    );
+    return previousSessions[rowStart(lastIndex, numberOfColumns) + targetColumn].id;
+  }
+
+  // No row above anywhere.
+  return selectedSessionId;
+}
+
+/**
+ * Moves the selection one row down.
+ *
+ * The last selected column is used as the target (clamped to the target row's width when shorter).
+ * The next row in the same project is preferred; otherwise the cursor crosses to the first row of
+ * the next project. The cursor stays put when no row below exists anywhere.
+ *
+ * @param projects The current list of projects.
+ * @param selectedSessionId The currently selected session id, or `null`.
+ * @param lastSelectedColumn The column to aim for, or `null` to use the current column.
+ * @param numberOfColumns The number of cards rendered per row in the viewport.
+ * @returns The new selected session id.
+ */
+export function moveDown(
+  projects: Project[],
+  selectedSessionId: string | null,
+  lastSelectedColumn: number | null,
+  numberOfColumns: number,
+): string | null {
+  const projectIndex = projects.findIndex((project) =>
+    project.sessions.some(({ id }) => id === selectedSessionId),
+  );
+
+  if (projectIndex === -1) {
+    return firstSessionId(projects);
+  }
+
+  const project = projects[projectIndex];
+  const sessionIndex = project.sessions.findIndex(({ id }) => id === selectedSessionId);
+
+  const currentRowStart = rowStart(sessionIndex, numberOfColumns);
+  const currentColumn = sessionIndex - currentRowStart;
+  let targetColumn = lastSelectedColumn ?? currentColumn;
+
+  // Try the next row within the current project, clamping the column to the row's width.
+  const nextRowStart = currentRowStart + numberOfColumns;
+
+  if (nextRowStart < project.sessions.length) {
+    targetColumn = Math.min(
+      targetColumn,
+      rowSize(project.sessions, nextRowStart, numberOfColumns) - 1,
+    );
+    return project.sessions[nextRowStart + targetColumn].id;
+  }
+
+  const nextSessions = projects[projectIndex + 1]?.sessions;
+
+  // No row below in the current project. Cross to the next project's first row, clamping the column
+  // when that row is partial.
+  if (nextSessions) {
+    targetColumn = Math.min(targetColumn, rowSize(nextSessions, 0, numberOfColumns) - 1);
+    return nextSessions[targetColumn].id;
+  }
+
+  // No row below anywhere.
+  return selectedSessionId;
+}
