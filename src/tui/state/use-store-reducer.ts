@@ -1,5 +1,6 @@
 import type { Session } from "../../types.ts";
 import { groupSessionsByProject } from "./group-sessions-by-project.ts";
+import * as move from "./move.ts";
 import { pickNextSelection } from "./pick-next-selection.ts";
 import type { StoreAction, StoreState } from "./types.ts";
 import { useCallback, useReducer } from "react";
@@ -28,6 +29,26 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
     }
     case "SET_NUMBER_OF_COLUMNS": {
       return { ...state, numberOfColumns: action.numberOfColumns };
+    }
+    case "MOVE_LEFT": {
+      return {
+        ...state,
+        selectedSessionIdentifier: move.moveLeft(
+          state.projects,
+          state.selectedSessionIdentifier,
+          state.numberOfColumns,
+        ),
+      };
+    }
+    case "MOVE_RIGHT": {
+      return {
+        ...state,
+        selectedSessionIdentifier: move.moveRight(
+          state.projects,
+          state.selectedSessionIdentifier,
+          state.numberOfColumns,
+        ),
+      };
     }
   }
 }
@@ -59,5 +80,13 @@ export function useStoreReducer(initialNumberOfColumns: number) {
     [dispatch],
   );
 
-  return { ...state, setSessions, setNumberOfColumns };
+  const moveLeft = useCallback(() => {
+    dispatch({ type: "MOVE_LEFT" });
+  }, [dispatch]);
+
+  const moveRight = useCallback(() => {
+    dispatch({ type: "MOVE_RIGHT" });
+  }, [dispatch]);
+
+  return { ...state, setSessions, setNumberOfColumns, moveLeft, moveRight };
 }

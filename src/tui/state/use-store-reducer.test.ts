@@ -95,4 +95,33 @@ describe("useStoreReducer", () => {
       expect(result.current.numberOfColumns).toBe(5);
     });
   });
+
+  describe("when moveLeft is called", () => {
+    it("moves the selection to the previous session in the same row", () => {
+      const a = sessionFactory.build({ project: "orc", session: "a" });
+      const b = sessionFactory.build({ project: "orc", session: "b" });
+
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      act(() => result.current.setSessions([a, b]));
+      act(() => result.current.moveLeft());
+      act(() => result.current.moveLeft());
+
+      expect(result.current.selectedSessionIdentifier).toBe("orc/a");
+    });
+  });
+
+  describe("when moveRight is called", () => {
+    it("moves the selection to the next session in the same row", () => {
+      const a = sessionFactory.build({ project: "orc", session: "a" });
+      const b = sessionFactory.build({ project: "orc", session: "b" });
+
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      act(() => result.current.setSessions([a, b]));
+      act(() => result.current.moveRight());
+
+      expect(result.current.selectedSessionIdentifier).toBe("orc/b");
+    });
+  });
 });

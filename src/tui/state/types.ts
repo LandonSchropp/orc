@@ -12,4 +12,6 @@ export type StoreState = {
 /** Actions for the state reducer. */
 export type StoreAction =
   | { type: "SET_SESSIONS"; sessions: Session[] }
-  | { type: "SET_NUMBER_OF_COLUMNS"; numberOfColumns: number };
+  | { type: "SET_NUMBER_OF_COLUMNS"; numberOfColumns: number }
+  | { type: "MOVE_LEFT" }
+  | { type: "MOVE_RIGHT" };
