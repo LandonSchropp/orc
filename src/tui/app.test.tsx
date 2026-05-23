@@ -5,7 +5,7 @@ import { render } from "ink-testing-library";
 describe("App", () => {
   it("renders the header", () => {
     const { lastFrame } = render(<App />);
-    expect(lastFrame()).toContain("Header");
+    expect(lastFrame()).toContain("orc");
   });
 
   it("renders the session list", () => {
