@@ -184,4 +184,64 @@ describe("useStoreReducer", () => {
       expect(result.current.lastSelectedColumn).toBe(1);
     });
   });
+
+  describe("when moveDown is called", () => {
+    it("moves the selection to the next row in the same project", () => {
+      const sessions = ["a", "b", "c", "d"].map((session) =>
+        sessionFactory.build({ project: "orc", session }),
+      );
+
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      act(() => result.current.setSessions(sessions));
+      act(() => result.current.moveDown());
+
+      expect(result.current.selectedSessionId).toBe("orc/d");
+    });
+
+    it("leaves the last selected column unchanged", () => {
+      const sessions = ["a", "b", "c", "d"].map((session) =>
+        sessionFactory.build({ project: "orc", session }),
+      );
+
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      act(() => result.current.setSessions(sessions));
+      act(() => result.current.moveRight());
+      act(() => result.current.moveDown());
+
+      expect(result.current.lastSelectedColumn).toBe(1);
+    });
+  });
+
+  describe("when moveUp is called", () => {
+    it("moves the selection to the previous row in the same project", () => {
+      const sessions = ["a", "b", "c", "d"].map((session) =>
+        sessionFactory.build({ project: "orc", session }),
+      );
+
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      act(() => result.current.setSessions(sessions));
+      act(() => result.current.moveDown());
+      act(() => result.current.moveUp());
+
+      expect(result.current.selectedSessionId).toBe("orc/a");
+    });
+
+    it("leaves the last selected column unchanged", () => {
+      const sessions = ["a", "b", "c", "d"].map((session) =>
+        sessionFactory.build({ project: "orc", session }),
+      );
+
+      const { result } = renderHook(() => useStoreReducer(3));
+
+      act(() => result.current.setSessions(sessions));
+      act(() => result.current.moveRight());
+      act(() => result.current.moveDown());
+      act(() => result.current.moveUp());
+
+      expect(result.current.lastSelectedColumn).toBe(1);
+    });
+  });
 });

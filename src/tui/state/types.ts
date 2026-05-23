@@ -16,4 +16,6 @@ export type StoreAction =
   | { type: "SET_SESSIONS"; sessions: Session[] }
   | { type: "SET_NUMBER_OF_COLUMNS"; numberOfColumns: number }
   | { type: "MOVE_LEFT" }
-  | { type: "MOVE_RIGHT" };
+  | { type: "MOVE_RIGHT" }
+  | { type: "MOVE_UP" }
+  | { type: "MOVE_DOWN" };

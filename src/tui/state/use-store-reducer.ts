@@ -67,6 +67,28 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
         lastSelectedColumn: sessionColumn(state.projects, selectedSessionId, state.numberOfColumns),
       };
     }
+    case "MOVE_UP": {
+      return {
+        ...state,
+        selectedSessionId: move.moveUp(
+          state.projects,
+          state.selectedSessionId,
+          state.lastSelectedColumn,
+          state.numberOfColumns,
+        ),
+      };
+    }
+    case "MOVE_DOWN": {
+      return {
+        ...state,
+        selectedSessionId: move.moveDown(
+          state.projects,
+          state.selectedSessionId,
+          state.lastSelectedColumn,
+          state.numberOfColumns,
+        ),
+      };
+    }
   }
 }
 
@@ -106,5 +128,21 @@ export function useStoreReducer(initialNumberOfColumns: number) {
     dispatch({ type: "MOVE_RIGHT" });
   }, [dispatch]);
 
-  return { ...state, setSessions, setNumberOfColumns, moveLeft, moveRight };
+  const moveUp = useCallback(() => {
+    dispatch({ type: "MOVE_UP" });
+  }, [dispatch]);
+
+  const moveDown = useCallback(() => {
+    dispatch({ type: "MOVE_DOWN" });
+  }, [dispatch]);
+
+  return {
+    ...state,
+    setSessions,
+    setNumberOfColumns,
+    moveLeft,
+    moveRight,
+    moveUp,
+    moveDown,
+  };
 }
