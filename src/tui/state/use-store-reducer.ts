@@ -95,10 +95,13 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
 }
 
 /**
- * Custom hook that manages the store reducer.
+ * Wraps `storeReducer` with the React `useReducer` hook plus action-dispatching callbacks. Owns the
+ * initial-state construction and exposes `setWindowWidth` so the provider can keep the store's
+ * layout in sync with resize events. Exported for direct testing; production callers should use
+ * `StoreProvider` and `useStore` instead.
  *
  * @param initialWindowWidth The initial width of the terminal window.
- * @returns An object containing the current store reducer's state and functions to update it.
+ * @returns An object containing the current store state and functions to update it.
  */
 export function useStoreReducer(initialWindowWidth: number) {
   const [state, dispatch] = useReducer(storeReducer, {

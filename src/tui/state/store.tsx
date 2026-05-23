@@ -1,5 +1,6 @@
 import { useStoreReducer } from "./use-store-reducer.ts";
-import { createContext, useContext } from "react";
+import { useWindowWidth } from "./use-window-width.ts";
+import { createContext, useContext, useEffect } from "react";
 import type { ReactNode } from "react";
 
 type StoreContextValue = ReturnType<typeof useStoreReducer>;
@@ -7,15 +8,22 @@ type StoreContextValue = ReturnType<typeof useStoreReducer>;
 const StoreContext = createContext<StoreContextValue | null>(null);
 
 type StoreProviderProps = {
-  /** The initial width of the terminal window. */
-  initialWindowWidth: number;
   /** The TUI tree that consumes the store. */
   children: ReactNode;
 };
 
-/** Provides the store state and action callbacks to its descendants. */
-export function StoreProvider({ initialWindowWidth, children }: StoreProviderProps) {
-  const store = useStoreReducer(initialWindowWidth);
+/**
+ * Provides the store state and action callbacks to its descendants. Reads the terminal width via
+ * `useWindowWidth` and keeps the store's layout in sync with resize events.
+ */
+export function StoreProvider({ children }: StoreProviderProps) {
+  const windowWidth = useWindowWidth();
+  const store = useStoreReducer(windowWidth);
+  const { setWindowWidth } = store;
+
+  useEffect(() => {
+    setWindowWidth(windowWidth);
+  }, [windowWidth, setWindowWidth]);
 
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
