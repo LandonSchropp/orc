@@ -7,6 +7,10 @@ export type StoreState = {
   selectedSessionId: string | null;
   /** The number of session cards that fit across the viewport in a single row. */
   numberOfColumns: number;
+  /** The width of the left margin outside the leftmost column. */
+  leftMargin: number;
+  /** The width of the right margin outside the rightmost column. */
+  rightMargin: number;
   /** The preferred column for vertical movement, remembered across up/down moves. */
   lastSelectedColumn: number | null;
 };
@@ -14,7 +18,7 @@ export type StoreState = {
 /** Actions for the state reducer. */
 export type StoreAction =
   | { type: "SET_SESSIONS"; sessions: Session[] }
-  | { type: "SET_NUMBER_OF_COLUMNS"; numberOfColumns: number }
+  | { type: "SET_WINDOW_WIDTH"; windowWidth: number }
   | { type: "MOVE_LEFT" }
   | { type: "MOVE_RIGHT" }
   | { type: "MOVE_UP" }

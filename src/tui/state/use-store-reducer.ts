@@ -1,4 +1,5 @@
 import type { Session } from "../../types.ts";
+import { computeLayout } from "./compute-layout.ts";
 import { groupSessionsByProject } from "./group-sessions-by-project.ts";
 import * as move from "./move.ts";
 import { pickNextSelection } from "./pick-next-selection.ts";
@@ -30,15 +31,16 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
         lastSelectedColumn: sessionColumn(projects, selectedSessionId, state.numberOfColumns),
       };
     }
-    case "SET_NUMBER_OF_COLUMNS": {
+    case "SET_WINDOW_WIDTH": {
+      const layout = computeLayout(action.windowWidth);
+
       return {
         ...state,
-        numberOfColumns: action.numberOfColumns,
-        lastSelectedColumn: sessionColumn(
-          state.projects,
-          state.selectedSessionId,
-          action.numberOfColumns,
-        ),
+        ...layout,
+        lastSelectedColumn:
+          layout.numberOfColumns !== state.numberOfColumns
+            ? sessionColumn(state.projects, state.selectedSessionId, layout.numberOfColumns)
+            : state.lastSelectedColumn,
       };
     }
     case "MOVE_LEFT": {
@@ -95,14 +97,14 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
 /**
  * Custom hook that manages the store reducer.
  *
- * @param initialNumberOfColumns The initial number of session cards per row in the viewport.
+ * @param initialWindowWidth The initial width of the terminal window.
  * @returns An object containing the current store reducer's state and functions to update it.
  */
-export function useStoreReducer(initialNumberOfColumns: number) {
+export function useStoreReducer(initialWindowWidth: number) {
   const [state, dispatch] = useReducer(storeReducer, {
     projects: [],
     selectedSessionId: null,
-    numberOfColumns: initialNumberOfColumns,
+    ...computeLayout(initialWindowWidth),
     lastSelectedColumn: null,
   });
 
@@ -113,9 +115,9 @@ export function useStoreReducer(initialNumberOfColumns: number) {
     [dispatch],
   );
 
-  const setNumberOfColumns = useCallback(
-    (numberOfColumns: number) => {
-      dispatch({ type: "SET_NUMBER_OF_COLUMNS", numberOfColumns });
+  const setWindowWidth = useCallback(
+    (windowWidth: number) => {
+      dispatch({ type: "SET_WINDOW_WIDTH", windowWidth });
     },
     [dispatch],
   );
@@ -139,7 +141,7 @@ export function useStoreReducer(initialNumberOfColumns: number) {
   return {
     ...state,
     setSessions,
-    setNumberOfColumns,
+    setWindowWidth,
     moveLeft,
     moveRight,
     moveUp,

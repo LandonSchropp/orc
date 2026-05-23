@@ -6,9 +6,9 @@ import type { ReactNode } from "react";
 
 GlobalRegistrator.register();
 
-function wrapper(initialNumberOfColumns: number) {
+function wrapper(initialWindowWidth: number) {
   return ({ children }: { children: ReactNode }) => (
-    <StoreProvider initialNumberOfColumns={initialNumberOfColumns}>{children}</StoreProvider>
+    <StoreProvider initialWindowWidth={initialWindowWidth}>{children}</StoreProvider>
   );
 }
 
@@ -21,7 +21,7 @@ describe("useStore", () => {
 
   describe("when used inside a StoreProvider", () => {
     it("returns the store's state", () => {
-      const { result } = renderHook(() => useStore(), { wrapper: wrapper(3) });
+      const { result } = renderHook(() => useStore(), { wrapper: wrapper(100) });
 
       expect(result.current).toMatchObject({
         projects: [],
@@ -31,10 +31,10 @@ describe("useStore", () => {
     });
 
     it("returns the store actions", () => {
-      const { result } = renderHook(() => useStore(), { wrapper: wrapper(3) });
+      const { result } = renderHook(() => useStore(), { wrapper: wrapper(100) });
 
       expect(typeof result.current.setSessions).toBe("function");
-      expect(typeof result.current.setNumberOfColumns).toBe("function");
+      expect(typeof result.current.setWindowWidth).toBe("function");
     });
   });
 });
