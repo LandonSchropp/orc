@@ -26,7 +26,7 @@ export const orc = defineCommand({
     if (rawArgs.length > 0) return;
 
     // The import is lazy so subcommands never load the Ink/React module graph at all.
-    const { runTui } = await import("../tui/index.ts");
+    const { runTui } = await import("../tui/index.tsx");
 
     await runTui();
   },

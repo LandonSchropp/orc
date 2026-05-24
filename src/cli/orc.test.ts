@@ -5,7 +5,7 @@ import { runCommand } from "citty";
 
 const runTuiMock = mock(() => Promise.resolve());
 
-await mock.module("../tui/index.ts", () => ({
+await mock.module("../tui/index.tsx", () => ({
   runTui: runTuiMock,
 }));
 

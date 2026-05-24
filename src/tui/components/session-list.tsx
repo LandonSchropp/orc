@@ -1,9 +1,9 @@
 import { Box, Text } from "ink";
 
-/** Middle of the TUI. Will hold the project sections and session cards. */
+/** Middle of the TUI. Fills the space between the header and footer; holds the session cards. */
 export function SessionList() {
   return (
-    <Box>
+    <Box flexGrow={1}>
       <Text>Sessions</Text>
     </Box>
   );
