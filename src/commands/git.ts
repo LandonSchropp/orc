@@ -46,6 +46,27 @@ export async function defaultBranch(repoPath: string): Promise<string | null> {
 }
 
 /**
+ * Checks whether a local branch named `branch` exists in the repo at `repoPath`.
+ *
+ * @param repoPath - The path to the git repository.
+ * @param branch - The branch name to look for.
+ * @returns `true` when the branch exists, otherwise `false`.
+ */
+export async function branchExists(repoPath: string, branch: string): Promise<boolean> {
+  const { exitCode } = await runCommand([
+    "git",
+    "-C",
+    repoPath,
+    "show-ref",
+    "--verify",
+    "--quiet",
+    `refs/heads/${branch}`,
+  ]);
+
+  return exitCode === 0;
+}
+
+/**
  * Creates a git worktree at `worktreePath` with a new branch named `branch` based on `startPoint`.
  *
  * @param repoPath - The path to the git repository.

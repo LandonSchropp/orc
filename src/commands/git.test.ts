@@ -1,4 +1,4 @@
-import { addWorktree, defaultBranch, isGitInstalled, removeWorktree } from "./git.ts";
+import { addWorktree, branchExists, defaultBranch, isGitInstalled, removeWorktree } from "./git.ts";
 import { describe, expect, it, mock } from "bun:test";
 
 const runCommandMock = mock(() => Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }));
@@ -65,6 +65,34 @@ describe("defaultBranch", () => {
         runCommandMock.mockResolvedValue({ exitCode: 1, stdout: "", stderr: "" });
         expect(await defaultBranch("/path/to/repo")).toBeNull();
       });
+    });
+  });
+});
+
+describe("branchExists", () => {
+  describe("when the branch exists", () => {
+    it("returns true", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+
+      expect(await branchExists("/repo", "feature-a")).toBe(true);
+
+      expect(runCommandMock).toHaveBeenCalledWith([
+        "git",
+        "-C",
+        "/repo",
+        "show-ref",
+        "--verify",
+        "--quiet",
+        "refs/heads/feature-a",
+      ]);
+    });
+  });
+
+  describe("when the branch does not exist", () => {
+    it("returns false", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 1, stdout: "", stderr: "" });
+
+      expect(await branchExists("/repo", "feature-a")).toBe(false);
     });
   });
 });
