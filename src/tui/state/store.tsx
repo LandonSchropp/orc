@@ -2,7 +2,7 @@ import { listSessions } from "../../sessions/list.ts";
 import { useInterval } from "../hooks/use-interval.ts";
 import { POLL_INTERVAL } from "./constants.ts";
 import { useStoreReducer } from "./use-store-reducer.ts";
-import { useWindowWidth } from "./use-window-width.ts";
+import { useWindowSize } from "./use-window-size.ts";
 import { createContext, useContext, useEffect } from "react";
 import type { ReactNode } from "react";
 
@@ -20,14 +20,14 @@ type StoreProviderProps = {
  * the terminal size and the session data current as sessions change.
  */
 export function StoreProvider({ children }: StoreProviderProps) {
-  const windowWidth = useWindowWidth();
+  const { columns } = useWindowSize();
   const ticks = useInterval(POLL_INTERVAL);
-  const store = useStoreReducer(windowWidth);
+  const store = useStoreReducer(columns);
   const { setSessions, setWindowWidth } = store;
 
   useEffect(() => {
-    setWindowWidth(windowWidth);
-  }, [windowWidth, setWindowWidth]);
+    setWindowWidth(columns);
+  }, [columns, setWindowWidth]);
 
   useEffect(() => {
     void listSessions().then(setSessions);

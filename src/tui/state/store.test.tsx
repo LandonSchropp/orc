@@ -1,7 +1,7 @@
 import { sessionFactory } from "../../../test/factories/session.ts";
 import * as listSessionsModule from "../../sessions/list.ts";
 import { StoreProvider, useStore } from "./store.tsx";
-import * as useWindowWidthModule from "./use-window-width.ts";
+import * as useWindowSizeModule from "./use-window-size.ts";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
@@ -10,7 +10,7 @@ import type { ReactNode } from "react";
 GlobalRegistrator.register();
 
 beforeEach(() => {
-  spyOn(useWindowWidthModule, "useWindowWidth").mockReturnValue(100);
+  spyOn(useWindowSizeModule, "useWindowSize").mockReturnValue({ columns: 100, rows: 30 });
   spyOn(listSessionsModule, "listSessions").mockResolvedValue([]);
 });
 
