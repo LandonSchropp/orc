@@ -40,7 +40,7 @@ describe("App", () => {
 
   it("renders the footer", () => {
     const { lastFrame } = render(<App />);
-    expect(lastFrame()).toContain("Footer");
+    expect(lastFrame()).toContain("quit");
   });
 
   describe("when q is pressed", () => {
