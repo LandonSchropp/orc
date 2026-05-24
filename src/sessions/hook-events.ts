@@ -2,6 +2,7 @@ import { sessionId } from "../commands/tmux.ts";
 import {
   IDLE_AGENT_STATUS,
   NOTIFICATION_HOOK_EVENT,
+  POST_TOOL_USE_HOOK_EVENT,
   STOP_HOOK_EVENT,
   USER_PROMPT_SUBMIT_HOOK_EVENT,
   WAITING_AGENT_STATUS,
@@ -21,6 +22,7 @@ import { writeStateFile } from "./state.ts";
 function eventToStatus(event: string): AgentStatus | null {
   switch (event) {
     case USER_PROMPT_SUBMIT_HOOK_EVENT:
+    case POST_TOOL_USE_HOOK_EVENT:
       return WORKING_AGENT_STATUS;
     case STOP_HOOK_EVENT:
       return IDLE_AGENT_STATUS;

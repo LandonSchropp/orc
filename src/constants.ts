@@ -23,9 +23,13 @@ export const STOP_HOOK_EVENT = "Stop";
 /** Claude Code hook event fired for notifications such as permission prompts. */
 export const NOTIFICATION_HOOK_EVENT = "Notification";
 
+/** Claude Code hook event fired after a tool finishes running. */
+export const POST_TOOL_USE_HOOK_EVENT = "PostToolUse";
+
 /** Claude Code hook events orc subscribes to. */
 export const HOOK_EVENTS = [
   USER_PROMPT_SUBMIT_HOOK_EVENT,
   STOP_HOOK_EVENT,
   NOTIFICATION_HOOK_EVENT,
+  POST_TOOL_USE_HOOK_EVENT,
 ] as const;

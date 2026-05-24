@@ -38,6 +38,13 @@ describe("processHookEvent", () => {
     });
   });
 
+  describe("when the event is PostToolUse", () => {
+    it("writes Working status for the firing pane", async () => {
+      await processHookEvent("PostToolUse", "%5");
+      expect(writeStateFileMock).toHaveBeenCalledWith("test-project", "feature-a", "%5", "Working");
+    });
+  });
+
   describe("when the event is unknown", () => {
     it("does not write a state file", async () => {
       await processHookEvent("Unrecognized", "%5");
