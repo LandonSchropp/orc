@@ -67,20 +67,23 @@ export async function branchExists(repoPath: string, branch: string): Promise<bo
 }
 
 /**
- * Creates a git worktree at `worktreePath` with a new branch named `branch` based on `startPoint`.
+ * Creates a git worktree at `worktreePath` for the branch named `branch`. When `baseBranch` is
+ * given, creates a new branch based on it; otherwise checks out the existing `branch`.
  *
  * @param repoPath - The path to the git repository.
  * @param worktreePath - The path where the worktree will be created.
- * @param branch - The name of the new branch.
- * @param startPoint - The branch, commit, or tag to base the new branch on.
+ * @param branch - The name of the branch to check out in the worktree.
+ * @param baseBranch - The branch to base a new branch on. Omit to check out an existing branch.
  * @throws If `git worktree add` fails.
  */
 export async function addWorktree(
   repoPath: string,
   worktreePath: string,
   branch: string,
-  startPoint: string,
+  baseBranch?: string,
 ): Promise<void> {
+  const branchArguments = baseBranch === undefined ? [branch] : ["-b", branch, baseBranch];
+
   const { exitCode, stderr } = await runCommand([
     "git",
     "-C",
@@ -88,9 +91,7 @@ export async function addWorktree(
     "worktree",
     "add",
     worktreePath,
-    "-b",
-    branch,
-    startPoint,
+    ...branchArguments,
   ]);
 
   if (exitCode !== 0) {

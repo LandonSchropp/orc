@@ -1,4 +1,4 @@
-import { addWorktree, defaultBranch } from "../commands/git.ts";
+import { addWorktree, branchExists, defaultBranch } from "../commands/git.ts";
 import { readTmuxinatorProject, startTmuxinatorProject } from "../commands/tmuxinator.ts";
 import { worktreePath } from "./paths.ts";
 import { switchSession } from "./switch.ts";
@@ -29,14 +29,19 @@ export async function createSession(
 }
 
 async function createWorktree(repoPath: string, project: string, session: string): Promise<string> {
+  const path = worktreePath(project, session);
+  await mkdir(dirname(path), { recursive: true });
+
+  if (await branchExists(repoPath, session)) {
+    await addWorktree(repoPath, path, session);
+    return path;
+  }
+
   const branch = await defaultBranch(repoPath);
 
   if (!branch) {
     throw new Error(`Could not determine default branch for ${repoPath}`);
   }
-
-  const path = worktreePath(project, session);
-  await mkdir(dirname(path), { recursive: true });
 
   await addWorktree(repoPath, path, session, branch);
   return path;

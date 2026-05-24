@@ -98,8 +98,8 @@ describe("branchExists", () => {
 });
 
 describe("addWorktree", () => {
-  describe("when the worktree is created successfully", () => {
-    it("invokes `git worktree add` with a new branch from the start point", async () => {
+  describe("when a base branch is given", () => {
+    it("invokes `git worktree add` with a new branch from the base branch", async () => {
       runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
 
       await addWorktree("/repo", "/worktree", "feature-a", "main");
@@ -114,6 +114,24 @@ describe("addWorktree", () => {
         "-b",
         "feature-a",
         "main",
+      ]);
+    });
+  });
+
+  describe("when no base branch is given", () => {
+    it("invokes `git worktree add` for the existing branch", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+
+      await addWorktree("/repo", "/worktree", "feature-a");
+
+      expect(runCommandMock).toHaveBeenCalledWith([
+        "git",
+        "-C",
+        "/repo",
+        "worktree",
+        "add",
+        "/worktree",
+        "feature-a",
       ]);
     });
   });
