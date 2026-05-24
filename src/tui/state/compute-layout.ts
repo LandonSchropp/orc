@@ -1,4 +1,5 @@
 import { COLUMN_WIDTH, GUTTER, MIN_MARGIN } from "./constants.ts";
+import { contentWidth } from "./content-width.ts";
 
 /** The shape of the viewport layout derived from the window width. */
 export type Layout = {
@@ -24,8 +25,7 @@ export function computeLayout(windowWidth: number): Layout {
     Math.floor((windowWidth + GUTTER - 2 * MIN_MARGIN) / (COLUMN_WIDTH + GUTTER)),
   );
 
-  const contentWidth = numberOfColumns * COLUMN_WIDTH + (numberOfColumns - 1) * GUTTER;
-  const leftoverSpace = Math.max(0, windowWidth - contentWidth);
+  const leftoverSpace = Math.max(0, windowWidth - contentWidth(numberOfColumns));
 
   const rightMargin = Math.floor(leftoverSpace / 2);
   const leftMargin = leftoverSpace - rightMargin;
