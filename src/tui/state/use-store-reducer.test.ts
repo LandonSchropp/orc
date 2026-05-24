@@ -9,27 +9,33 @@ GlobalRegistrator.register();
 describe("useStoreReducer", () => {
   describe("when first called", () => {
     it("returns an empty projects list", () => {
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       expect(result.current.projects).toEqual([]);
     });
 
     it("returns a null selected session id", () => {
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       expect(result.current.selectedSessionId).toBeNull();
     });
 
     it("returns the layout computed from the initial window width", () => {
-      const { result } = renderHook(() => useStoreReducer(122));
+      const { result } = renderHook(() => useStoreReducer(122, 30));
 
       expect(result.current.numberOfColumns).toBe(4);
       expect(result.current.leftMargin).toBe(2);
       expect(result.current.rightMargin).toBe(2);
     });
 
+    it("returns the initial window height", () => {
+      const { result } = renderHook(() => useStoreReducer(100, 30));
+
+      expect(result.current.windowHeight).toBe(30);
+    });
+
     it("returns a null last selected column", () => {
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       expect(result.current.lastSelectedColumn).toBeNull();
     });
@@ -40,7 +46,7 @@ describe("useStoreReducer", () => {
       const a = sessionFactory.build({ project: "orc", session: "a" });
       const b = sessionFactory.build({ project: "notes", session: "b" });
 
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       act(() => result.current.setSessions([a, b]));
 
@@ -55,7 +61,7 @@ describe("useStoreReducer", () => {
         const a = sessionFactory.build({ project: "orc", session: "a" });
         const b = sessionFactory.build({ project: "notes", session: "b" });
 
-        const { result } = renderHook(() => useStoreReducer(100));
+        const { result } = renderHook(() => useStoreReducer(100, 30));
 
         act(() => result.current.setSessions([a, b]));
 
@@ -69,7 +75,7 @@ describe("useStoreReducer", () => {
         const b = sessionFactory.build({ project: "orc", session: "b" });
         const c = sessionFactory.build({ project: "orc", session: "c" });
 
-        const { result } = renderHook(() => useStoreReducer(100));
+        const { result } = renderHook(() => useStoreReducer(100, 30));
 
         act(() => result.current.setSessions([a, b]));
         act(() => result.current.setSessions([a, b, c]));
@@ -84,7 +90,7 @@ describe("useStoreReducer", () => {
         const b = sessionFactory.build({ project: "orc", session: "b" });
         const c = sessionFactory.build({ project: "orc", session: "c" });
 
-        const { result } = renderHook(() => useStoreReducer(100));
+        const { result } = renderHook(() => useStoreReducer(100, 30));
 
         act(() => result.current.setSessions([a, b, c]));
         act(() => result.current.setSessions([b, c]));
@@ -98,7 +104,7 @@ describe("useStoreReducer", () => {
       const aa = sessionFactory.build({ project: "orc", session: "aa" });
       const b = sessionFactory.build({ project: "orc", session: "b" });
 
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       act(() => result.current.setSessions([a, b]));
       act(() => result.current.moveRight());
@@ -108,15 +114,23 @@ describe("useStoreReducer", () => {
     });
   });
 
-  describe("when setWindowWidth is called", () => {
+  describe("when setWindowSize is called", () => {
     it("updates the layout values", () => {
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
-      act(() => result.current.setWindowWidth(122));
+      act(() => result.current.setWindowSize(122, 30));
 
       expect(result.current.numberOfColumns).toBe(4);
       expect(result.current.leftMargin).toBe(2);
       expect(result.current.rightMargin).toBe(2);
+    });
+
+    it("updates the window height", () => {
+      const { result } = renderHook(() => useStoreReducer(100, 30));
+
+      act(() => result.current.setWindowSize(100, 50));
+
+      expect(result.current.windowHeight).toBe(50);
     });
 
     describe("when the number of columns changes", () => {
@@ -125,12 +139,12 @@ describe("useStoreReducer", () => {
           sessionFactory.build({ project: "orc", session }),
         );
 
-        const { result } = renderHook(() => useStoreReducer(100));
+        const { result } = renderHook(() => useStoreReducer(100, 30));
 
         act(() => result.current.setSessions(sessions));
         act(() => result.current.moveRight());
         act(() => result.current.moveRight());
-        act(() => result.current.setWindowWidth(62));
+        act(() => result.current.setWindowSize(62, 30));
 
         expect(result.current.lastSelectedColumn).toBe(0);
       });
@@ -141,11 +155,11 @@ describe("useStoreReducer", () => {
         const a = sessionFactory.build({ project: "orc", session: "a" });
         const b = sessionFactory.build({ project: "orc", session: "b" });
 
-        const { result } = renderHook(() => useStoreReducer(100));
+        const { result } = renderHook(() => useStoreReducer(100, 30));
 
         act(() => result.current.setSessions([a, b]));
         act(() => result.current.moveRight());
-        act(() => result.current.setWindowWidth(96));
+        act(() => result.current.setWindowSize(96, 30));
 
         expect(result.current.lastSelectedColumn).toBe(1);
       });
@@ -157,7 +171,7 @@ describe("useStoreReducer", () => {
       const a = sessionFactory.build({ project: "orc", session: "a" });
       const b = sessionFactory.build({ project: "orc", session: "b" });
 
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       act(() => result.current.setSessions([a, b]));
       act(() => result.current.moveLeft());
@@ -170,7 +184,7 @@ describe("useStoreReducer", () => {
       const a = sessionFactory.build({ project: "orc", session: "a" });
       const b = sessionFactory.build({ project: "orc", session: "b" });
 
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       act(() => result.current.setSessions([a, b]));
       act(() => result.current.moveRight());
@@ -185,7 +199,7 @@ describe("useStoreReducer", () => {
       const a = sessionFactory.build({ project: "orc", session: "a" });
       const b = sessionFactory.build({ project: "orc", session: "b" });
 
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       act(() => result.current.setSessions([a, b]));
       act(() => result.current.moveRight());
@@ -197,7 +211,7 @@ describe("useStoreReducer", () => {
       const a = sessionFactory.build({ project: "orc", session: "a" });
       const b = sessionFactory.build({ project: "orc", session: "b" });
 
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       act(() => result.current.setSessions([a, b]));
       act(() => result.current.moveRight());
@@ -212,7 +226,7 @@ describe("useStoreReducer", () => {
         sessionFactory.build({ project: "orc", session }),
       );
 
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       act(() => result.current.setSessions(sessions));
       act(() => result.current.moveDown());
@@ -225,7 +239,7 @@ describe("useStoreReducer", () => {
         sessionFactory.build({ project: "orc", session }),
       );
 
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       act(() => result.current.setSessions(sessions));
       act(() => result.current.moveRight());
@@ -241,7 +255,7 @@ describe("useStoreReducer", () => {
         sessionFactory.build({ project: "orc", session }),
       );
 
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       act(() => result.current.setSessions(sessions));
       act(() => result.current.moveDown());
@@ -255,7 +269,7 @@ describe("useStoreReducer", () => {
         sessionFactory.build({ project: "orc", session }),
       );
 
-      const { result } = renderHook(() => useStoreReducer(100));
+      const { result } = renderHook(() => useStoreReducer(100, 30));
 
       act(() => result.current.setSessions(sessions));
       act(() => result.current.moveRight());

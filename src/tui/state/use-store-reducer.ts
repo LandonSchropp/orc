@@ -31,12 +31,13 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
         lastSelectedColumn: sessionColumn(projects, selectedSessionId, state.numberOfColumns),
       };
     }
-    case "SET_WINDOW_WIDTH": {
+    case "SET_WINDOW_SIZE": {
       const layout = computeLayout(action.windowWidth);
 
       return {
         ...state,
         ...layout,
+        windowHeight: action.windowHeight,
         lastSelectedColumn:
           layout.numberOfColumns !== state.numberOfColumns
             ? sessionColumn(state.projects, state.selectedSessionId, layout.numberOfColumns)
@@ -96,18 +97,20 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
 
 /**
  * Wraps `storeReducer` with the React `useReducer` hook plus action-dispatching callbacks. Owns the
- * initial-state construction and exposes `setWindowWidth` so the provider can keep the store's
- * layout in sync with resize events. Exported for direct testing; production callers should use
- * `StoreProvider` and `useStore` instead.
+ * initial-state construction and exposes `setWindowSize` so the provider can keep the store's
+ * layout and height in sync with resize events. Exported for direct testing; production callers
+ * should use `StoreProvider` and `useStore` instead.
  *
  * @param initialWindowWidth The initial width of the terminal window.
+ * @param initialWindowHeight The initial height of the terminal window.
  * @returns An object containing the current store state and functions to update it.
  */
-export function useStoreReducer(initialWindowWidth: number) {
+export function useStoreReducer(initialWindowWidth: number, initialWindowHeight: number) {
   const [state, dispatch] = useReducer(storeReducer, {
     projects: [],
     selectedSessionId: null,
     ...computeLayout(initialWindowWidth),
+    windowHeight: initialWindowHeight,
     lastSelectedColumn: null,
   });
 
@@ -118,9 +121,9 @@ export function useStoreReducer(initialWindowWidth: number) {
     [dispatch],
   );
 
-  const setWindowWidth = useCallback(
-    (windowWidth: number) => {
-      dispatch({ type: "SET_WINDOW_WIDTH", windowWidth });
+  const setWindowSize = useCallback(
+    (windowWidth: number, windowHeight: number) => {
+      dispatch({ type: "SET_WINDOW_SIZE", windowWidth, windowHeight });
     },
     [dispatch],
   );
@@ -144,7 +147,7 @@ export function useStoreReducer(initialWindowWidth: number) {
   return {
     ...state,
     setSessions,
-    setWindowWidth,
+    setWindowSize,
     moveLeft,
     moveRight,
     moveUp,

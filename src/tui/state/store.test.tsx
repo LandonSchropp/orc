@@ -42,7 +42,7 @@ describe("useStore", () => {
       await act(async () => {});
 
       expect(typeof result.current.setSessions).toBe("function");
-      expect(typeof result.current.setWindowWidth).toBe("function");
+      expect(typeof result.current.setWindowSize).toBe("function");
     });
 
     it("populates the store with the polled sessions", async () => {

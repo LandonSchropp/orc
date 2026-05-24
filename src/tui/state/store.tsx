@@ -20,14 +20,14 @@ type StoreProviderProps = {
  * the terminal size and the session data current as sessions change.
  */
 export function StoreProvider({ children }: StoreProviderProps) {
-  const { columns } = useWindowSize();
+  const { columns, rows } = useWindowSize();
   const ticks = useInterval(POLL_INTERVAL);
-  const store = useStoreReducer(columns);
-  const { setSessions, setWindowWidth } = store;
+  const store = useStoreReducer(columns, rows);
+  const { setSessions, setWindowSize } = store;
 
   useEffect(() => {
-    setWindowWidth(columns);
-  }, [columns, setWindowWidth]);
+    setWindowSize(columns, rows);
+  }, [columns, rows, setWindowSize]);
 
   useEffect(() => {
     void listSessions().then(setSessions);

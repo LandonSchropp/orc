@@ -11,6 +11,8 @@ export type StoreState = {
   leftMargin: number;
   /** The width of the right margin outside the rightmost column. */
   rightMargin: number;
+  /** The height of the terminal window, in rows. */
+  windowHeight: number;
   /** The preferred column for vertical movement, remembered across up/down moves. */
   lastSelectedColumn: number | null;
 };
@@ -18,7 +20,7 @@ export type StoreState = {
 /** Actions for the state reducer. */
 export type StoreAction =
   | { type: "SET_SESSIONS"; sessions: Session[] }
-  | { type: "SET_WINDOW_WIDTH"; windowWidth: number }
+  | { type: "SET_WINDOW_SIZE"; windowWidth: number; windowHeight: number }
   | { type: "MOVE_LEFT" }
   | { type: "MOVE_RIGHT" }
   | { type: "MOVE_UP" }
