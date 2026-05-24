@@ -1,4 +1,3 @@
-import { runTui } from "../tui/index.ts";
 import { deleteCommand } from "./delete.ts";
 import { detachCommand } from "./detach.ts";
 import { hookCommand } from "./hook.ts";
@@ -20,7 +19,15 @@ export const orc = defineCommand({
     delete: deleteCommand,
     hook: hookCommand,
   },
-  async run() {
+  async run({ rawArgs }) {
+    // Citty runs a parent command's `run` even after it dispatches a subcommand, so only launch the
+    // TUI when orc was invoked with no subcommand. Otherwise subcommands boot the TUI, which never
+    // exits and hangs the process.
+    if (rawArgs.length > 0) return;
+
+    // The import is lazy so subcommands never load the Ink/React module graph at all.
+    const { runTui } = await import("../tui/index.ts");
+
     await runTui();
   },
 });
