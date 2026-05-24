@@ -1,11 +1,14 @@
+import type { AgentState } from "../types.ts";
 import { processHookEvent } from "./hook-events.ts";
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 const writeStateFileMock = mock((): Promise<void> => Promise.resolve());
+const readStateFileMock = mock((): Promise<AgentState | null> => Promise.resolve(null));
 const sessionIdMock = mock((): Promise<string> => Promise.resolve(""));
 
 await mock.module("./state.ts", () => ({
   writeStateFile: writeStateFileMock,
+  readStateFile: readStateFileMock,
 }));
 
 await mock.module("../commands/tmux.ts", () => ({
@@ -14,6 +17,7 @@ await mock.module("../commands/tmux.ts", () => ({
 
 beforeEach(() => {
   sessionIdMock.mockResolvedValue("test-project/feature-a");
+  readStateFileMock.mockResolvedValue(null);
 });
 
 describe("processHookEvent", () => {
@@ -57,6 +61,32 @@ describe("processHookEvent", () => {
       sessionIdMock.mockResolvedValue("foreign-session");
       await processHookEvent("Stop", "%5");
       expect(writeStateFileMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("when the firing pane already has the event's status", () => {
+    it("does not rewrite the state file", async () => {
+      readStateFileMock.mockResolvedValue({
+        status: "Working",
+        timestamp: "2026-05-24T00:00:00.000Z",
+      });
+
+      await processHookEvent("UserPromptSubmit", "%5");
+
+      expect(writeStateFileMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("when the firing pane has a different status", () => {
+    it("writes the new status", async () => {
+      readStateFileMock.mockResolvedValue({
+        status: "Idle",
+        timestamp: "2026-05-24T00:00:00.000Z",
+      });
+
+      await processHookEvent("UserPromptSubmit", "%5");
+
+      expect(writeStateFileMock).toHaveBeenCalledWith("test-project", "feature-a", "%5", "Working");
     });
   });
 });

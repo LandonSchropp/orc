@@ -10,7 +10,7 @@ import {
 } from "../constants.ts";
 import { type AgentStatus } from "../types.ts";
 import { parseSessionId } from "./id.ts";
-import { writeStateFile } from "./state.ts";
+import { readStateFile, writeStateFile } from "./state.ts";
 
 /**
  * Maps a Claude Code hook event name to the agent status it represents. Returns `null` for
@@ -38,6 +38,9 @@ function eventToStatus(event: string): AgentStatus | null {
  * pane and writes the corresponding agent status to its state file. Silently skips events that do
  * not map to a known status.
  *
+ * The state file is left untouched when its status already matches, so the recorded timestamp keeps
+ * marking when the agent entered that status rather than when the latest event fired.
+ *
  * @param event - The hook event name from Claude Code.
  * @param paneId - The tmux pane id where the hook fired.
  */
@@ -47,6 +50,9 @@ export async function processHookEvent(event: string, paneId: string): Promise<v
 
   const id = parseSessionId(await sessionId(paneId));
   if (!id) return;
+
+  const current = await readStateFile(id[0], id[1], paneId);
+  if (current?.status === status) return;
 
   await writeStateFile(id[0], id[1], paneId, status);
 }
