@@ -1,28 +1,13 @@
 import { sessionFactory } from "../../../test/factories/session.ts";
+import { storeFactory } from "../../../test/factories/store.ts";
 import { IDLE_AGENT_STATUS, WAITING_AGENT_STATUS, WORKING_AGENT_STATUS } from "../../constants.ts";
 import * as storeModule from "../state/store.tsx";
 import { Header } from "./header.tsx";
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { render } from "ink-testing-library";
 
-const defaultStore = {
-  projects: [],
-  selectedSessionId: null,
-  numberOfColumns: 3,
-  leftMargin: 4,
-  rightMargin: 4,
-  windowHeight: 30,
-  lastSelectedColumn: null,
-  setSessions: () => {},
-  setWindowSize: () => {},
-  moveLeft: () => {},
-  moveRight: () => {},
-  moveUp: () => {},
-  moveDown: () => {},
-};
-
 beforeEach(() => {
-  spyOn(storeModule, "useStore").mockReturnValue(defaultStore);
+  spyOn(storeModule, "useStore").mockReturnValue(storeFactory.build());
 });
 
 describe("Header", () => {
@@ -46,36 +31,37 @@ describe("Header", () => {
 
   describe("when there are sessions across multiple projects", () => {
     beforeEach(() => {
-      spyOn(storeModule, "useStore").mockReturnValue({
-        ...defaultStore,
-        projects: [
-          {
-            project: "orc",
-            sessions: [
-              sessionFactory.build({
-                project: "orc",
-                session: "a",
-                agents: [{ paneId: "%1", status: WORKING_AGENT_STATUS }],
-              }),
-              sessionFactory.build({
-                project: "orc",
-                session: "b",
-                agents: [{ paneId: "%2", status: WAITING_AGENT_STATUS }],
-              }),
-            ],
-          },
-          {
-            project: "notes",
-            sessions: [
-              sessionFactory.build({
-                project: "notes",
-                session: "c",
-                agents: [{ paneId: "%3", status: IDLE_AGENT_STATUS }],
-              }),
-            ],
-          },
-        ],
-      });
+      spyOn(storeModule, "useStore").mockReturnValue(
+        storeFactory.build({
+          projects: [
+            {
+              project: "orc",
+              sessions: [
+                sessionFactory.build({
+                  project: "orc",
+                  session: "a",
+                  agents: [{ paneId: "%1", status: WORKING_AGENT_STATUS }],
+                }),
+                sessionFactory.build({
+                  project: "orc",
+                  session: "b",
+                  agents: [{ paneId: "%2", status: WAITING_AGENT_STATUS }],
+                }),
+              ],
+            },
+            {
+              project: "notes",
+              sessions: [
+                sessionFactory.build({
+                  project: "notes",
+                  session: "c",
+                  agents: [{ paneId: "%3", status: IDLE_AGENT_STATUS }],
+                }),
+              ],
+            },
+          ],
+        }),
+      );
     });
 
     it("renders the project count", () => {
