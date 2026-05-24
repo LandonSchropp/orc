@@ -1,3 +1,6 @@
+import { listSessions } from "../../sessions/list.ts";
+import { useInterval } from "../hooks/use-interval.ts";
+import { POLL_INTERVAL } from "./constants.ts";
 import { useStoreReducer } from "./use-store-reducer.ts";
 import { useWindowWidth } from "./use-window-width.ts";
 import { createContext, useContext, useEffect } from "react";
@@ -13,17 +16,22 @@ type StoreProviderProps = {
 };
 
 /**
- * Provides the store state and action callbacks to its descendants. Reads the terminal width via
- * `useWindowWidth` and keeps the store's layout in sync with resize events.
+ * Provides the store state and action callbacks to its descendants. Keeps the layout in sync with
+ * the terminal size and the session data current as sessions change.
  */
 export function StoreProvider({ children }: StoreProviderProps) {
   const windowWidth = useWindowWidth();
+  const ticks = useInterval(POLL_INTERVAL);
   const store = useStoreReducer(windowWidth);
-  const { setWindowWidth } = store;
+  const { setSessions, setWindowWidth } = store;
 
   useEffect(() => {
     setWindowWidth(windowWidth);
   }, [windowWidth, setWindowWidth]);
+
+  useEffect(() => {
+    void listSessions().then(setSessions);
+  }, [ticks, setSessions]);
 
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
