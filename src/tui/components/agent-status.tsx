@@ -44,7 +44,7 @@ export function AgentStatus({ status, selected }: AgentStatusProps) {
   const color = (selected ? SELECTED_STATUS_COLORS : UNSELECTED_STATUS_COLORS)[status];
 
   return (
-    <Text color={color}>
+    <Text color={color} italic>
       {icon} {status.toLowerCase()}
     </Text>
   );
