@@ -18,6 +18,8 @@ export function Header() {
     (session) => sessionStatus(session) === IDLE_AGENT_STATUS,
   ).length;
 
+  // NOTE: HEADER_HEIGHT in state/constants.ts must match this bar's height; update it if the
+  // layout changes.
   return (
     <Box
       backgroundColor="black"

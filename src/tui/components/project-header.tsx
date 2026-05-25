@@ -13,6 +13,8 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   const { numberOfColumns } = useStore();
   const ruleWidth = Math.max(0, contentWidth(numberOfColumns) - project.project.length - 3);
 
+  // NOTE: PROJECT_HEADER_HEIGHT in state/constants.ts must match this header's height; update it if
+  // the layout changes.
   return (
     <Box marginTop={1}>
       <Text color="gray">{"─ "}</Text>

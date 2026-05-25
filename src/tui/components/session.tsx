@@ -16,6 +16,8 @@ export function Session({ session }: SessionProps) {
   const selected = session.id === selectedSessionId;
   const color = selected ? "gray" : "black";
 
+  // NOTE: SESSION_ROW_HEIGHT in state/constants.ts must match this card's height; update it if the
+  // layout changes.
   return (
     <Box width={COLUMN_WIDTH} flexDirection="column">
       <Text color={color}>{"▄".repeat(COLUMN_WIDTH)}</Text>
