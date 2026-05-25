@@ -1,29 +1,19 @@
+import { projectFactory } from "../../test/factories/project.ts";
+import { storeFactory } from "../../test/factories/store.ts";
 import { App } from "./app.tsx";
 import * as storeModule from "./state/store.tsx";
 import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import * as ink from "ink";
 import { render } from "ink-testing-library";
 
-const store = {
-  projects: [],
-  selectedSessionId: null,
-  numberOfColumns: 3,
-  leftMargin: 4,
-  rightMargin: 4,
-  windowHeight: 30,
-  lastSelectedColumn: null,
-  setSessions: () => {},
-  setWindowSize: () => {},
-  moveLeft: () => {},
-  moveRight: () => {},
-  moveUp: () => {},
-  moveDown: () => {},
-};
-
 const exit = mock(() => {});
 
 beforeEach(() => {
-  spyOn(storeModule, "useStore").mockReturnValue(store);
+  spyOn(storeModule, "useStore").mockReturnValue(
+    storeFactory.build({
+      projects: [projectFactory.build({ project: "demo" }, { transient: { sessions: ["alpha"] } })],
+    }),
+  );
   spyOn(ink, "useApp").mockReturnValue({ exit, waitUntilRenderFlush: () => Promise.resolve() });
 });
 
@@ -33,9 +23,9 @@ describe("App", () => {
     expect(lastFrame()).toContain("orc");
   });
 
-  it("renders the session list", () => {
+  it("renders the project list", () => {
     const { lastFrame } = render(<App />);
-    expect(lastFrame()).toContain("Sessions");
+    expect(lastFrame()).toContain("alpha");
   });
 
   it("renders the footer", () => {
