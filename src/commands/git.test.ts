@@ -1,4 +1,11 @@
-import { addWorktree, branchExists, defaultBranch, isGitInstalled, removeWorktree } from "./git.ts";
+import {
+  addWorktree,
+  branchExists,
+  defaultBranch,
+  isGitInstalled,
+  removeWorktree,
+  worktreeExists,
+} from "./git.ts";
 import { describe, expect, it, mock } from "bun:test";
 
 const runCommandMock = mock(() => Promise.resolve({ exitCode: 0, stdout: "", stderr: "" }));
@@ -93,6 +100,50 @@ describe("branchExists", () => {
       runCommandMock.mockResolvedValue({ exitCode: 1, stdout: "", stderr: "" });
 
       expect(await branchExists("/repo", "feature-a")).toBe(false);
+    });
+  });
+});
+
+describe("worktreeExists", () => {
+  describe("when a worktree is registered at the path", () => {
+    it("returns true", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 0,
+        stdout: [
+          "worktree /repo",
+          "HEAD abc123",
+          "branch refs/heads/main",
+          "",
+          "worktree /worktree",
+          "HEAD def456",
+          "branch refs/heads/feature-a",
+          "",
+        ].join("\n"),
+        stderr: "",
+      });
+
+      expect(await worktreeExists("/repo", "/worktree")).toBe(true);
+
+      expect(runCommandMock).toHaveBeenCalledWith([
+        "git",
+        "-C",
+        "/repo",
+        "worktree",
+        "list",
+        "--porcelain",
+      ]);
+    });
+  });
+
+  describe("when no worktree is registered at the path", () => {
+    it("returns false", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 0,
+        stdout: ["worktree /repo", "HEAD abc123", "branch refs/heads/main", ""].join("\n"),
+        stderr: "",
+      });
+
+      expect(await worktreeExists("/repo", "/worktree")).toBe(false);
     });
   });
 });

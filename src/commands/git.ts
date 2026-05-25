@@ -67,6 +67,19 @@ export async function branchExists(repoPath: string, branch: string): Promise<bo
 }
 
 /**
+ * Checks whether a git worktree is registered at `worktreePath` for the repo at `repoPath`.
+ *
+ * @param repoPath - The path to the git repository.
+ * @param worktreePath - The worktree path to look for.
+ * @returns `true` when a worktree is registered at the path, otherwise `false`.
+ */
+export async function worktreeExists(repoPath: string, worktreePath: string): Promise<boolean> {
+  const { stdout } = await runCommand(["git", "-C", repoPath, "worktree", "list", "--porcelain"]);
+
+  return stdout.split("\n").some((line) => line === `worktree ${worktreePath}`);
+}
+
+/**
  * Creates a git worktree at `worktreePath` for the branch named `branch`. When `baseBranch` is
  * given, creates a new branch based on it; otherwise checks out the existing `branch`.
  *
