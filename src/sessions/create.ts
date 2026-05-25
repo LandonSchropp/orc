@@ -1,4 +1,4 @@
-import { addWorktree, branchExists, defaultBranch } from "../commands/git.ts";
+import { addWorktree, branchExists, defaultBranch, worktreeExists } from "../commands/git.ts";
 import { readTmuxinatorProject, startTmuxinatorProject } from "../commands/tmuxinator.ts";
 import { worktreePath } from "./paths.ts";
 import { switchSession } from "./switch.ts";
@@ -6,9 +6,11 @@ import { mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 
 /**
- * Creates a new orc session. When `worktree` is `true` (the default), makes a Git worktree from the
- * project's default branch and starts the project's Tmuxinator template against it. When `false`,
- * starts Tmuxinator against the project's actual `root` and skips the worktree step.
+ * Creates a new orc session. When `worktree` is `true` (the default), ensures a Git worktree exists
+ * for the session and starts the project's Tmuxinator template against it. An existing worktree is
+ * reused as-is; otherwise a worktree is created, checking out the session's branch when it already
+ * exists or branching from the project's default branch when it does not. When `false`, starts
+ * Tmuxinator against the project's actual `root` and skips the worktree step.
  *
  * @param project - The name of an existing Tmuxinator project.
  * @param session - The session name within the project.
@@ -30,6 +32,11 @@ export async function createSession(
 
 async function createWorktree(repoPath: string, project: string, session: string): Promise<string> {
   const path = worktreePath(project, session);
+
+  if (await worktreeExists(repoPath, path)) {
+    return path;
+  }
+
   await mkdir(dirname(path), { recursive: true });
 
   if (await branchExists(repoPath, session)) {
