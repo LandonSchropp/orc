@@ -45,3 +45,7 @@ Avoid unnecessary abbreviations in code identifiers and prose. The test: would y
 ## File Names
 
 All source and test files use kebab-case (e.g. `agent-status.tsx`, `use-interval.ts`, `session-list.test.tsx`). React component and hook exports keep their conventional casing (`AgentStatus`, `useInterval`); only the filename is kebab-case.
+
+## Documentation
+
+Document every function with a JSDoc comment, including a `@param` line for each parameter and a `@returns` line describing the return value. This applies to private helpers, not only exported functions; omit `@returns` only when the function returns nothing. React components are the exception — document their props on the props type and give the component itself a one-line summary.
