@@ -1,10 +1,10 @@
 import { Footer } from "./components/footer.tsx";
 import { Header } from "./components/header.tsx";
-import { SessionList } from "./components/session-list.tsx";
+import { ProjectList } from "./components/project-list.tsx";
 import { useStore } from "./state/store.tsx";
 import { Box, useApp, useInput } from "ink";
 
-/** The full-window TUI shell: header on top, session list filling the middle, footer at the bottom. */
+/** The full-window TUI shell: header on top, project list filling the middle, footer at the bottom. */
 export function App() {
   const { exit } = useApp();
   const { windowHeight } = useStore();
@@ -18,7 +18,7 @@ export function App() {
   return (
     <Box flexDirection="column" height={windowHeight}>
       <Header />
-      <SessionList />
+      <ProjectList />
       <Footer />
     </Box>
   );
