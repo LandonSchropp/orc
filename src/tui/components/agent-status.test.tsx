@@ -35,6 +35,13 @@ describe("AgentStatus", () => {
       const { lastFrame } = render(<AgentStatus status="Idle" />);
       expect(lastFrame()).toContain("idle");
     });
+
+    describe("when the Session is selected", () => {
+      it("renders the status label in white so it stays visible", () => {
+        const { lastFrame } = render(<AgentStatus status="Idle" selected />);
+        expect(lastFrame()).toContain("idle");
+      });
+    });
   });
 
   describe("when the status is Working", () => {
