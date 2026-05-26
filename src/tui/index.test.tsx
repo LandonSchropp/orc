@@ -18,6 +18,7 @@ describe("runTui", () => {
       <StoreProvider>
         <App />
       </StoreProvider>,
+      { incrementalRendering: true },
     );
     expect(waitUntilExitMock).toHaveBeenCalled();
   });
