@@ -15,6 +15,8 @@ export type StoreState = {
   windowHeight: number;
   /** The preferred column for vertical movement, remembered across up/down moves. */
   lastSelectedColumn: number | null;
+  /** How far the project list is scrolled from the top, in rows. */
+  scrollOffset: number;
 };
 
 /** Actions for the state reducer. */

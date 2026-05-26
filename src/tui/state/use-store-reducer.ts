@@ -3,12 +3,16 @@ import { computeLayout } from "./compute-layout.ts";
 import { groupSessionsByProject } from "./group-sessions-by-project.ts";
 import * as move from "./move.ts";
 import { pickNextSelection } from "./pick-next-selection.ts";
+import { scrollOffsetForSelection } from "./scroll-offset-for-selection.ts";
 import { sessionColumn } from "./session-column.ts";
 import type { StoreAction, StoreState } from "./types.ts";
 import { useCallback, useReducer } from "react";
 
 /**
- * A pure reducer function that handles store state updates based on action types.
+ * A pure reducer that applies an action to the store state. Vertical moves and session updates
+ * recompute the scroll offset so the selected session's row stays in view; horizontal moves stay
+ * within a row and leave it unchanged. Computing the offset in the same update that changes the
+ * selection keeps the move and the scroll in a single render.
  *
  * @param state The current store state prior to the action update.
  * @param action The action to apply to the state.
@@ -29,6 +33,13 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
         projects,
         selectedSessionId,
         lastSelectedColumn: sessionColumn(projects, selectedSessionId, state.numberOfColumns),
+        scrollOffset: scrollOffsetForSelection(
+          projects,
+          selectedSessionId,
+          state.numberOfColumns,
+          state.scrollOffset,
+          state.windowHeight,
+        ),
       };
     }
     case "SET_WINDOW_SIZE": {
@@ -42,6 +53,13 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
           layout.numberOfColumns !== state.numberOfColumns
             ? sessionColumn(state.projects, state.selectedSessionId, layout.numberOfColumns)
             : state.lastSelectedColumn,
+        scrollOffset: scrollOffsetForSelection(
+          state.projects,
+          state.selectedSessionId,
+          layout.numberOfColumns,
+          state.scrollOffset,
+          action.windowHeight,
+        ),
       };
     }
     case "MOVE_LEFT": {
@@ -71,24 +89,42 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
       };
     }
     case "MOVE_UP": {
+      const selectedSessionId = move.moveUp(
+        state.projects,
+        state.selectedSessionId,
+        state.lastSelectedColumn,
+        state.numberOfColumns,
+      );
+
       return {
         ...state,
-        selectedSessionId: move.moveUp(
+        selectedSessionId,
+        scrollOffset: scrollOffsetForSelection(
           state.projects,
-          state.selectedSessionId,
-          state.lastSelectedColumn,
+          selectedSessionId,
           state.numberOfColumns,
+          state.scrollOffset,
+          state.windowHeight,
         ),
       };
     }
     case "MOVE_DOWN": {
+      const selectedSessionId = move.moveDown(
+        state.projects,
+        state.selectedSessionId,
+        state.lastSelectedColumn,
+        state.numberOfColumns,
+      );
+
       return {
         ...state,
-        selectedSessionId: move.moveDown(
+        selectedSessionId,
+        scrollOffset: scrollOffsetForSelection(
           state.projects,
-          state.selectedSessionId,
-          state.lastSelectedColumn,
+          selectedSessionId,
           state.numberOfColumns,
+          state.scrollOffset,
+          state.windowHeight,
         ),
       };
     }
@@ -112,6 +148,7 @@ export function useStoreReducer(initialWindowWidth: number, initialWindowHeight:
     ...computeLayout(initialWindowWidth),
     windowHeight: initialWindowHeight,
     lastSelectedColumn: null,
+    scrollOffset: 0,
   });
 
   const setSessions = useCallback(

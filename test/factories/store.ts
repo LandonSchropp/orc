@@ -12,6 +12,7 @@ export const storeFactory = Factory.define<Store>(() => ({
   rightMargin: 4,
   windowHeight: 30,
   lastSelectedColumn: null,
+  scrollOffset: 0,
   setSessions: () => {},
   setWindowSize: () => {},
   moveLeft: () => {},
