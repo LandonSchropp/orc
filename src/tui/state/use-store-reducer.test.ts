@@ -99,18 +99,41 @@ describe("useStoreReducer", () => {
       });
     });
 
-    it("recomputes the last selected column from the new projects", () => {
-      const a = sessionFactory.build({ project: "orc", session: "a" });
-      const aa = sessionFactory.build({ project: "orc", session: "aa" });
-      const b = sessionFactory.build({ project: "orc", session: "b" });
+    describe("when the selected session's column changes", () => {
+      it("recomputes the last selected column", () => {
+        const a = sessionFactory.build({ project: "orc", session: "a" });
+        const aa = sessionFactory.build({ project: "orc", session: "aa" });
+        const b = sessionFactory.build({ project: "orc", session: "b" });
 
-      const { result } = renderHook(() => useStoreReducer(100, 30));
+        const { result } = renderHook(() => useStoreReducer(100, 30));
 
-      act(() => result.current.setSessions([a, b]));
-      act(() => result.current.moveRight());
-      act(() => result.current.setSessions([a, aa, b]));
+        act(() => result.current.setSessions([a, b]));
+        act(() => result.current.moveRight());
+        act(() => result.current.setSessions([a, aa, b]));
 
-      expect(result.current.lastSelectedColumn).toBe(2);
+        expect(result.current.lastSelectedColumn).toBe(2);
+      });
+    });
+
+    describe("when the selected session's column is unchanged", () => {
+      it("preserves the last selected column", () => {
+        const sessions = [
+          sessionFactory.build({ project: "orc", session: "a" }),
+          sessionFactory.build({ project: "orc", session: "b" }),
+          sessionFactory.build({ project: "orc", session: "c" }),
+          sessionFactory.build({ project: "z", session: "solo" }),
+        ];
+
+        const { result } = renderHook(() => useStoreReducer(100, 30));
+
+        act(() => result.current.setSessions(sessions));
+        act(() => result.current.moveRight());
+        act(() => result.current.moveRight());
+        act(() => result.current.moveDown());
+        act(() => result.current.setSessions(sessions));
+
+        expect(result.current.lastSelectedColumn).toBe(2);
+      });
     });
   });
 

@@ -28,11 +28,22 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
         projects,
       );
 
+      const previousColumn = sessionColumn(
+        state.projects,
+        selectedSessionId,
+        state.numberOfColumns,
+      );
+      const currentColumn = sessionColumn(projects, selectedSessionId, state.numberOfColumns);
+
       return {
         ...state,
         projects,
         selectedSessionId,
-        lastSelectedColumn: sessionColumn(projects, selectedSessionId, state.numberOfColumns),
+        // Recompute the remembered column only when the selected session actually shifts columns;
+        // otherwise a poll that lands while the cursor sits in a narrow row would clobber the
+        // column the user is aiming for.
+        lastSelectedColumn:
+          previousColumn === currentColumn ? state.lastSelectedColumn : currentColumn,
         scrollOffset: scrollOffsetForSelection(
           projects,
           selectedSessionId,
