@@ -1,5 +1,6 @@
 import { IDLE_AGENT_STATUS, WAITING_AGENT_STATUS, WORKING_AGENT_STATUS } from "../../constants.ts";
 import type { Agent } from "../../types.ts";
+import { formatDuration } from "../../utilities/format-duration.ts";
 import { useInterval } from "../hooks/use-interval.ts";
 import { Text } from "ink";
 
@@ -55,9 +56,17 @@ export function AgentStatus({ agent, selected }: AgentStatusProps) {
   const icon = icons[ticks % icons.length];
   const color = (selected ? SELECTED_STATUS_COLORS : UNSELECTED_STATUS_COLORS)[agent.status];
 
+  const timer =
+    agent.status === WORKING_AGENT_STATUS
+      ? formatDuration(Date.now() - agent.updatedAt.getTime())
+      : null;
+
   return (
-    <Text color={color} italic>
-      {icon} {agent.status.toLowerCase()}
+    <Text italic>
+      <Text color={color}>
+        {icon} {agent.status.toLowerCase()}
+      </Text>
+      {timer !== null && <Text color={selected ? "white" : "gray"}> ({timer})</Text>}
     </Text>
   );
 }

@@ -1,6 +1,6 @@
 import { agentFactory } from "../../../test/factories/agent.ts";
 import { AgentStatus } from "./agent-status.tsx";
-import { describe, expect, it, mock } from "bun:test";
+import { describe, expect, it, mock, spyOn } from "bun:test";
 import { render } from "ink-testing-library";
 
 const useIntervalMock = mock(() => 0);
@@ -95,6 +95,38 @@ describe("AgentStatus", () => {
         );
         expect(lastFrame()).toContain(SPINNER_FRAMES[0]);
       });
+    });
+
+    it("renders a timer counting up from the agent's updatedAt", () => {
+      const nowSpy = spyOn(Date, "now").mockReturnValue(
+        new Date("2026-05-27T00:00:42.000Z").getTime(),
+      );
+
+      const agent = agentFactory.build({
+        status: "Working",
+        updatedAt: new Date("2026-05-27T00:00:00.000Z"),
+      });
+      const { lastFrame } = render(<AgentStatus agent={agent} />);
+
+      expect(lastFrame()).toContain("(00:42)");
+      nowSpy.mockRestore();
+    });
+  });
+
+  describe("when the status is not Working", () => {
+    it("does not render a timer", () => {
+      const nowSpy = spyOn(Date, "now").mockReturnValue(
+        new Date("2026-05-27T00:00:42.000Z").getTime(),
+      );
+
+      const agent = agentFactory.build({
+        status: "Idle",
+        updatedAt: new Date("2026-05-27T00:00:00.000Z"),
+      });
+      const { lastFrame } = render(<AgentStatus agent={agent} />);
+
+      expect(lastFrame()).not.toMatch(/\d\d:\d\d/);
+      nowSpy.mockRestore();
     });
   });
 });
