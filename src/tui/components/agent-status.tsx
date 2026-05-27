@@ -1,5 +1,5 @@
 import { IDLE_AGENT_STATUS, WAITING_AGENT_STATUS, WORKING_AGENT_STATUS } from "../../constants.ts";
-import type { AgentStatus as AgentStatusType } from "../../types.ts";
+import type { Agent } from "../../types.ts";
 import { useInterval } from "../hooks/use-interval.ts";
 import { Text } from "ink";
 
@@ -27,25 +27,37 @@ const SELECTED_STATUS_COLORS = {
 const ANIMATION_INTERVAL = 150;
 
 type AgentStatusProps = {
-  /** The current status of the agent. */
-  status: AgentStatusType;
+  /** The agent whose status to render, or `undefined` when the session has no agents. */
+  agent: Agent | undefined;
   /** Whether the owning Session is selected. */
   selected?: boolean;
 };
 
 /**
  * Renders an agent's status as a colored icon followed by its label. The icon animates while
- * working. Idle renders white on a selected Session so it stays visible against the highlight.
+ * working. With no agent, renders a muted "No agents" placeholder so the card keeps its height.
+ * Both go white on a selected Session so they stay visible against the highlight.
  */
-export function AgentStatus({ status, selected }: AgentStatusProps) {
-  const icons = STATUS_ICONS[status];
+export function AgentStatus({ agent, selected }: AgentStatusProps) {
+  // Called before the early return so the hook count stays stable when an agent appears or
+  // disappears between polls.
   const ticks = useInterval(ANIMATION_INTERVAL);
+
+  if (!agent) {
+    return (
+      <Text color={selected ? "white" : "gray"} italic>
+        {" n/a"}
+      </Text>
+    );
+  }
+
+  const icons = STATUS_ICONS[agent.status];
   const icon = icons[ticks % icons.length];
-  const color = (selected ? SELECTED_STATUS_COLORS : UNSELECTED_STATUS_COLORS)[status];
+  const color = (selected ? SELECTED_STATUS_COLORS : UNSELECTED_STATUS_COLORS)[agent.status];
 
   return (
     <Text color={color} italic>
-      {icon} {status.toLowerCase()}
+      {icon} {agent.status.toLowerCase()}
     </Text>
   );
 }

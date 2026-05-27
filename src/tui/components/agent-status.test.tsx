@@ -1,3 +1,4 @@
+import { agentFactory } from "../../../test/factories/agent.ts";
 import { AgentStatus } from "./agent-status.tsx";
 import { describe, expect, it, mock } from "bun:test";
 import { render } from "ink-testing-library";
@@ -8,37 +9,50 @@ await mock.module("../hooks/use-interval.ts", () => ({
   useInterval: useIntervalMock,
 }));
 
-const SPINNER_FRAMES = ["", "", "", "", "", ""];
-const WAITING_ICON = "";
+const SPINNER_FRAMES = ["", "", "", "", "", ""];
+const WAITING_ICON = "";
 const IDLE_ICON = "\u{F0130}";
 
 describe("AgentStatus", () => {
+  describe("when there is no agent", () => {
+    it("renders a no-agents message", () => {
+      const { lastFrame } = render(<AgentStatus agent={undefined} />);
+      expect(lastFrame()).toContain("n/a");
+    });
+  });
+
   describe("when the status is Waiting", () => {
     it("renders the clock icon", () => {
-      const { lastFrame } = render(<AgentStatus status="Waiting" />);
+      const { lastFrame } = render(
+        <AgentStatus agent={agentFactory.build({ status: "Waiting" })} />,
+      );
       expect(lastFrame()).toContain(WAITING_ICON);
     });
 
     it("renders the status label", () => {
-      const { lastFrame } = render(<AgentStatus status="Waiting" />);
+      const { lastFrame } = render(
+        <AgentStatus agent={agentFactory.build({ status: "Waiting" })} />,
+      );
       expect(lastFrame()).toContain("waiting");
     });
   });
 
   describe("when the status is Idle", () => {
     it("renders the empty circle icon", () => {
-      const { lastFrame } = render(<AgentStatus status="Idle" />);
+      const { lastFrame } = render(<AgentStatus agent={agentFactory.build({ status: "Idle" })} />);
       expect(lastFrame()).toContain(IDLE_ICON);
     });
 
     it("renders the status label", () => {
-      const { lastFrame } = render(<AgentStatus status="Idle" />);
+      const { lastFrame } = render(<AgentStatus agent={agentFactory.build({ status: "Idle" })} />);
       expect(lastFrame()).toContain("idle");
     });
 
     describe("when the Session is selected", () => {
       it("renders the status label in white so it stays visible", () => {
-        const { lastFrame } = render(<AgentStatus status="Idle" selected />);
+        const { lastFrame } = render(
+          <AgentStatus agent={agentFactory.build({ status: "Idle" })} selected />,
+        );
         expect(lastFrame()).toContain("idle");
       });
     });
@@ -47,14 +61,18 @@ describe("AgentStatus", () => {
   describe("when the status is Working", () => {
     it("renders the status label", () => {
       useIntervalMock.mockReturnValue(0);
-      const { lastFrame } = render(<AgentStatus status="Working" />);
+      const { lastFrame } = render(
+        <AgentStatus agent={agentFactory.build({ status: "Working" })} />,
+      );
       expect(lastFrame()).toContain("working");
     });
 
     describe("at tick 0", () => {
       it("renders the first spinner frame", () => {
         useIntervalMock.mockReturnValue(0);
-        const { lastFrame } = render(<AgentStatus status="Working" />);
+        const { lastFrame } = render(
+          <AgentStatus agent={agentFactory.build({ status: "Working" })} />,
+        );
         expect(lastFrame()).toContain(SPINNER_FRAMES[0]);
       });
     });
@@ -62,7 +80,9 @@ describe("AgentStatus", () => {
     describe("at tick 1", () => {
       it("renders the second spinner frame", () => {
         useIntervalMock.mockReturnValue(1);
-        const { lastFrame } = render(<AgentStatus status="Working" />);
+        const { lastFrame } = render(
+          <AgentStatus agent={agentFactory.build({ status: "Working" })} />,
+        );
         expect(lastFrame()).toContain(SPINNER_FRAMES[1]);
       });
     });
@@ -70,7 +90,9 @@ describe("AgentStatus", () => {
     describe("when the tick exceeds the frame count", () => {
       it("wraps back to the first frame", () => {
         useIntervalMock.mockReturnValue(SPINNER_FRAMES.length);
-        const { lastFrame } = render(<AgentStatus status="Working" />);
+        const { lastFrame } = render(
+          <AgentStatus agent={agentFactory.build({ status: "Working" })} />,
+        );
         expect(lastFrame()).toContain(SPINNER_FRAMES[0]);
       });
     });

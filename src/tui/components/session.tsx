@@ -1,6 +1,5 @@
 import type { Session as SessionType } from "../../types.ts";
 import { COLUMN_WIDTH } from "../state/constants.ts";
-import { sessionStatus } from "../state/session-status.ts";
 import { useStore } from "../state/store.tsx";
 import { AgentStatus } from "./agent-status.tsx";
 import { Box, Text } from "ink";
@@ -23,7 +22,7 @@ export function Session({ session }: SessionProps) {
       <Text color={color}>{"▄".repeat(COLUMN_WIDTH)}</Text>
       <Box flexDirection="column" paddingX={2} backgroundColor={color}>
         <Text bold>{session.session}</Text>
-        <AgentStatus status={sessionStatus(session)} selected={selected} />
+        <AgentStatus agent={session.agents[0]} selected={selected} />
       </Box>
       <Text color={color}>{"▀".repeat(COLUMN_WIDTH)}</Text>
     </Box>

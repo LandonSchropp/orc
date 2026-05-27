@@ -1,3 +1,4 @@
+import { agentFactory } from "../../../test/factories/agent.ts";
 import { sessionFactory } from "../../../test/factories/session.ts";
 import { storeFactory } from "../../../test/factories/store.ts";
 import { WORKING_AGENT_STATUS } from "../../constants.ts";
@@ -21,11 +22,21 @@ describe("Session", () => {
 
   it("renders the agent status", () => {
     const session = sessionFactory.build({
-      agents: [{ paneId: "%1", status: WORKING_AGENT_STATUS, updatedAt: new Date() }],
+      agents: [agentFactory.build({ status: WORKING_AGENT_STATUS })],
     });
 
     const { lastFrame } = render(<Session session={session} />);
 
     expect(lastFrame()).toContain("working");
+  });
+
+  describe("when the session has no agents", () => {
+    it("renders a no-agents message", () => {
+      const session = sessionFactory.build({ agents: [] });
+
+      const { lastFrame } = render(<Session session={session} />);
+
+      expect(lastFrame()).toContain("n/a");
+    });
   });
 });
