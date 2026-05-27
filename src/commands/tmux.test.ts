@@ -1,4 +1,5 @@
 import { stubEnv } from "../../test/helpers/env.ts";
+import { worktreePath } from "../sessions/paths.ts";
 import {
   attachTmuxSession,
   sessionId,
@@ -100,7 +101,9 @@ describe("listTmuxSessions", () => {
     it("returns an array of parsed session objects", async () => {
       runCommandMock.mockResolvedValue({
         exitCode: 0,
-        stdout: "orc/feature-a\t1700000000\t0\norc/feature-b\t1700000100\t1\n",
+        stdout:
+          `orc/feature-a\t1700000000\t0\t${worktreePath("orc", "feature-a")}\n` +
+          `orc/feature-b\t1700000100\t1\t/repos/orc\n`,
         stderr: "",
       });
       expect(await listTmuxSessions()).toEqual([
@@ -111,6 +114,7 @@ describe("listTmuxSessions", () => {
           createdAt: new Date(1_700_000_000 * 1000),
           attached: false,
           agents: [],
+          worktree: "linked",
         },
         {
           project: "orc",
@@ -119,6 +123,7 @@ describe("listTmuxSessions", () => {
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
           agents: [],
+          worktree: "main",
         },
       ]);
     });
@@ -128,7 +133,9 @@ describe("listTmuxSessions", () => {
     it("skips that session and returns the rest", async () => {
       runCommandMock.mockResolvedValue({
         exitCode: 0,
-        stdout: "dotfiles\t1700000000\t0\norc/feature-a\t1700000100\t1\n",
+        stdout:
+          `dotfiles\t1700000000\t0\t/repos/dotfiles\n` +
+          `orc/feature-a\t1700000100\t1\t/repos/orc\n`,
         stderr: "",
       });
       expect(await listTmuxSessions()).toEqual([
@@ -139,6 +146,7 @@ describe("listTmuxSessions", () => {
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
           agents: [],
+          worktree: "main",
         },
       ]);
     });

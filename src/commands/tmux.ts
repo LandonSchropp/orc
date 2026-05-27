@@ -1,11 +1,16 @@
 import type { Session, TmuxPane } from "../types.ts";
+import { orcWorktreesDirectory } from "../utilities/xdg.ts";
 import { runAttachedCommand, runCommand, type RunCommandResult } from "./shell.ts";
+import { sep } from "node:path";
 
 /** Socket name for orc's isolated tmux server. */
 export const ORC_SOCKET = "orc";
 
-/** Tab-separated `-F` template for `tmux list-sessions`: name, created timestamp, attached count. */
-const SESSION_FORMAT = "#S\t#{session_created}\t#{session_attached}";
+/**
+ * Tab-separated `-F` template for `tmux list-sessions`: name, created timestamp, attached count,
+ * working directory.
+ */
+const SESSION_FORMAT = "#S\t#{session_created}\t#{session_attached}\t#{session_path}";
 
 /** Tab-separated `-F` template for `tmux list-panes`: session name, pane id, pane title. */
 const PANE_FORMAT = "#{session_name}\t#{pane_id}\t#{pane_title}";
@@ -123,11 +128,11 @@ export async function listTmuxSessions(): Promise<Session[]> {
  * Returns `null` for session names that do not contain a `/`, signalling a foreign session that
  * should be skipped.
  *
- * @param line - A line of tmux output: `name<TAB>created<TAB>attached`.
+ * @param line - A line of tmux output: `name<TAB>created<TAB>attached<TAB>path`.
  * @returns The parsed session, or `null` if the name is not in `project/session` form.
  */
 function parseSessionLine(line: string): Session | null {
-  const [id, createdAt, attached] = line.split("\t");
+  const [id, createdAt, attached, path] = line.split("\t");
   const separatorIndex = id.indexOf("/");
 
   if (separatorIndex === -1) return null;
@@ -138,6 +143,7 @@ function parseSessionLine(line: string): Session | null {
     id,
     createdAt: new Date(Number(createdAt) * 1000),
     attached: attached === "1",
+    worktree: path.startsWith(`${orcWorktreesDirectory()}${sep}`) ? "linked" : "main",
     agents: [],
   };
 }

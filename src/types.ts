@@ -22,6 +22,8 @@ export type Session = {
   createdAt: Date;
   /** True if a client is currently attached to the session. */
   attached: boolean;
+  /** Which worktree the session runs on: the project's main worktree or a dedicated linked one. */
+  worktree: "main" | "linked";
   /** Claude agents currently running in this session. Empty when there are none. */
   agents: Agent[];
 };
