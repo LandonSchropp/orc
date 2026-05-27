@@ -150,12 +150,18 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
  *
  * @param initialWindowWidth The initial width of the terminal window.
  * @param initialWindowHeight The initial height of the terminal window.
+ * @param selectedSessionId The session to select initially, used to seed the selection so the first
+ *   load lands on it. Falls back to the first session when `null`.
  * @returns An object containing the current store state and functions to update it.
  */
-export function useStoreReducer(initialWindowWidth: number, initialWindowHeight: number) {
+export function useStoreReducer(
+  initialWindowWidth: number,
+  initialWindowHeight: number,
+  selectedSessionId: string | null,
+) {
   const [state, dispatch] = useReducer(storeReducer, {
     projects: [],
-    selectedSessionId: null,
+    selectedSessionId,
     ...computeLayout(initialWindowWidth),
     windowHeight: initialWindowHeight,
     lastSelectedColumn: null,
