@@ -1,11 +1,11 @@
 import { removeWorktree } from "../commands/git.ts";
 import { detachTmuxClient, killTmuxSession } from "../commands/tmux.ts";
 import { readTmuxinatorProject } from "../commands/tmuxinator.ts";
+import { exists } from "../utilities/exists.ts";
 import { getCurrentSession } from "./current.ts";
 import { sessionId } from "./id.ts";
 import { worktreePath } from "./paths.ts";
 import { removeSessionStateFiles } from "./state.ts";
-import { existsSync } from "node:fs";
 
 /**
  * Deletes an orc session. Detaches the tmux client first if it is attached to the target session,
@@ -24,7 +24,7 @@ export async function deleteSession(project: string, session: string): Promise<v
 
   const path = worktreePath(project, session);
 
-  if (existsSync(path)) {
+  if (await exists(path)) {
     const { root: repoPath } = await readTmuxinatorProject(project);
     await removeWorktree(repoPath, path);
   }
