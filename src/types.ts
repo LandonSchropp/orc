@@ -45,6 +45,8 @@ export type Agent = {
   paneId: string;
   /** The current status of the agent. */
   status: AgentStatus;
+  /** When the agent last changed status. */
+  updatedAt: Date;
 };
 
 /** The on-disk shape of an agent state file. */

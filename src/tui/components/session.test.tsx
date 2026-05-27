@@ -21,7 +21,7 @@ describe("Session", () => {
 
   it("renders the agent status", () => {
     const session = sessionFactory.build({
-      agents: [{ paneId: "%1", status: WORKING_AGENT_STATUS }],
+      agents: [{ paneId: "%1", status: WORKING_AGENT_STATUS, updatedAt: new Date() }],
     });
 
     const { lastFrame } = render(<Session session={session} />);

@@ -40,12 +40,12 @@ describe("Header", () => {
                 sessionFactory.build({
                   project: "orc",
                   session: "a",
-                  agents: [{ paneId: "%1", status: WORKING_AGENT_STATUS }],
+                  agents: [{ paneId: "%1", status: WORKING_AGENT_STATUS, updatedAt: new Date() }],
                 }),
                 sessionFactory.build({
                   project: "orc",
                   session: "b",
-                  agents: [{ paneId: "%2", status: WAITING_AGENT_STATUS }],
+                  agents: [{ paneId: "%2", status: WAITING_AGENT_STATUS, updatedAt: new Date() }],
                 }),
               ],
             },
@@ -55,7 +55,7 @@ describe("Header", () => {
                 sessionFactory.build({
                   project: "notes",
                   session: "c",
-                  agents: [{ paneId: "%3", status: IDLE_AGENT_STATUS }],
+                  agents: [{ paneId: "%3", status: IDLE_AGENT_STATUS, updatedAt: new Date() }],
                 }),
               ],
             },

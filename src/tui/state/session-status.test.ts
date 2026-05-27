@@ -8,8 +8,8 @@ describe("sessionStatus", () => {
     it("returns the first agent's status", () => {
       const session = sessionFactory.build({
         agents: [
-          { paneId: "%1", status: WAITING_AGENT_STATUS },
-          { paneId: "%2", status: WORKING_AGENT_STATUS },
+          { paneId: "%1", status: WAITING_AGENT_STATUS, updatedAt: new Date() },
+          { paneId: "%2", status: WORKING_AGENT_STATUS, updatedAt: new Date() },
         ],
       });
 
