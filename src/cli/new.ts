@@ -17,13 +17,8 @@ export const newCommand = defineCommand({
       description: "Session name",
       required: true,
     },
-    worktree: {
-      type: "boolean",
-      description: "Create a Git worktree for the session (pass --no-worktree to disable)",
-      default: true,
-    },
   },
   async run({ args }) {
-    await createSession(args.project, args.session, { worktree: args.worktree });
+    await createSession(args.project, args.session);
   },
 });

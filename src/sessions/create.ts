@@ -1,30 +1,28 @@
 import { addWorktree, branchExists, defaultBranch } from "../commands/git.ts";
 import { readTmuxinatorProject, startTmuxinatorProject } from "../commands/tmuxinator.ts";
+import { isMainWorktreeInUse } from "./main-worktree.ts";
 import { worktreePath } from "./paths.ts";
 import { switchSession } from "./switch.ts";
 import { mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 
 /**
- * Creates a new orc session. When `worktree` is `true` (the default), makes a Git worktree from the
- * project's default branch and starts the project's Tmuxinator template against it. When `false`,
- * starts Tmuxinator against the project's actual `root` and skips the worktree step.
+ * Creates a new orc session. Runs on the project's main worktree when no active session for the
+ * project is using it; otherwise creates a linked Git worktree from the project's default branch.
+ * Starts the project's Tmuxinator template against the chosen directory and switches to it.
  *
  * @param project - The name of an existing Tmuxinator project.
  * @param session - The session name within the project.
- * @param options.worktree - Whether to create a Git worktree. Defaults to `true`.
  * @throws If the project's default branch cannot be determined or any underlying operation fails.
  */
-export async function createSession(
-  project: string,
-  session: string,
-  { worktree = true }: { worktree?: boolean } = {},
-): Promise<void> {
-  const { root: repoPath } = await readTmuxinatorProject(project);
+export async function createSession(project: string, session: string): Promise<void> {
+  const { root: mainDirectory } = await readTmuxinatorProject(project);
 
-  const sessionRoot = worktree ? await createWorktree(repoPath, project, session) : repoPath;
+  const sessionDirectory = (await isMainWorktreeInUse(project))
+    ? await createWorktree(mainDirectory, project, session)
+    : mainDirectory;
 
-  await startTmuxinatorProject(project, session, sessionRoot);
+  await startTmuxinatorProject(project, session, sessionDirectory);
   await switchSession(project, session);
 }
 
