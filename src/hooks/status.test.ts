@@ -6,6 +6,7 @@ import { runCommand } from "citty";
 const writeStateFileMock = mock();
 const sessionIdMock = mock();
 const isInsideOrcTmuxSessionMock = mock();
+const logHookEventMock = mock(() => Promise.resolve());
 
 await mock.module("../sessions/state.ts", () => ({
   writeStateFile: writeStateFileMock,
@@ -14,6 +15,10 @@ await mock.module("../sessions/state.ts", () => ({
 await mock.module("../commands/tmux.ts", () => ({
   sessionId: sessionIdMock,
   isInsideOrcTmuxSession: isInsideOrcTmuxSessionMock,
+}));
+
+await mock.module("../sessions/hook-log.ts", () => ({
+  logHookEvent: logHookEventMock,
 }));
 
 beforeEach(() => {
@@ -30,6 +35,16 @@ describe("statusHookCommand", () => {
       await runCommand(statusHookCommand, { rawArgs: [] });
 
       expect(writeStateFileMock).toHaveBeenCalledWith("test-project", "feature-a", "%5", "Idle");
+    });
+
+    it("logs the firing pane and full payload", async () => {
+      sessionIdMock.mockResolvedValue("test-project/feature-a");
+      const payload = { hook_event_name: "Notification", message: "Claude needs your permission" };
+      spyOn(Bun.stdin, "json").mockResolvedValue(payload);
+
+      await runCommand(statusHookCommand, { rawArgs: [] });
+
+      expect(logHookEventMock).toHaveBeenCalledWith("%5", payload);
     });
   });
 

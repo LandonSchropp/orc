@@ -1,5 +1,6 @@
 import { isInsideOrcTmuxSession } from "../commands/tmux.ts";
 import { processHookEvent } from "../sessions/hook-events.ts";
+import { logHookEvent } from "../sessions/hook-log.ts";
 import { isHookPayload } from "../type-guards.ts";
 import { defineCommand } from "citty";
 
@@ -24,6 +25,7 @@ export const statusHookCommand = defineCommand({
       throw new Error("Hook payload is missing hook_event_name");
     }
 
+    await logHookEvent(paneId, payload);
     await processHookEvent(payload.hook_event_name, paneId);
   },
 });
