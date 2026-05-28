@@ -39,7 +39,11 @@ describe("statusHookCommand", () => {
 
     it("logs the firing pane and full payload", async () => {
       sessionIdMock.mockResolvedValue("test-project/feature-a");
-      const payload = { hook_event_name: "Notification", message: "Claude needs your permission" };
+      const payload = {
+        hook_event_name: "Notification",
+        notification_type: "permission_prompt",
+        message: "Claude needs your permission",
+      };
       spyOn(Bun.stdin, "json").mockResolvedValue(payload);
 
       await runCommand(statusHookCommand, { rawArgs: [] });
@@ -70,6 +74,14 @@ describe("statusHookCommand", () => {
   describe("when the payload is missing hook_event_name", () => {
     it("throws an error", () => {
       spyOn(Bun.stdin, "json").mockResolvedValue({});
+
+      expect(runCommand(statusHookCommand, { rawArgs: [] })).rejects.toThrow(/hook_event_name/);
+    });
+  });
+
+  describe("when the payload names an event orc does not handle", () => {
+    it("throws an error", () => {
+      spyOn(Bun.stdin, "json").mockResolvedValue({ hook_event_name: "PreToolUse" });
 
       expect(runCommand(statusHookCommand, { rawArgs: [] })).rejects.toThrow(/hook_event_name/);
     });

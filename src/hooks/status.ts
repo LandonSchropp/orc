@@ -22,10 +22,10 @@ export const statusHookCommand = defineCommand({
     const payload = await Bun.stdin.json();
 
     if (!isHookPayload(payload)) {
-      throw new Error("Hook payload is missing hook_event_name");
+      throw new Error("Invalid hook payload: missing or unsupported hook_event_name");
     }
 
     await logHookEvent(paneId, payload);
-    await processHookEvent(payload.hook_event_name, paneId);
+    await processHookEvent(payload, paneId);
   },
 });

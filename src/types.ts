@@ -1,4 +1,10 @@
-import { AGENT_STATUSES } from "./constants.ts";
+import {
+  AGENT_STATUSES,
+  NOTIFICATION_HOOK_EVENT,
+  POST_TOOL_USE_HOOK_EVENT,
+  STOP_HOOK_EVENT,
+  USER_PROMPT_SUBMIT_HOOK_EVENT,
+} from "./constants.ts";
 
 /** A tmux pane on orc's isolated server. */
 export type TmuxPane = {
@@ -57,11 +63,37 @@ export type AgentState = {
   timestamp: string;
 };
 
-/** The shape of a Claude Code hook payload read from stdin by `orc hook status`. */
-export type HookPayload = {
-  /** The hook event name (e.g. `UserPromptSubmit`, `Stop`, `Notification`). */
-  hook_event_name: string;
+/** A `UserPromptSubmit` hook payload, restricted to the fields orc consumes. */
+export type UserPromptSubmitHookPayload = {
+  hook_event_name: typeof USER_PROMPT_SUBMIT_HOOK_EVENT;
 };
+
+/** A `Stop` hook payload, restricted to the fields orc consumes. */
+export type StopHookPayload = {
+  hook_event_name: typeof STOP_HOOK_EVENT;
+};
+
+/** A `PostToolUse` hook payload, restricted to the fields orc consumes. */
+export type PostToolUseHookPayload = {
+  hook_event_name: typeof POST_TOOL_USE_HOOK_EVENT;
+};
+
+/**
+ * A `Notification` hook payload. Documented `notification_type` values are `permission_prompt`,
+ * `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_complete`, and
+ * `elicitation_response`.
+ */
+export type NotificationHookPayload = {
+  hook_event_name: typeof NOTIFICATION_HOOK_EVENT;
+  notification_type: string;
+};
+
+/** The Claude Code hook payloads orc reads from stdin via `orc hook status`. */
+export type HookPayload =
+  | UserPromptSubmitHookPayload
+  | StopHookPayload
+  | PostToolUseHookPayload
+  | NotificationHookPayload;
 
 /** A single Claude Code hook handler entry. */
 export type HookHandler = { type: "command"; command: string };
