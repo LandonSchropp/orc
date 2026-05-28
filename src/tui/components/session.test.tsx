@@ -39,4 +39,24 @@ describe("Session", () => {
       expect(lastFrame()).toContain("n/a");
     });
   });
+
+  describe("when the session is on the main worktree", () => {
+    it("renders the home icon", () => {
+      const session = sessionFactory.build({ worktree: "main" });
+
+      const { lastFrame } = render(<Session session={session} />);
+
+      expect(lastFrame()).toContain("\u{F015}");
+    });
+  });
+
+  describe("when the session is on a linked worktree", () => {
+    it("renders the tree icon", () => {
+      const session = sessionFactory.build({ worktree: "linked" });
+
+      const { lastFrame } = render(<Session session={session} />);
+
+      expect(lastFrame()).toContain("\u{E21C}");
+    });
+  });
 });
