@@ -1,6 +1,9 @@
 import { Box, Text } from "ink";
 import type { ReactNode } from "react";
 
+/** Minimum width (in columns) of the bordered modal box, keeping it roomy when content is narrow. */
+const MIN_WIDTH = 40;
+
 type ModalProps = {
   /** Optional title rendered at the top of the modal. */
   title?: string;
@@ -26,10 +29,12 @@ export function Modal({ title, children }: ModalProps) {
       <Box>
         <Box
           borderStyle="round"
+          borderColor="blue"
           flexDirection="column"
           paddingX={2}
           paddingY={1}
           backgroundColor="default"
+          minWidth={MIN_WIDTH}
         >
           {children}
         </Box>
