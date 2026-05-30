@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "citty": "^0.2.2",
+    "fuzzysort": "^3.1.0",
     "ink": "^7.0.3",
     "ink-text-input": "^6.0.0",
     "react": "^19.2.6",
