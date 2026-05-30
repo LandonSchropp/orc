@@ -1,9 +1,16 @@
+import { projectFactory } from "../../../test/factories/project.ts";
 import { storeFactory } from "../../../test/factories/store.ts";
 import * as storeModule from "../state/store.tsx";
 import { useSessionListKeybindings } from "./use-session-list-keybindings.ts";
 import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import * as ink from "ink";
 import { render } from "ink-testing-library";
+
+const switchSessionMock = mock(() => Promise.resolve());
+
+await mock.module("../../sessions/switch.ts", () => ({
+  switchSession: switchSessionMock,
+}));
 
 const exit = mock(() => {});
 
@@ -104,6 +111,61 @@ describe("useSessionListKeybindings", () => {
       stdin.write("l");
 
       expect(moveRight).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("when enter is pressed and a session is selected", () => {
+    it("attaches to that session", async () => {
+      const project = projectFactory.build(
+        { project: "orc" },
+        { transient: { sessions: ["tui"] } },
+      );
+      const session = project.sessions[0];
+      spyOn(storeModule, "useStore").mockReturnValue(
+        storeFactory.build({ selectedSessionId: session.id, projects: [project] }),
+      );
+
+      const { stdin } = render(<Harness />);
+
+      stdin.write("\r");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(switchSessionMock).toHaveBeenCalledWith("orc", "tui");
+    });
+  });
+
+  describe("when a is pressed and a session is selected", () => {
+    it("attaches to that session", async () => {
+      const project = projectFactory.build(
+        { project: "orc" },
+        { transient: { sessions: ["tui"] } },
+      );
+      const session = project.sessions[0];
+      spyOn(storeModule, "useStore").mockReturnValue(
+        storeFactory.build({ selectedSessionId: session.id, projects: [project] }),
+      );
+
+      const { stdin } = render(<Harness />);
+
+      stdin.write("a");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(switchSessionMock).toHaveBeenCalledWith("orc", "tui");
+    });
+  });
+
+  describe("when enter is pressed without a selected session", () => {
+    it("does nothing", async () => {
+      spyOn(storeModule, "useStore").mockReturnValue(
+        storeFactory.build({ selectedSessionId: null }),
+      );
+
+      const { stdin } = render(<Harness />);
+
+      stdin.write("\r");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(switchSessionMock).not.toHaveBeenCalled();
     });
   });
 
