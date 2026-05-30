@@ -107,6 +107,36 @@ describe("useSessionListKeybindings", () => {
     });
   });
 
+  describe("when d is pressed and a session is selected", () => {
+    it("opens the delete confirmation modal", () => {
+      const confirmDelete = mock(() => {});
+      spyOn(storeModule, "useStore").mockReturnValue(
+        storeFactory.build({ selectedSessionId: "orc/tui", confirmDelete }),
+      );
+
+      const { stdin } = render(<Harness />);
+
+      stdin.write("d");
+
+      expect(confirmDelete).toHaveBeenCalled();
+    });
+  });
+
+  describe("when d is pressed and no session is selected", () => {
+    it("does nothing", () => {
+      const confirmDelete = mock(() => {});
+      spyOn(storeModule, "useStore").mockReturnValue(
+        storeFactory.build({ selectedSessionId: null, confirmDelete }),
+      );
+
+      const { stdin } = render(<Harness />);
+
+      stdin.write("d");
+
+      expect(confirmDelete).not.toHaveBeenCalled();
+    });
+  });
+
   describe("when a modal is open", () => {
     it("ignores key presses", () => {
       const moveUp = mock(() => {});
