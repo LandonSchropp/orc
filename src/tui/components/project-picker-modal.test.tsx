@@ -1,3 +1,4 @@
+import { projectFactory } from "../../../test/factories/project.ts";
 import { storeFactory } from "../../../test/factories/store.ts";
 import { waitFor } from "../../../test/helpers/wait-for.ts";
 import * as storeModule from "../state/store.tsx";
@@ -55,6 +56,33 @@ describe("ProjectPickerModal", () => {
       stdin.write("\r");
 
       expect(promptForSession).toHaveBeenCalledWith("orc");
+    });
+  });
+
+  describe("when a session is currently selected", () => {
+    it("pre-selects that session's project", async () => {
+      const promptForSession = mock(() => {});
+      const project = projectFactory.build(
+        { project: "dotfiles" },
+        { transient: { sessions: ["tui"] } },
+      );
+      const session = project.sessions[0];
+      spyOn(storeModule, "useStore").mockReturnValue(
+        storeFactory.build({
+          promptForSession,
+          selectedSessionId: session.id,
+          projects: [project],
+        }),
+      );
+      listTmuxinatorProjectsMock.mockResolvedValue(["orc", "dotfiles", "notes"]);
+
+      const { stdin, lastFrame } = renderInViewport(<ProjectPickerModal />);
+      await waitFor(() => lastFrame()?.includes("dotfiles") ?? false);
+      await new Promise((resolve) => setTimeout(resolve, 30));
+
+      stdin.write("\r");
+
+      expect(promptForSession).toHaveBeenCalledWith("dotfiles");
     });
   });
 
