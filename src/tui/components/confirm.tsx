@@ -34,7 +34,7 @@ export function Confirm({ title, message, onYes, onNo }: ConfirmProps) {
 
   return (
     <Modal title={title}>
-      <Box flexDirection="column" alignItems="center">
+      <Box flexDirection="column" alignItems="center" paddingY={1}>
         <Text>{message}</Text>
         <Box marginTop={1} gap={2} justifyContent="center">
           <Button label="(Y)es" focused={focused === "yes"} />

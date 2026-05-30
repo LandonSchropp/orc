@@ -32,7 +32,6 @@ export function Modal({ title, children }: ModalProps) {
           borderColor="blue"
           flexDirection="column"
           paddingX={2}
-          paddingY={1}
           backgroundColor="default"
           minWidth={MIN_WIDTH}
         >
