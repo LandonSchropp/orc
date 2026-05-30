@@ -2,6 +2,7 @@ import { Modal } from "./modal.tsx";
 import { Box, Text, useInput } from "ink";
 import TextInput from "ink-text-input";
 import { useState } from "react";
+import type { ReactNode } from "react";
 
 /**
  * Width of the input bar, matched to the Modal's interior (MIN_WIDTH=40 minus its paddingX=2 each
@@ -12,8 +13,11 @@ const INPUT_WIDTH = 36;
 type PromptProps = {
   /** Optional title rendered at the top of the modal. */
   title?: string;
-  /** Message shown above the text input. */
-  message: string;
+  /**
+   * Message shown above the text input. A single node renders as one centered line; an array
+   * renders each entry as its own centered line, letting the caller choose wrap points.
+   */
+  message: ReactNode;
   /** Initial value prefilled into the input. */
   defaultValue?: string;
   /** Fires when the user presses enter, with the current input value. */
@@ -28,6 +32,7 @@ type PromptProps = {
  */
 export function Prompt({ title, message, defaultValue = "", onSubmit, onCancel }: PromptProps) {
   const [value, setValue] = useState(defaultValue);
+  const lines = Array.isArray(message) ? message : [message];
 
   useInput((_, key) => {
     if (key.escape) onCancel();
@@ -36,7 +41,7 @@ export function Prompt({ title, message, defaultValue = "", onSubmit, onCancel }
   return (
     <Modal title={title}>
       <Box flexDirection="column" alignItems="center" paddingTop={1}>
-        {message.split("\n").map((line, index) => (
+        {lines.map((line, index) => (
           <Text key={index}>{line}</Text>
         ))}
         <Box width={INPUT_WIDTH} flexDirection="column">

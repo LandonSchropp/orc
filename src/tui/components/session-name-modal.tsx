@@ -2,6 +2,7 @@ import { createSession } from "../../sessions/create.ts";
 import { isMainWorktree } from "../../sessions/main-worktree.ts";
 import { useStore } from "../state/store.tsx";
 import { Prompt } from "./prompt.tsx";
+import { Text } from "ink";
 
 /**
  * The session-name prompt modal. Reads the picked project from `activeModal`, derives a sensible
@@ -21,7 +22,12 @@ export function SessionNameModal() {
   return (
     <Prompt
       title="New Session"
-      message={"What would you like to name your\nnew session?"}
+      message={[
+        "What would you like to name the",
+        <>
+          <Text color="blue">{project}</Text> session?
+        </>,
+      ]}
       defaultValue={defaultValue}
       onSubmit={async (sessionName) => {
         cancel();

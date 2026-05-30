@@ -37,6 +37,19 @@ describe("SessionNameModal", () => {
     });
   });
 
+  it("displays the project name in the message", () => {
+    spyOn(storeModule, "useStore").mockReturnValue(
+      storeFactory.build({
+        activeModal: { type: "session-name", project: "agent-toolkit" },
+        projects: [],
+      }),
+    );
+
+    const { lastFrame } = renderInViewport(<SessionNameModal />);
+
+    expect(lastFrame()).toContain("agent-toolkit");
+  });
+
   describe("when no session on the project uses the main worktree", () => {
     it("defaults the input value to 'main'", () => {
       spyOn(storeModule, "useStore").mockReturnValue(
