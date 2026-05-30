@@ -7,9 +7,19 @@ import { render } from "ink-testing-library";
 import type { ReactNode } from "react";
 
 const DeleteModalMock = mock(() => null);
+const ProjectPickerModalMock = mock(() => null);
+const SessionNameModalMock = mock(() => null);
 
 await mock.module("./delete-modal.tsx", () => ({
   DeleteModal: DeleteModalMock,
+}));
+
+await mock.module("./project-picker-modal.tsx", () => ({
+  ProjectPickerModal: ProjectPickerModalMock,
+}));
+
+await mock.module("./session-name-modal.tsx", () => ({
+  SessionNameModal: SessionNameModalMock,
 }));
 
 /** Wraps ActiveModal in a sized viewport so any modal overlay has a parent to anchor to. */
@@ -47,28 +57,28 @@ describe("ActiveModal", () => {
   });
 
   describe("when the project picker modal is active", () => {
-    it("renders nothing (not yet implemented)", () => {
+    it("renders the ProjectPickerModal", () => {
       spyOn(storeModule, "useStore").mockReturnValue(
         storeFactory.build({ activeModal: { type: "project-picker" } }),
       );
 
-      const { lastFrame } = renderInViewport(<ActiveModal />);
+      renderInViewport(<ActiveModal />);
 
-      expect(lastFrame()?.trim()).toBe("");
+      expect(ProjectPickerModalMock).toHaveBeenCalled();
     });
   });
 
   describe("when the session name modal is active", () => {
-    it("renders nothing (not yet implemented)", () => {
+    it("renders the SessionNameModal", () => {
       spyOn(storeModule, "useStore").mockReturnValue(
         storeFactory.build({
           activeModal: { type: "session-name", project: "orc" },
         }),
       );
 
-      const { lastFrame } = renderInViewport(<ActiveModal />);
+      renderInViewport(<ActiveModal />);
 
-      expect(lastFrame()?.trim()).toBe("");
+      expect(SessionNameModalMock).toHaveBeenCalled();
     });
   });
 });
