@@ -1,10 +1,16 @@
-import { AGENT_STATUSES } from "./constants.ts";
+import {
+  AGENT_STATUSES,
+  NOTIFICATION_HOOK_EVENT,
+  POST_TOOL_USE_HOOK_EVENT,
+  STOP_HOOK_EVENT,
+  USER_PROMPT_SUBMIT_HOOK_EVENT,
+} from "./constants.ts";
 
 /** A tmux pane on orc's isolated server. */
 export type TmuxPane = {
-  /** The orc identifier of the session this pane belongs to (e.g. `project/feature-a`). */
-  sessionIdentifier: string;
-  /** The tmux pane identifier (e.g. `%5`). */
+  /** The orc id of the session this pane belongs to (e.g. `project/feature-a`). */
+  sessionId: string;
+  /** The tmux pane id (e.g. `%5`). */
   paneId: string;
   /** The pane's current title, as set by the running program via OSC 2. */
   paneTitle: string;
@@ -16,14 +22,24 @@ export type Session = {
   project: string;
   /** The session name within the project. */
   session: string;
-  /** The fully qualified session identifier, `project/session`. */
-  identifier: string;
+  /** The fully qualified session id, `project/session`. */
+  id: string;
   /** When the session was created. */
   createdAt: Date;
   /** True if a client is currently attached to the session. */
   attached: boolean;
+  /** Which worktree the session runs on: the project's main worktree or a dedicated linked one. */
+  worktree: "main" | "linked";
   /** Claude agents currently running in this session. Empty when there are none. */
   agents: Agent[];
+};
+
+/** A group of sessions that share a Tmuxinator project. */
+export type Project = {
+  /** The Tmuxinator project name. */
+  project: string;
+  /** Sessions belonging to this project, in display order. */
+  sessions: Session[];
 };
 
 /** The current status of a Claude agent running in an orc session. */
@@ -31,10 +47,12 @@ export type AgentStatus = (typeof AGENT_STATUSES)[number];
 
 /** A Claude agent running in a tmux pane within an orc session. */
 export type Agent = {
-  /** The tmux pane identifier (e.g. `%5`) that hosts the agent. */
+  /** The tmux pane id (e.g. `%5`) that hosts the agent. */
   paneId: string;
   /** The current status of the agent. */
   status: AgentStatus;
+  /** When the agent last changed status. */
+  updatedAt: Date;
 };
 
 /** The on-disk shape of an agent state file. */
@@ -45,11 +63,37 @@ export type AgentState = {
   timestamp: string;
 };
 
-/** The shape of a Claude Code hook payload read from stdin by `orc hook status`. */
-export type HookPayload = {
-  /** The hook event name (e.g. `UserPromptSubmit`, `Stop`, `Notification`). */
-  hook_event_name: string;
+/** A `UserPromptSubmit` hook payload, restricted to the fields orc consumes. */
+export type UserPromptSubmitHookPayload = {
+  hook_event_name: typeof USER_PROMPT_SUBMIT_HOOK_EVENT;
 };
+
+/** A `Stop` hook payload, restricted to the fields orc consumes. */
+export type StopHookPayload = {
+  hook_event_name: typeof STOP_HOOK_EVENT;
+};
+
+/** A `PostToolUse` hook payload, restricted to the fields orc consumes. */
+export type PostToolUseHookPayload = {
+  hook_event_name: typeof POST_TOOL_USE_HOOK_EVENT;
+};
+
+/**
+ * A `Notification` hook payload. Documented `notification_type` values are `permission_prompt`,
+ * `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_complete`, and
+ * `elicitation_response`.
+ */
+export type NotificationHookPayload = {
+  hook_event_name: typeof NOTIFICATION_HOOK_EVENT;
+  notification_type: string;
+};
+
+/** The Claude Code hook payloads orc reads from stdin via `orc hook status`. */
+export type HookPayload =
+  | UserPromptSubmitHookPayload
+  | StopHookPayload
+  | PostToolUseHookPayload
+  | NotificationHookPayload;
 
 /** A single Claude Code hook handler entry. */
 export type HookHandler = { type: "command"; command: string };

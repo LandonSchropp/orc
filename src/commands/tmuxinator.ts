@@ -1,4 +1,4 @@
-import { sessionIdentifier } from "../sessions/identifier.ts";
+import { sessionId } from "../sessions/id.ts";
 import type { TmuxinatorProject, YamlObject } from "../types.ts";
 import { expandHome } from "../utilities/directory.ts";
 import { xdgConfigHome } from "../utilities/xdg.ts";
@@ -84,14 +84,14 @@ export async function startTmuxinatorProject(
   root: string,
 ): Promise<void> {
   const tmuxinatorProject = await readTmuxinatorProject(project);
-  const identifier = sessionIdentifier(project, session);
+  const id = sessionId(project, session);
   const temporaryDirectory = await mkdtemp(join(tmpdir(), "orc-"));
   const configPath = join(temporaryDirectory, "project.yml");
 
   await Bun.write(
     configPath,
     YAML.stringify(
-      { ...tmuxinatorProject, name: identifier, root, tmux_options: `-L ${ORC_SOCKET}` },
+      { ...tmuxinatorProject, name: id, root, tmux_options: `-L ${ORC_SOCKET}` },
       null,
       2,
     ),

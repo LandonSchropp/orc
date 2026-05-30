@@ -17,10 +17,13 @@ import { readStateFile } from "./state.ts";
 async function buildAgent(project: string, session: string, pane: TmuxPane): Promise<Agent> {
   const state = await readStateFile(project, session, pane.paneId);
 
-  return {
-    paneId: pane.paneId,
-    status: state === null ? IDLE_AGENT_STATUS : state.status,
-  };
+  // No state file yet means the agent has only just appeared, so treat now as when its (idle)
+  // status began.
+  if (state === null) {
+    return { paneId: pane.paneId, status: IDLE_AGENT_STATUS, updatedAt: new Date() };
+  }
+
+  return { paneId: pane.paneId, status: state.status, updatedAt: new Date(state.timestamp) };
 }
 
 /**
@@ -39,7 +42,7 @@ export async function listSessions(): Promise<Session[]> {
       ...session,
       agents: await Promise.all(
         agentPanes
-          .filter((pane) => pane.sessionIdentifier === session.identifier)
+          .filter((pane) => pane.sessionId === session.id)
           .map((pane) => buildAgent(session.project, session.session, pane)),
       ),
     })),

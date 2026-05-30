@@ -1,13 +1,15 @@
 import { stubEnv } from "../../test/helpers/env.ts";
+import { worktreePath } from "../sessions/paths.ts";
 import {
   attachTmuxSession,
-  sessionIdentifier,
+  sessionId,
   detachTmuxClient,
   isInsideOrcTmuxSession,
   isTmuxInstalled,
   killTmuxSession,
   listTmuxPanes,
   listTmuxSessions,
+  openTmuxPopup,
   switchTmuxSession,
 } from "./tmux.ts";
 import { describe, expect, it, mock } from "bun:test";
@@ -100,25 +102,29 @@ describe("listTmuxSessions", () => {
     it("returns an array of parsed session objects", async () => {
       runCommandMock.mockResolvedValue({
         exitCode: 0,
-        stdout: "orc/feature-a\t1700000000\t0\norc/feature-b\t1700000100\t1\n",
+        stdout:
+          `orc/feature-a\t1700000000\t0\t${worktreePath("orc", "feature-a")}\n` +
+          `orc/feature-b\t1700000100\t1\t/repos/orc\n`,
         stderr: "",
       });
       expect(await listTmuxSessions()).toEqual([
         {
           project: "orc",
           session: "feature-a",
-          identifier: "orc/feature-a",
+          id: "orc/feature-a",
           createdAt: new Date(1_700_000_000 * 1000),
           attached: false,
           agents: [],
+          worktree: "linked",
         },
         {
           project: "orc",
           session: "feature-b",
-          identifier: "orc/feature-b",
+          id: "orc/feature-b",
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
           agents: [],
+          worktree: "main",
         },
       ]);
     });
@@ -128,17 +134,20 @@ describe("listTmuxSessions", () => {
     it("skips that session and returns the rest", async () => {
       runCommandMock.mockResolvedValue({
         exitCode: 0,
-        stdout: "dotfiles\t1700000000\t0\norc/feature-a\t1700000100\t1\n",
+        stdout:
+          `dotfiles\t1700000000\t0\t/repos/dotfiles\n` +
+          `orc/feature-a\t1700000100\t1\t/repos/orc\n`,
         stderr: "",
       });
       expect(await listTmuxSessions()).toEqual([
         {
           project: "orc",
           session: "feature-a",
-          identifier: "orc/feature-a",
+          id: "orc/feature-a",
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
           agents: [],
+          worktree: "main",
         },
       ]);
     });
@@ -186,6 +195,26 @@ describe("attachTmuxSession", () => {
   });
 });
 
+describe("openTmuxPopup", () => {
+  it("invokes `tmux display-popup` with the borderless fullscreen flags", async () => {
+    runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+
+    await openTmuxPopup("orc");
+
+    expect(runCommandMock).toHaveBeenCalledWith([
+      "tmux",
+      "display-popup",
+      "-E",
+      "-B",
+      "-w",
+      "100%",
+      "-h",
+      "100%",
+      "orc",
+    ]);
+  });
+});
+
 describe("detachTmuxClient", () => {
   it("invokes `tmux detach-client` against the orc server", async () => {
     runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
@@ -223,7 +252,7 @@ describe("killTmuxSession", () => {
   });
 });
 
-describe("sessionIdentifier", () => {
+describe("sessionId", () => {
   it("invokes `tmux display-message` against the orc server for the given pane", async () => {
     runCommandMock.mockResolvedValue({
       exitCode: 0,
@@ -231,7 +260,7 @@ describe("sessionIdentifier", () => {
       stderr: "",
     });
 
-    await sessionIdentifier("%5");
+    await sessionId("%5");
 
     expect(runCommandMock).toHaveBeenCalledWith([
       "tmux",
@@ -252,7 +281,7 @@ describe("sessionIdentifier", () => {
       stderr: "",
     });
 
-    expect(await sessionIdentifier("%5")).toBe("test-project:feature-a");
+    expect(await sessionId("%5")).toBe("test-project:feature-a");
   });
 
   describe("when tmux fails", () => {
@@ -263,7 +292,7 @@ describe("sessionIdentifier", () => {
         stderr: "can't find pane: %5\n",
       });
 
-      expect(sessionIdentifier("%5")).rejects.toThrowError(/can't find pane/);
+      expect(sessionId("%5")).rejects.toThrowError(/can't find pane/);
     });
   });
 });
@@ -322,8 +351,8 @@ describe("listTmuxPanes", () => {
       });
 
       expect(await listTmuxPanes()).toEqual([
-        { sessionIdentifier: "orc/feature-a", paneId: "%1", paneTitle: "nvim" },
-        { sessionIdentifier: "orc/feature-a", paneId: "%2", paneTitle: "⠂ Working on something" },
+        { sessionId: "orc/feature-a", paneId: "%1", paneTitle: "nvim" },
+        { sessionId: "orc/feature-a", paneId: "%2", paneTitle: "⠂ Working on something" },
       ]);
     });
   });
@@ -337,7 +366,7 @@ describe("listTmuxPanes", () => {
       });
 
       expect(await listTmuxPanes()).toEqual([
-        { sessionIdentifier: "orc/feature-a", paneId: "%2", paneTitle: "claude" },
+        { sessionId: "orc/feature-a", paneId: "%2", paneTitle: "claude" },
       ]);
     });
   });

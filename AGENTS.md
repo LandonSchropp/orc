@@ -41,3 +41,11 @@ Use `process.stdout.write` for command output, not `console.log`. CLI output is 
 ## Naming
 
 Avoid unnecessary abbreviations in code identifiers and prose. The test: would you say it aloud when talking to someone? You'd say `config`, `repo`, `id` — those are fine. You wouldn't say `dir`, `func`, or `args` — write `directory`, `function`, and `arguments`. Well-known acronyms like CLI, TUI, XDG, JSON, YAML stay as acronyms.
+
+## File Names
+
+All source and test files use kebab-case (e.g. `agent-status.tsx`, `use-interval.ts`, `session-list.test.tsx`). React component and hook exports keep their conventional casing (`AgentStatus`, `useInterval`); only the filename is kebab-case.
+
+## Documentation
+
+Document every function with a JSDoc comment, including a `@param` line for each parameter and a `@returns` line describing the return value. This applies to private helpers, not only exported functions; omit `@returns` only when the function returns nothing. React components are the exception — document their props on the props type and give the component itself a one-line summary.

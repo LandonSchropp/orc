@@ -1,5 +1,11 @@
 import { stubEnv } from "../../test/helpers/env.ts";
-import { orcCacheDirectory, orcConfigDirectory, xdgCacheHome, xdgConfigHome } from "./xdg.ts";
+import {
+  orcCacheDirectory,
+  orcConfigDirectory,
+  orcWorktreesDirectory,
+  xdgCacheHome,
+  xdgConfigHome,
+} from "./xdg.ts";
 import { beforeEach, describe, expect, it } from "bun:test";
 import { homedir } from "node:os";
 
@@ -87,6 +93,28 @@ describe("orcCacheDirectory", () => {
 
     it("returns ~/.cache/orc", () => {
       expect(orcCacheDirectory()).toBe(`${homedir()}/.cache/orc`);
+    });
+  });
+});
+
+describe("orcWorktreesDirectory", () => {
+  describe("when $XDG_CACHE_HOME is set", () => {
+    beforeEach(() => {
+      stubEnv("XDG_CACHE_HOME", "/tmp/orc-test-cache");
+    });
+
+    it("returns $XDG_CACHE_HOME/orc/worktrees", () => {
+      expect(orcWorktreesDirectory()).toBe("/tmp/orc-test-cache/orc/worktrees");
+    });
+  });
+
+  describe("when $XDG_CACHE_HOME is not set", () => {
+    beforeEach(() => {
+      stubEnv("XDG_CACHE_HOME", undefined);
+    });
+
+    it("returns ~/.cache/orc/worktrees", () => {
+      expect(orcWorktreesDirectory()).toBe(`${homedir()}/.cache/orc/worktrees`);
     });
   });
 });

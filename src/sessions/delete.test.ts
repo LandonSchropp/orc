@@ -12,7 +12,7 @@ const readTmuxinatorProjectMock = mock(() =>
 );
 const removeWorktreeMock = mock((): Promise<void> => Promise.resolve());
 const removeSessionStateFilesMock = mock((): Promise<void> => Promise.resolve());
-const existsSyncMock = mock((): boolean => true);
+const existsMock = mock((): Promise<boolean> => Promise.resolve(true));
 
 await mock.module("./current.ts", () => ({
   getCurrentSession: getCurrentSessionMock,
@@ -23,8 +23,8 @@ await mock.module("../commands/tmux.ts", () => ({
   killTmuxSession: killTmuxSessionMock,
 }));
 
-await mock.module("./identifier.ts", () => ({
-  sessionIdentifier: (project: string, session: string) => `${project}/${session}`,
+await mock.module("./id.ts", () => ({
+  sessionId: (project: string, session: string) => `${project}/${session}`,
 }));
 
 await mock.module("../commands/tmuxinator.ts", () => ({
@@ -39,8 +39,8 @@ await mock.module("./state.ts", () => ({
   removeSessionStateFiles: removeSessionStateFilesMock,
 }));
 
-await mock.module("node:fs", () => ({
-  existsSync: existsSyncMock,
+await mock.module("../utilities/exists.ts", () => ({
+  exists: existsMock,
 }));
 
 const repoPath = "/repos/test-project";
@@ -50,7 +50,7 @@ describe("deleteSession", () => {
   describe("when not attached to the target session", () => {
     beforeEach(async () => {
       getCurrentSessionMock.mockResolvedValue(null);
-      existsSyncMock.mockReturnValue(true);
+      existsMock.mockResolvedValue(true);
       await deleteSession("test-project", "feature-a");
     });
 
@@ -76,7 +76,7 @@ describe("deleteSession", () => {
       getCurrentSessionMock.mockResolvedValue(
         sessionFactory.build({ project: "test-project", session: "feature-a" }),
       );
-      existsSyncMock.mockReturnValue(true);
+      existsMock.mockResolvedValue(true);
       await deleteSession("test-project", "feature-a");
     });
 
@@ -98,7 +98,7 @@ describe("deleteSession", () => {
       getCurrentSessionMock.mockResolvedValue(
         sessionFactory.build({ project: "other-project", session: "feature-z" }),
       );
-      existsSyncMock.mockReturnValue(true);
+      existsMock.mockResolvedValue(true);
       await deleteSession("test-project", "feature-a");
     });
 
@@ -110,7 +110,7 @@ describe("deleteSession", () => {
   describe("when the worktree does not exist", () => {
     beforeEach(async () => {
       getCurrentSessionMock.mockResolvedValue(null);
-      existsSyncMock.mockReturnValue(false);
+      existsMock.mockResolvedValue(false);
       await deleteSession("test-project", "feature-a");
     });
 

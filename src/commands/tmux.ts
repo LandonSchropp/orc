@@ -1,11 +1,16 @@
 import type { Session, TmuxPane } from "../types.ts";
+import { orcWorktreesDirectory } from "../utilities/xdg.ts";
 import { runAttachedCommand, runCommand, type RunCommandResult } from "./shell.ts";
+import { sep } from "node:path";
 
 /** Socket name for orc's isolated tmux server. */
 export const ORC_SOCKET = "orc";
 
-/** Tab-separated `-F` template for `tmux list-sessions`: name, created timestamp, attached count. */
-const SESSION_FORMAT = "#S\t#{session_created}\t#{session_attached}";
+/**
+ * Tab-separated `-F` template for `tmux list-sessions`: name, created timestamp, attached count,
+ * working directory.
+ */
+const SESSION_FORMAT = "#S\t#{session_created}\t#{session_attached}\t#{session_path}";
 
 /** Tab-separated `-F` template for `tmux list-panes`: session name, pane id, pane title. */
 const PANE_FORMAT = "#{session_name}\t#{pane_id}\t#{pane_title}";
@@ -45,14 +50,14 @@ export async function detachTmuxClient(): Promise<void> {
 }
 
 /**
- * Returns the orc identifier for the session the given pane belongs to. Runs `tmux display-message`
- * against orc's isolated server.
+ * Returns the orc id for the session the given pane belongs to. Runs `tmux display-message` against
+ * orc's isolated server.
  *
- * @param paneId - The tmux pane identifier (e.g. `%5`).
- * @returns The session identifier (e.g. `project/feature-a`).
+ * @param paneId - The tmux pane id (e.g. `%5`).
+ * @returns The session id (e.g. `project/feature-a`).
  * @throws If tmux exits with an error.
  */
-export async function sessionIdentifier(paneId: string): Promise<string> {
+export async function sessionId(paneId: string): Promise<string> {
   const { exitCode, stdout, stderr } = await tmux(["display-message", "-p", "-t", paneId, "#S"]);
 
   if (exitCode !== 0) {
@@ -96,6 +101,18 @@ export async function attachTmuxSession(name: string): Promise<void> {
 }
 
 /**
+ * Opens a borderless, fullscreen tmux popup overlay running `command`. The popup closes when the
+ * command exits. Runs against the caller's current tmux server (whichever socket the caller is
+ * attached to via `$TMUX`), not the orc isolated socket — the popup is a UI overlay on whatever
+ * pane the caller is in.
+ *
+ * @param command - The shell command to run inside the popup.
+ */
+export async function openTmuxPopup(command: string): Promise<void> {
+  await runCommand(["tmux", "display-popup", "-E", "-B", "-w", "100%", "-h", "100%", command]);
+}
+
+/**
  * Lists the tmux sessions running on orc's isolated server. Returns an empty array when no server
  * is running. Sessions whose names do not follow orc's `project/session` convention are skipped so
  * foreign sessions on the orc socket do not break orc commands.
@@ -123,21 +140,22 @@ export async function listTmuxSessions(): Promise<Session[]> {
  * Returns `null` for session names that do not contain a `/`, signalling a foreign session that
  * should be skipped.
  *
- * @param line - A line of tmux output: `name<TAB>created<TAB>attached`.
+ * @param line - A line of tmux output: `name<TAB>created<TAB>attached<TAB>path`.
  * @returns The parsed session, or `null` if the name is not in `project/session` form.
  */
 function parseSessionLine(line: string): Session | null {
-  const [identifier, createdAt, attached] = line.split("\t");
-  const separatorIndex = identifier.indexOf("/");
+  const [id, createdAt, attached, path] = line.split("\t");
+  const separatorIndex = id.indexOf("/");
 
   if (separatorIndex === -1) return null;
 
   return {
-    project: identifier.slice(0, separatorIndex),
-    session: identifier.slice(separatorIndex + 1),
-    identifier,
+    project: id.slice(0, separatorIndex),
+    session: id.slice(separatorIndex + 1),
+    id,
     createdAt: new Date(Number(createdAt) * 1000),
     attached: attached === "1",
+    worktree: path.startsWith(`${orcWorktreesDirectory()}${sep}`) ? "linked" : "main",
     agents: [],
   };
 }
@@ -170,13 +188,13 @@ export async function listTmuxPanes(): Promise<TmuxPane[]> {
  * `null` for session names that do not contain a `/`, signalling a foreign session on the orc
  * socket that should be skipped.
  *
- * @param line - A line of tmux output: `sessionIdentifier<TAB>paneId<TAB>paneTitle`.
+ * @param line - A line of tmux output: `sessionId<TAB>paneId<TAB>paneTitle`.
  * @returns The parsed pane, or `null` if the session is not in `project/session` form.
  */
 function parsePaneLine(line: string): TmuxPane | null {
-  const [sessionIdentifier, paneId, paneTitle] = line.split("\t");
+  const [sessionId, paneId, paneTitle] = line.split("\t");
 
-  if (!sessionIdentifier.includes("/")) return null;
+  if (!sessionId.includes("/")) return null;
 
-  return { sessionIdentifier, paneId, paneTitle };
+  return { sessionId, paneId, paneTitle };
 }

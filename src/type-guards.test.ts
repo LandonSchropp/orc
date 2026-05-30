@@ -98,13 +98,46 @@ describe("isAgentState", () => {
 });
 
 describe("isHookPayload", () => {
-  describe("when the value has a string hook_event_name", () => {
+  describe("when hook_event_name names a non-Notification event orc handles", () => {
     it("returns true", () => {
       expect(isHookPayload({ hook_event_name: "Stop" })).toBe(true);
     });
 
     it("returns true even with additional fields", () => {
       expect(isHookPayload({ hook_event_name: "Stop", session_id: "abc", extra: 42 })).toBe(true);
+    });
+  });
+
+  describe("when hook_event_name is Notification", () => {
+    describe("when notification_type is a string", () => {
+      it("returns true", () => {
+        expect(
+          isHookPayload({
+            hook_event_name: "Notification",
+            notification_type: "permission_prompt",
+          }),
+        ).toBe(true);
+      });
+    });
+
+    describe("when notification_type is missing", () => {
+      it("returns false", () => {
+        expect(isHookPayload({ hook_event_name: "Notification" })).toBe(false);
+      });
+    });
+
+    describe("when notification_type is not a string", () => {
+      it("returns false", () => {
+        expect(isHookPayload({ hook_event_name: "Notification", notification_type: 42 })).toBe(
+          false,
+        );
+      });
+    });
+  });
+
+  describe("when hook_event_name names an event orc does not handle", () => {
+    it("returns false", () => {
+      expect(isHookPayload({ hook_event_name: "PreToolUse" })).toBe(false);
     });
   });
 

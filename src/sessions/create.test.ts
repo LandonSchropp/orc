@@ -14,6 +14,7 @@ const branchExistsMock = mock((): Promise<boolean> => Promise.resolve(false));
 const worktreeExistsMock = mock((): Promise<boolean> => Promise.resolve(false));
 const addWorktreeMock = mock((): Promise<void> => Promise.resolve());
 const switchSessionMock = mock((): Promise<void> => Promise.resolve());
+const isMainWorktreeInUseMock = mock((): Promise<boolean> => Promise.resolve(true));
 const mkdirSpy = mock((): Promise<string | undefined> => Promise.resolve(undefined));
 
 await mock.module("../commands/tmuxinator.ts", () => ({
@@ -32,6 +33,10 @@ await mock.module("./switch.ts", () => ({
   switchSession: switchSessionMock,
 }));
 
+await mock.module("./main-worktree.ts", () => ({
+  isMainWorktreeInUse: isMainWorktreeInUseMock,
+}));
+
 await mock.module("node:fs/promises", () => ({
   mkdir: mkdirSpy,
 }));
@@ -41,7 +46,11 @@ const worktreeParent = `${homedir()}/.cache/orc/worktrees/test-project`;
 const worktreePath = `${worktreeParent}/feature-a`;
 
 describe("createSession", () => {
-  describe("when the worktree option is enabled", () => {
+  describe("when the main worktree is in use", () => {
+    beforeEach(() => {
+      isMainWorktreeInUseMock.mockResolvedValue(true);
+    });
+
     describe("when the worktree does not yet exist", () => {
       beforeEach(() => {
         worktreeExistsMock.mockResolvedValue(false);
@@ -160,9 +169,10 @@ describe("createSession", () => {
     });
   });
 
-  describe("when the worktree option is disabled", () => {
+  describe("when the main worktree is free", () => {
     beforeEach(async () => {
-      await createSession("test-project", "feature-a", { worktree: false });
+      isMainWorktreeInUseMock.mockResolvedValue(false);
+      await createSession("test-project", "feature-a");
     });
 
     it("does not look up the default branch", () => {

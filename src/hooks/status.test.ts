@@ -4,16 +4,21 @@ import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { runCommand } from "citty";
 
 const writeStateFileMock = mock();
-const sessionIdentifierMock = mock();
+const sessionIdMock = mock();
 const isInsideOrcTmuxSessionMock = mock();
+const logHookEventMock = mock(() => Promise.resolve());
 
 await mock.module("../sessions/state.ts", () => ({
   writeStateFile: writeStateFileMock,
 }));
 
 await mock.module("../commands/tmux.ts", () => ({
-  sessionIdentifier: sessionIdentifierMock,
+  sessionId: sessionIdMock,
   isInsideOrcTmuxSession: isInsideOrcTmuxSessionMock,
+}));
+
+await mock.module("../sessions/hook-log.ts", () => ({
+  logHookEvent: logHookEventMock,
 }));
 
 beforeEach(() => {
@@ -24,12 +29,26 @@ beforeEach(() => {
 describe("statusHookCommand", () => {
   describe("when given a valid payload", () => {
     it("writes the corresponding state for the firing pane", async () => {
-      sessionIdentifierMock.mockResolvedValue("test-project/feature-a");
+      sessionIdMock.mockResolvedValue("test-project/feature-a");
       spyOn(Bun.stdin, "json").mockResolvedValue({ hook_event_name: "Stop" });
 
       await runCommand(statusHookCommand, { rawArgs: [] });
 
       expect(writeStateFileMock).toHaveBeenCalledWith("test-project", "feature-a", "%5", "Idle");
+    });
+
+    it("logs the firing pane and full payload", async () => {
+      sessionIdMock.mockResolvedValue("test-project/feature-a");
+      const payload = {
+        hook_event_name: "Notification",
+        notification_type: "permission_prompt",
+        message: "Claude needs your permission",
+      };
+      spyOn(Bun.stdin, "json").mockResolvedValue(payload);
+
+      await runCommand(statusHookCommand, { rawArgs: [] });
+
+      expect(logHookEventMock).toHaveBeenCalledWith("%5", payload);
     });
   });
 
@@ -55,6 +74,14 @@ describe("statusHookCommand", () => {
   describe("when the payload is missing hook_event_name", () => {
     it("throws an error", () => {
       spyOn(Bun.stdin, "json").mockResolvedValue({});
+
+      expect(runCommand(statusHookCommand, { rawArgs: [] })).rejects.toThrow(/hook_event_name/);
+    });
+  });
+
+  describe("when the payload names an event orc does not handle", () => {
+    it("throws an error", () => {
+      spyOn(Bun.stdin, "json").mockResolvedValue({ hook_event_name: "PreToolUse" });
 
       expect(runCommand(statusHookCommand, { rawArgs: [] })).rejects.toThrow(/hook_event_name/);
     });

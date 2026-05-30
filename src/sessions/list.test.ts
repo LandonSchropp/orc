@@ -36,8 +36,8 @@ describe("listSessions", () => {
         sessionFactory.build({ project: "orc", session: "feature-a" }),
       ]);
       listTmuxPanesMock.mockResolvedValue([
-        paneFactory.build({ sessionIdentifier: "orc/feature-a", paneId: "%1", paneTitle: "nvim" }),
-        paneFactory.build({ sessionIdentifier: "orc/feature-a", paneId: "%2", paneTitle: "zsh" }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%1", paneTitle: "nvim" }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%2", paneTitle: "zsh" }),
       ]);
 
       const [session] = await listSessions();
@@ -46,13 +46,13 @@ describe("listSessions", () => {
   });
 
   describe("when a session has one agent pane with a state file", () => {
-    it("uses the status from the state file", async () => {
+    it("uses the status and start time from the state file", async () => {
       listTmuxSessionsMock.mockResolvedValue([
         sessionFactory.build({ project: "orc", session: "feature-a" }),
       ]);
       listTmuxPanesMock.mockResolvedValue([
         paneFactory.build({
-          sessionIdentifier: "orc/feature-a",
+          sessionId: "orc/feature-a",
           paneId: "%3",
           paneTitle: "⠂ Working",
         }),
@@ -63,7 +63,9 @@ describe("listSessions", () => {
       });
 
       const [session] = await listSessions();
-      expect(session.agents).toEqual([{ paneId: "%3", status: "Waiting" }]);
+      expect(session.agents).toEqual([
+        { paneId: "%3", status: "Waiting", updatedAt: new Date("2026-05-17T00:00:00.000Z") },
+      ]);
     });
   });
 
@@ -74,7 +76,7 @@ describe("listSessions", () => {
       ]);
       listTmuxPanesMock.mockResolvedValue([
         paneFactory.build({
-          sessionIdentifier: "orc/feature-a",
+          sessionId: "orc/feature-a",
           paneId: "%3",
           paneTitle: "✳ Idle",
         }),
@@ -82,7 +84,7 @@ describe("listSessions", () => {
       readStateFileMock.mockResolvedValue(null);
 
       const [session] = await listSessions();
-      expect(session.agents).toEqual([{ paneId: "%3", status: "Idle" }]);
+      expect(session.agents).toMatchObject([{ paneId: "%3", status: "Idle" }]);
     });
   });
 
@@ -92,8 +94,8 @@ describe("listSessions", () => {
         sessionFactory.build({ project: "orc", session: "feature-a" }),
       ]);
       listTmuxPanesMock.mockResolvedValue([
-        paneFactory.build({ sessionIdentifier: "orc/feature-a", paneId: "%3", paneTitle: "⠂ A" }),
-        paneFactory.build({ sessionIdentifier: "orc/feature-a", paneId: "%4", paneTitle: "✳ B" }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%3", paneTitle: "⠂ A" }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%4", paneTitle: "✳ B" }),
       ]);
 
       const [session] = await listSessions();
@@ -108,15 +110,15 @@ describe("listSessions", () => {
         sessionFactory.build({ project: "orc", session: "feature-b" }),
       ]);
       listTmuxPanesMock.mockResolvedValue([
-        paneFactory.build({ sessionIdentifier: "orc/feature-a", paneId: "%3", paneTitle: "⠂ A" }),
-        paneFactory.build({ sessionIdentifier: "orc/feature-b", paneId: "%5", paneTitle: "⠂ B" }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%3", paneTitle: "⠂ A" }),
+        paneFactory.build({ sessionId: "orc/feature-b", paneId: "%5", paneTitle: "⠂ B" }),
       ]);
 
       const sessions = await listSessions();
-      expect(sessions.find((session) => session.identifier === "orc/feature-a")?.agents).toEqual([
+      expect(sessions.find((session) => session.id === "orc/feature-a")?.agents).toMatchObject([
         { paneId: "%3", status: "Idle" },
       ]);
-      expect(sessions.find((session) => session.identifier === "orc/feature-b")?.agents).toEqual([
+      expect(sessions.find((session) => session.id === "orc/feature-b")?.agents).toMatchObject([
         { paneId: "%5", status: "Idle" },
       ]);
     });

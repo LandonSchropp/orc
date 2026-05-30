@@ -37,3 +37,12 @@ export function orcConfigDirectory(): string {
 export function orcCacheDirectory(): string {
   return join(xdgCacheHome(), "orc");
 }
+
+/**
+ * Returns the directory orc creates session worktrees under: `$XDG_CACHE_HOME/orc/worktrees`.
+ *
+ * @returns The absolute path to orc's worktrees directory.
+ */
+export function orcWorktreesDirectory(): string {
+  return join(orcCacheDirectory(), "worktrees");
+}
