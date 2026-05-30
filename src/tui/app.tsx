@@ -1,7 +1,7 @@
 import { Footer } from "./components/footer.tsx";
 import { Header } from "./components/header.tsx";
 import { ProjectList } from "./components/project-list.tsx";
-import { useKeybindings } from "./hooks/use-keybindings.ts";
+import { useSessionListKeybindings } from "./hooks/use-session-list-keybindings.ts";
 import { useStore } from "./state/store.tsx";
 import { Box } from "ink";
 
@@ -9,7 +9,7 @@ import { Box } from "ink";
 export function App() {
   const { windowHeight } = useStore();
 
-  useKeybindings();
+  useSessionListKeybindings();
 
   return (
     <Box flexDirection="column" height={windowHeight}>

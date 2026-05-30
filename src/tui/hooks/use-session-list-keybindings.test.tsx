@@ -1,6 +1,6 @@
 import { storeFactory } from "../../../test/factories/store.ts";
 import * as storeModule from "../state/store.tsx";
-import { useKeybindings } from "./use-keybindings.ts";
+import { useSessionListKeybindings } from "./use-session-list-keybindings.ts";
 import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import * as ink from "ink";
 import { render } from "ink-testing-library";
@@ -8,7 +8,7 @@ import { render } from "ink-testing-library";
 const exit = mock(() => {});
 
 function Harness() {
-  useKeybindings();
+  useSessionListKeybindings();
   return null;
 }
 
@@ -17,7 +17,7 @@ beforeEach(() => {
   spyOn(ink, "useApp").mockReturnValue({ exit, waitUntilRenderFlush: () => Promise.resolve() });
 });
 
-describe("useKeybindings", () => {
+describe("useSessionListKeybindings", () => {
   describe("when q is pressed", () => {
     it("exits the app", () => {
       const { stdin } = render(<Harness />);
@@ -104,6 +104,23 @@ describe("useKeybindings", () => {
       stdin.write("l");
 
       expect(moveRight).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("when a modal is open", () => {
+    it("ignores key presses", () => {
+      const moveUp = mock(() => {});
+      spyOn(storeModule, "useStore").mockReturnValue(
+        storeFactory.build({ moveUp, activeModal: { type: "delete" } }),
+      );
+
+      const { stdin } = render(<Harness />);
+
+      stdin.write("q");
+      stdin.write("k");
+
+      expect(exit).not.toHaveBeenCalled();
+      expect(moveUp).not.toHaveBeenCalled();
     });
   });
 });
