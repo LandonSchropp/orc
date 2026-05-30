@@ -1,5 +1,16 @@
 import type { Project, Session } from "../../types.ts";
 
+/**
+ * The modal currently displayed over the TUI, or `null` if none. Variants only carry data that
+ * isn't already derivable from the rest of the store (e.g. the picked project before it lands in a
+ * primary slot); the delete confirm reads its target from `selectedSessionId`.
+ */
+export type ActiveModal =
+  | { type: "project-picker" }
+  | { type: "session-name"; project: string }
+  | { type: "delete" }
+  | null;
+
 export type StoreState = {
   /** The current list of projects, each holding its grouped sessions. */
   projects: Project[];
@@ -17,6 +28,8 @@ export type StoreState = {
   lastSelectedColumn: number | null;
   /** How far the project list is scrolled from the top, in rows. */
   scrollOffset: number;
+  /** The modal currently displayed over the TUI, or `null` if none. */
+  activeModal: ActiveModal;
 };
 
 /** Actions for the state reducer. */
@@ -26,4 +39,8 @@ export type StoreAction =
   | { type: "MOVE_LEFT" }
   | { type: "MOVE_RIGHT" }
   | { type: "MOVE_UP" }
-  | { type: "MOVE_DOWN" };
+  | { type: "MOVE_DOWN" }
+  | { type: "CONFIRM_DELETE" }
+  | { type: "SELECT_PROJECT" }
+  | { type: "PROMPT_FOR_SESSION"; project: string }
+  | { type: "CANCEL" };

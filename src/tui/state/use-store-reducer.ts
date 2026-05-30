@@ -139,6 +139,18 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
         ),
       };
     }
+    case "CONFIRM_DELETE": {
+      return { ...state, activeModal: { type: "delete" } };
+    }
+    case "SELECT_PROJECT": {
+      return { ...state, activeModal: { type: "project-picker" } };
+    }
+    case "PROMPT_FOR_SESSION": {
+      return { ...state, activeModal: { type: "session-name", project: action.project } };
+    }
+    case "CANCEL": {
+      return { ...state, activeModal: null };
+    }
   }
 }
 
@@ -166,6 +178,7 @@ export function useStoreReducer(
     windowHeight: initialWindowHeight,
     lastSelectedColumn: null,
     scrollOffset: 0,
+    activeModal: null,
   });
 
   const setSessions = useCallback(
@@ -198,6 +211,25 @@ export function useStoreReducer(
     dispatch({ type: "MOVE_DOWN" });
   }, [dispatch]);
 
+  const confirmDelete = useCallback(() => {
+    dispatch({ type: "CONFIRM_DELETE" });
+  }, [dispatch]);
+
+  const selectProject = useCallback(() => {
+    dispatch({ type: "SELECT_PROJECT" });
+  }, [dispatch]);
+
+  const promptForSession = useCallback(
+    (project: string) => {
+      dispatch({ type: "PROMPT_FOR_SESSION", project });
+    },
+    [dispatch],
+  );
+
+  const cancel = useCallback(() => {
+    dispatch({ type: "CANCEL" });
+  }, [dispatch]);
+
   return {
     ...state,
     setSessions,
@@ -206,5 +238,9 @@ export function useStoreReducer(
     moveRight,
     moveUp,
     moveDown,
+    confirmDelete,
+    selectProject,
+    promptForSession,
+    cancel,
   };
 }

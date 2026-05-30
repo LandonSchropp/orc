@@ -39,6 +39,53 @@ describe("useStoreReducer", () => {
 
       expect(result.current.lastSelectedColumn).toBeNull();
     });
+
+    it("returns a null active modal", () => {
+      const { result } = renderHook(() => useStoreReducer(100, 30, null));
+
+      expect(result.current.activeModal).toBeNull();
+    });
+  });
+
+  describe("when confirmDelete is called", () => {
+    it("opens the delete confirmation modal", () => {
+      const { result } = renderHook(() => useStoreReducer(100, 30, null));
+
+      act(() => result.current.confirmDelete());
+
+      expect(result.current.activeModal).toEqual({ type: "delete" });
+    });
+  });
+
+  describe("when selectProject is called", () => {
+    it("opens the project picker", () => {
+      const { result } = renderHook(() => useStoreReducer(100, 30, null));
+
+      act(() => result.current.selectProject());
+
+      expect(result.current.activeModal).toEqual({ type: "project-picker" });
+    });
+  });
+
+  describe("when promptForSession is called", () => {
+    it("opens the session-name prompt for the given project", () => {
+      const { result } = renderHook(() => useStoreReducer(100, 30, null));
+
+      act(() => result.current.promptForSession("orc"));
+
+      expect(result.current.activeModal).toEqual({ type: "session-name", project: "orc" });
+    });
+  });
+
+  describe("when cancel is called", () => {
+    it("clears the active modal", () => {
+      const { result } = renderHook(() => useStoreReducer(100, 30, null));
+
+      act(() => result.current.confirmDelete());
+      act(() => result.current.cancel());
+
+      expect(result.current.activeModal).toBeNull();
+    });
   });
 
   describe("when setSessions is called", () => {
