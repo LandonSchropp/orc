@@ -107,6 +107,19 @@ describe("useSessionListKeybindings", () => {
     });
   });
 
+  describe("when n is pressed", () => {
+    it("opens the project picker", () => {
+      const selectProject = mock(() => {});
+      spyOn(storeModule, "useStore").mockReturnValue(storeFactory.build({ selectProject }));
+
+      const { stdin } = render(<Harness />);
+
+      stdin.write("n");
+
+      expect(selectProject).toHaveBeenCalled();
+    });
+  });
+
   describe("when d is pressed and a session is selected", () => {
     it("opens the delete confirmation modal", () => {
       const confirmDelete = mock(() => {});

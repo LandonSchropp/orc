@@ -3,14 +3,22 @@ import { useApp, useInput } from "ink";
 
 /**
  * Handles every key press in the session list view: `q` or escape quits, the arrow keys and their
- * vim equivalents (`k`/up, `j`/down, `h`/left, `l`/right) move the selected session, and `d` opens
- * the delete-confirmation modal when a session is selected. Stays silent while a modal is open so
- * the modal's own `useInput` block owns input.
+ * vim equivalents (`k`/up, `j`/down, `h`/left, `l`/right) move the selected session, `n` opens the
+ * project picker to start a new session, and `d` opens the delete-confirmation modal when a session
+ * is selected. Stays silent while a modal is open so the modal's own `useInput` block owns input.
  */
 export function useSessionListKeybindings() {
   const { exit } = useApp();
-  const { activeModal, selectedSessionId, moveUp, moveDown, moveLeft, moveRight, confirmDelete } =
-    useStore();
+  const {
+    activeModal,
+    selectedSessionId,
+    moveUp,
+    moveDown,
+    moveLeft,
+    moveRight,
+    confirmDelete,
+    selectProject,
+  } = useStore();
 
   useInput(
     (input, key) => {
@@ -24,6 +32,8 @@ export function useSessionListKeybindings() {
         moveLeft();
       } else if (key.rightArrow || input === "l") {
         moveRight();
+      } else if (input === "n") {
+        selectProject();
       } else if (input === "d" && selectedSessionId !== null) {
         confirmDelete();
       }
