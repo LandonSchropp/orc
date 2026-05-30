@@ -1,3 +1,4 @@
+import { ActiveModal } from "./components/active-modal.tsx";
 import { Footer } from "./components/footer.tsx";
 import { Header } from "./components/header.tsx";
 import { ProjectList } from "./components/project-list.tsx";
@@ -16,6 +17,7 @@ export function App() {
       <Header />
       <ProjectList />
       <Footer />
+      <ActiveModal />
     </Box>
   );
 }
