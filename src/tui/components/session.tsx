@@ -29,7 +29,7 @@ export function Session({ session }: SessionProps) {
     <Box width={COLUMN_WIDTH} flexDirection="column">
       <Text color={color}>{"▄".repeat(COLUMN_WIDTH)}</Text>
       <Box flexDirection="column" paddingX={2} backgroundColor={color}>
-        <Text bold>
+        <Text bold wrap="truncate-end">
           <Text color="blue">{worktreeIcon}</Text> {session.session}
         </Text>
         <AgentStatus agent={session.agents[0]} selected={selected} />

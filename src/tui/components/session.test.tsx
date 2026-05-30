@@ -50,6 +50,21 @@ describe("Session", () => {
     });
   });
 
+  describe("when the session name is too long to fit in the card", () => {
+    it("truncates the name with an ellipsis", () => {
+      const session = sessionFactory.build({
+        session: "a-very-long-session-name-that-overflows-the-card",
+      });
+
+      const { lastFrame } = render(<Session session={session} />);
+
+      const frame = lastFrame() ?? "";
+
+      expect(frame).toContain("…");
+      expect(frame).not.toContain("overflows");
+    });
+  });
+
   describe("when the session is on a linked worktree", () => {
     it("renders the tree icon", () => {
       const session = sessionFactory.build({ worktree: "linked" });
