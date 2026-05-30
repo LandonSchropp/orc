@@ -50,6 +50,46 @@ describe("Picker", () => {
     });
   });
 
+  describe("when initialSelection matches an option", () => {
+    it("focuses that option initially", () => {
+      const onSelect = mock(() => {});
+
+      const { stdin } = renderInViewport(
+        <Picker
+          title="Pick"
+          options={["alpha", "beta", "gamma"]}
+          initialSelection="beta"
+          onSelect={onSelect}
+          onCancel={noop}
+        />,
+      );
+
+      stdin.write("\r");
+
+      expect(onSelect).toHaveBeenCalledWith("beta");
+    });
+  });
+
+  describe("when initialSelection does not match any option", () => {
+    it("focuses the first option", () => {
+      const onSelect = mock(() => {});
+
+      const { stdin } = renderInViewport(
+        <Picker
+          title="Pick"
+          options={["alpha", "beta"]}
+          initialSelection="ghost"
+          onSelect={onSelect}
+          onCancel={noop}
+        />,
+      );
+
+      stdin.write("\r");
+
+      expect(onSelect).toHaveBeenCalledWith("alpha");
+    });
+  });
+
   describe("when the user types a character that filters the list", () => {
     it("renders only the matching options and refocuses the first match", async () => {
       const { stdin, lastFrame } = renderInViewport(

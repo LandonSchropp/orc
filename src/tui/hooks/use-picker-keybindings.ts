@@ -23,10 +23,15 @@ export type PickerKeybindings = {
  *
  * @param totalRows The current number of rows the user can navigate, used for clamping.
  * @param onCancel Fires when the user presses escape.
+ * @param initialFocus The index to focus when first rendered. Defaults to 0.
  * @returns The focused row index and a reset helper.
  */
-export function usePickerKeybindings(totalRows: number, onCancel: () => void): PickerKeybindings {
-  const [focusedIndex, setFocusedIndex] = useState(0);
+export function usePickerKeybindings(
+  totalRows: number,
+  onCancel: () => void,
+  initialFocus = 0,
+): PickerKeybindings {
+  const [focusedIndex, setFocusedIndex] = useState(initialFocus);
 
   useInput((_, key) => {
     if (key.escape) {

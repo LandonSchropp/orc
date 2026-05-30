@@ -19,6 +19,11 @@ type PickerProps = {
   title: string;
   /** The full list of options, filtered by the user's typed query. */
   options: string[];
+  /**
+   * Option to focus when the modal first mounts. Falls back to the first option when omitted or
+   * when the value isn't in `options`.
+   */
+  initialSelection?: string;
   /** Fires when the user picks the focused filtered option. */
   onSelect: (value: string) => void;
   /** Fires when the user presses escape. */
@@ -44,10 +49,15 @@ function scrollOffset(focusedIndex: number, totalRows: number): number {
  * with arrow keys, picks with enter, and cancels with escape. The list stays a fixed height; when
  * there are more matches than rows, the visible window scrolls to keep focus in view.
  */
-export function Picker({ title, options, onSelect, onCancel }: PickerProps) {
+export function Picker({ title, options, initialSelection, onSelect, onCancel }: PickerProps) {
   const [query, setQuery] = useState("");
   const filteredOptions = useMemo(() => filterOptions(options, query), [options, query]);
-  const { focusedIndex, resetFocus } = usePickerKeybindings(filteredOptions.length, onCancel);
+  const initialFocus = Math.max(0, options.indexOf(initialSelection ?? ""));
+  const { focusedIndex, resetFocus } = usePickerKeybindings(
+    filteredOptions.length,
+    onCancel,
+    initialFocus,
+  );
   const offset = scrollOffset(focusedIndex, filteredOptions.length);
   const visibleOptions = filteredOptions.slice(offset, offset + MAX_VISIBLE_ROWS);
 
