@@ -12,6 +12,14 @@ await mock.module("../../sessions/switch.ts", () => ({
   switchSession: switchSessionMock,
 }));
 
+const previousTmuxSessionMock = mock((): Promise<string | null> => Promise.resolve(null));
+const switchTmuxSessionMock = mock((): Promise<void> => Promise.resolve());
+
+await mock.module("../../commands/tmux.ts", () => ({
+  previousTmuxSession: previousTmuxSessionMock,
+  switchTmuxSession: switchTmuxSessionMock,
+}));
+
 const exit = mock(() => {});
 
 function Harness() {
@@ -20,22 +28,42 @@ function Harness() {
 }
 
 beforeEach(() => {
+  previousTmuxSessionMock.mockResolvedValue(null);
   spyOn(storeModule, "useStore").mockReturnValue(storeFactory.build());
   spyOn(ink, "useApp").mockReturnValue({ exit, waitUntilRenderFlush: () => Promise.resolve() });
 });
 
 describe("useSessionListKeybindings", () => {
   describe("when q is pressed", () => {
-    it("exits the app", () => {
-      const { stdin } = render(<Harness />);
+    describe("and there is a previous session", () => {
+      it("switches to it without exiting", async () => {
+        previousTmuxSessionMock.mockResolvedValue("orc/a");
 
-      stdin.write("q");
+        const { stdin } = render(<Harness />);
 
-      expect(exit).toHaveBeenCalled();
+        stdin.write("q");
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(switchTmuxSessionMock).toHaveBeenCalledWith("orc/a");
+        expect(exit).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("and there is no previous session", () => {
+      it("exits the app", async () => {
+        previousTmuxSessionMock.mockResolvedValue(null);
+
+        const { stdin } = render(<Harness />);
+
+        stdin.write("q");
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(exit).toHaveBeenCalled();
+      });
     });
   });
 
-  describe("when escape is pressed", () => {
+  describe("when escape is pressed and there is no previous session", () => {
     it("exits the app", async () => {
       const { stdin } = render(<Harness />);
 
