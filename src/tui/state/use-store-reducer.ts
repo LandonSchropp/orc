@@ -9,6 +9,39 @@ import type { StoreAction, StoreState } from "./types.ts";
 import { useCallback, useReducer } from "react";
 
 /**
+ * Rebuilds the projects, selection, remembered column, and scroll offset for a new set of sessions.
+ * Shared by the poll-driven `SET_SESSIONS` update and the optimistic `REMOVE_SESSION` update.
+ *
+ * @param state The current store state.
+ * @param sessions The sessions to display.
+ * @returns The new store state reflecting the given sessions.
+ */
+function withSessions(state: StoreState, sessions: Session[]): StoreState {
+  const projects = groupSessionsByProject(sessions);
+  const selectedSessionId = pickNextSelection(state.projects, state.selectedSessionId, projects);
+
+  const previousColumn = sessionColumn(state.projects, selectedSessionId, state.numberOfColumns);
+  const currentColumn = sessionColumn(projects, selectedSessionId, state.numberOfColumns);
+
+  return {
+    ...state,
+    projects,
+    selectedSessionId,
+    // Recompute the remembered column only when the selected session actually shifts columns;
+    // otherwise a poll that lands while the cursor sits in a narrow row would clobber the column
+    // the user is aiming for.
+    lastSelectedColumn: previousColumn === currentColumn ? state.lastSelectedColumn : currentColumn,
+    scrollOffset: scrollOffsetForSelection(
+      projects,
+      selectedSessionId,
+      state.numberOfColumns,
+      state.scrollOffset,
+      state.windowHeight,
+    ),
+  };
+}
+
+/**
  * A pure reducer that applies an action to the store state. Vertical moves and session updates
  * recompute the scroll offset so the selected session's row stays in view; horizontal moves stay
  * within a row and leave it unchanged. Computing the offset in the same update that changes the
@@ -21,37 +54,14 @@ import { useCallback, useReducer } from "react";
 function storeReducer(state: StoreState, action: StoreAction): StoreState {
   switch (action.type) {
     case "SET_SESSIONS": {
-      const projects = groupSessionsByProject(action.sessions);
-      const selectedSessionId = pickNextSelection(
-        state.projects,
-        state.selectedSessionId,
-        projects,
+      return withSessions(state, action.sessions);
+    }
+    case "REMOVE_SESSION": {
+      const sessions = state.projects.flatMap((project) => project.sessions);
+      return withSessions(
+        state,
+        sessions.filter((session) => session.id !== action.id),
       );
-
-      const previousColumn = sessionColumn(
-        state.projects,
-        selectedSessionId,
-        state.numberOfColumns,
-      );
-      const currentColumn = sessionColumn(projects, selectedSessionId, state.numberOfColumns);
-
-      return {
-        ...state,
-        projects,
-        selectedSessionId,
-        // Recompute the remembered column only when the selected session actually shifts columns;
-        // otherwise a poll that lands while the cursor sits in a narrow row would clobber the
-        // column the user is aiming for.
-        lastSelectedColumn:
-          previousColumn === currentColumn ? state.lastSelectedColumn : currentColumn,
-        scrollOffset: scrollOffsetForSelection(
-          projects,
-          selectedSessionId,
-          state.numberOfColumns,
-          state.scrollOffset,
-          state.windowHeight,
-        ),
-      };
     }
     case "SET_WINDOW_SIZE": {
       const layout = computeLayout(action.windowWidth);
@@ -188,6 +198,13 @@ export function useStoreReducer(
     [dispatch],
   );
 
+  const removeSession = useCallback(
+    (id: string) => {
+      dispatch({ type: "REMOVE_SESSION", id });
+    },
+    [dispatch],
+  );
+
   const setWindowSize = useCallback(
     (windowWidth: number, windowHeight: number) => {
       dispatch({ type: "SET_WINDOW_SIZE", windowWidth, windowHeight });
@@ -233,6 +250,7 @@ export function useStoreReducer(
   return {
     ...state,
     setSessions,
+    removeSession,
     setWindowSize,
     moveLeft,
     moveRight,

@@ -211,6 +211,32 @@ describe("useStoreReducer", () => {
     });
   });
 
+  describe("when removeSession is called", () => {
+    it("removes the session from its project", () => {
+      const a = sessionFactory.build({ project: "orc", session: "a" });
+      const b = sessionFactory.build({ project: "orc", session: "b" });
+
+      const { result } = renderHook(() => useStoreReducer(100, 30, null));
+
+      act(() => result.current.setSessions([a, b]));
+      act(() => result.current.removeSession("orc/a"));
+
+      expect(result.current.projects).toEqual([{ project: "orc", sessions: [b] }]);
+    });
+
+    it("moves the selection to the next session", () => {
+      const a = sessionFactory.build({ project: "orc", session: "a" });
+      const b = sessionFactory.build({ project: "orc", session: "b" });
+
+      const { result } = renderHook(() => useStoreReducer(100, 30, null));
+
+      act(() => result.current.setSessions([a, b]));
+      act(() => result.current.removeSession("orc/a"));
+
+      expect(result.current.selectedSessionId).toBe("orc/b");
+    });
+  });
+
   describe("when setWindowSize is called", () => {
     it("updates the layout values", () => {
       const { result } = renderHook(() => useStoreReducer(100, 30, null));
