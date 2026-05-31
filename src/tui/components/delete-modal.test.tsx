@@ -29,6 +29,7 @@ beforeEach(() => {
 describe("DeleteModal", () => {
   function setup() {
     const cancel = mock(() => {});
+    const removeSession = mock(() => {});
     const project = projectFactory.build({ project: "orc" }, { transient: { sessions: ["tui"] } });
     const session = project.sessions[0];
     spyOn(storeModule, "useStore").mockReturnValue(
@@ -36,9 +37,10 @@ describe("DeleteModal", () => {
         selectedSessionId: session.id,
         projects: [project],
         cancel,
+        removeSession,
       }),
     );
-    return { cancel };
+    return { cancel, removeSession, session };
   }
 
   it("renders the session name in the message", () => {
@@ -50,8 +52,8 @@ describe("DeleteModal", () => {
   });
 
   describe("when the user confirms", () => {
-    it("deletes the session and closes the modal", async () => {
-      const { cancel } = setup();
+    it("deletes the session, removes it from the list, and closes the modal", async () => {
+      const { cancel, removeSession, session } = setup();
 
       const { stdin } = renderInViewport(<DeleteModal />);
 
@@ -59,6 +61,7 @@ describe("DeleteModal", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(deleteSessionMock).toHaveBeenCalledWith("orc", "tui");
+      expect(removeSession).toHaveBeenCalledWith(session.id);
       expect(cancel).toHaveBeenCalled();
     });
   });

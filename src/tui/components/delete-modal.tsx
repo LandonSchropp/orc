@@ -5,10 +5,11 @@ import { Confirm } from "./confirm.tsx";
 
 /**
  * The delete-confirmation modal. Reads the target session from `selectedSessionId`, deletes it on
- * confirm, and dismisses the modal on either path.
+ * confirm, and dismisses the modal on either path. Removes the session from the list as soon as the
+ * deletion finishes so the list updates without waiting for the next poll.
  */
 export function DeleteModal() {
-  const { selectedSessionId, projects, cancel } = useStore();
+  const { selectedSessionId, projects, cancel, removeSession } = useStore();
   const session = findSession(projects, selectedSessionId);
 
   if (!session) return null;
@@ -20,6 +21,7 @@ export function DeleteModal() {
       onYes={async () => {
         cancel();
         await deleteSession(session.project, session.session);
+        removeSession(session.id);
       }}
       onNo={cancel}
     />
