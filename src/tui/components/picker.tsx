@@ -61,6 +61,11 @@ export function Picker({ title, options, initialSelection, onSelect, onCancel }:
   const offset = scrollOffset(focusedIndex, filteredOptions.length);
   const visibleOptions = filteredOptions.slice(offset, offset + MAX_VISIBLE_ROWS);
 
+  /**
+   * Handles text-input changes: strips newlines, updates the query, and resets focus to the top.
+   *
+   * @param newValue - The new value of the text input.
+   */
   function handleChange(newValue: string) {
     newValue = newValue.replace(/\n/g, "");
     if (newValue === query) return;
@@ -68,6 +73,7 @@ export function Picker({ title, options, initialSelection, onSelect, onCancel }:
     resetFocus();
   }
 
+  /** Selects the currently focused option, if there is one. */
   function handleSubmit() {
     const choice = filteredOptions[focusedIndex];
     if (choice !== undefined) onSelect(choice);

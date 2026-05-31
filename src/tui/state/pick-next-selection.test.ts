@@ -3,6 +3,13 @@ import type { Project } from "../../types.ts";
 import { pickNextSelection } from "./pick-next-selection.ts";
 import { describe, expect, it } from "bun:test";
 
+/**
+ * Builds a project with the given name and session names.
+ *
+ * @param name - The project name.
+ * @param sessions - The session names to populate the project with.
+ * @returns The built project.
+ */
 function project(name: string, sessions: string[]): Project {
   return projectFactory.build({ project: name }, { transient: { sessions } });
 }

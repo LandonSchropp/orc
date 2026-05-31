@@ -29,6 +29,14 @@ export async function createSession(project: string, session: string): Promise<v
   await switchSession(project, session);
 }
 
+/**
+ * Creates the session's Git worktree if it does not already exist.
+ *
+ * @param repoPath - The path to the project's main repository.
+ * @param project - The project name.
+ * @param session - The session name within the project.
+ * @returns The absolute path to the session's worktree.
+ */
 async function createWorktree(repoPath: string, project: string, session: string): Promise<string> {
   const path = worktreePath(project, session);
 

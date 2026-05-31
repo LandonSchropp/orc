@@ -27,6 +27,11 @@ beforeEach(() => {
 });
 
 describe("DeleteModal", () => {
+  /**
+   * Stubs the store with a single selected "orc/tui" session.
+   *
+   * @returns The `cancel` and `removeSession` mocks and the selected session.
+   */
   function setup() {
     const cancel = mock(() => {});
     const removeSession = mock(() => {});

@@ -3,6 +3,7 @@ import { describe, expect, it, mock } from "bun:test";
 import { Text } from "ink";
 import { render } from "ink-testing-library";
 
+/** Renders `useConfirmKeybindings` so the tests can drive its key handling. */
 function Harness({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
   const focused = useConfirmKeybindings(onYes, onNo);
   return <Text>focus={focused}</Text>;

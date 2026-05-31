@@ -22,6 +22,7 @@ await mock.module("../../commands/tmux.ts", () => ({
 
 const exit = mock(() => {});
 
+/** Mounts `useSessionListKeybindings` so the tests can send it key presses. */
 function Harness() {
   useSessionListKeybindings();
   return null;

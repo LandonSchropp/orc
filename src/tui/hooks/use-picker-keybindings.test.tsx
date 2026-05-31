@@ -3,6 +3,7 @@ import { describe, expect, it, mock } from "bun:test";
 import { Text } from "ink";
 import { render } from "ink-testing-library";
 
+/** Renders `usePickerKeybindings` so the tests can drive its key handling. */
 function Harness({ totalRows, onCancel }: { totalRows: number; onCancel: () => void }) {
   const { focusedIndex } = usePickerKeybindings(totalRows, onCancel);
   return <Text>focus={focusedIndex}</Text>;

@@ -16,6 +16,11 @@ beforeEach(() => {
   spyOn(tmuxModule, "previousTmuxSession").mockResolvedValue(null);
 });
 
+/**
+ * Wraps children in a `StoreProvider` so `useStore` has a store to read.
+ *
+ * @returns The children wrapped in a `StoreProvider`.
+ */
 function wrapper({ children }: { children: ReactNode }) {
   return <StoreProvider>{children}</StoreProvider>;
 }

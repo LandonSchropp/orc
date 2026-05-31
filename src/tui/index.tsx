@@ -2,6 +2,7 @@ import { App } from "./app.tsx";
 import { StoreProvider } from "./state/store.tsx";
 import { render } from "ink";
 
+/** Renders the TUI and resolves once the user exits it. */
 export async function runTui() {
   const instance = render(
     <StoreProvider>

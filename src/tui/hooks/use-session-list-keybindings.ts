@@ -26,13 +26,16 @@ export function useSessionListKeybindings() {
     selectProject,
   } = useStore();
 
+  /** Attaches to the selected session, if one is selected. */
   function attach() {
     const session = findSession(projects, selectedSessionId);
     if (session) void switchSession(session.project, session.session);
   }
 
-  // Returning to the previous session leaves the control session alive in the background; with no
-  // previous session there is nowhere to go back to, so quit instead.
+  /**
+   * Leaves the session list: switches back to the session the client came from, or exits the TUI
+   * when there is none. Switching back leaves the control session alive in the background.
+   */
   async function quit() {
     const previous = await previousTmuxSession();
     if (previous) await switchTmuxSession(previous);
