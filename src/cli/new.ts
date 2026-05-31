@@ -1,4 +1,6 @@
 import { createSession } from "../sessions/create.ts";
+import { findSession } from "../sessions/find.ts";
+import { sessionId } from "../sessions/id.ts";
 import { defineCommand } from "citty";
 
 export const newCommand = defineCommand({
@@ -19,6 +21,12 @@ export const newCommand = defineCommand({
     },
   },
   async run({ args }) {
+    if (await findSession(args.project, args.session)) {
+      const name = sessionId(args.project, args.session);
+      process.stderr.write(`Session already exists: ${name}\n`);
+      return process.exit(1);
+    }
+
     await createSession(args.project, args.session);
   },
 });
