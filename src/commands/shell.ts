@@ -1,3 +1,5 @@
+import { spawn } from "node:child_process";
+
 /** The result of running a shell command. */
 export type RunCommandResult = {
   /** The exit code of the process. */
@@ -57,4 +59,33 @@ export async function runAttachedCommand(command: string[]): Promise<number> {
     }
     throw error;
   }
+}
+
+/** Options for {@link runDetachedCommand}. */
+export type RunDetachedCommandOptions = {
+  /** Working directory for the process. Must be a directory that outlives the caller. */
+  cwd: string;
+  /** Extra environment variables, merged over the caller's environment. */
+  env?: Record<string, string>;
+};
+
+/**
+ * Spawns a command in a fully detached process: its own session, with stdio ignored and unref'd, so
+ * it keeps running after the caller exits or the caller's tmux pane is killed. The caller cannot
+ * observe the process, so the command is responsible for reporting its own failures.
+ *
+ * @param command - The command and its arguments.
+ * @param options - The working directory and any extra environment variables.
+ */
+export function runDetachedCommand(command: string[], options: RunDetachedCommandOptions): void {
+  const [executable, ...args] = command;
+
+  const child = spawn(executable, args, {
+    cwd: options.cwd,
+    env: { ...process.env, ...options.env },
+    detached: true,
+    stdio: "ignore",
+  });
+
+  child.unref();
 }

@@ -1,5 +1,12 @@
-import { runAttachedCommand, runCommand } from "./shell.ts";
-import { describe, expect, it } from "bun:test";
+import { runAttachedCommand, runCommand, runDetachedCommand } from "./shell.ts";
+import { describe, expect, it, mock } from "bun:test";
+
+const unrefMock = mock(() => {});
+const spawnMock = mock(() => ({ unref: unrefMock }));
+
+await mock.module("node:child_process", () => ({
+  spawn: spawnMock,
+}));
 
 describe("runCommand", () => {
   describe("when the command succeeds", () => {
@@ -72,5 +79,18 @@ describe("runAttachedCommand", () => {
       await Bun.write(tmpFile, "#!/bin/sh\ntrue");
       expect(runAttachedCommand([tmpFile])).rejects.toThrow();
     });
+  });
+});
+
+describe("runDetachedCommand", () => {
+  it("spawns the command detached in the given directory with ignored stdio, then unrefs it", () => {
+    runDetachedCommand(["orc", "delete", "orc", "tui"], { cwd: "/stable", env: { ORC_X: "1" } });
+
+    expect(spawnMock).toHaveBeenCalledWith(
+      "orc",
+      ["delete", "orc", "tui"],
+      expect.objectContaining({ cwd: "/stable", detached: true, stdio: "ignore" }),
+    );
+    expect(unrefMock).toHaveBeenCalled();
   });
 });
