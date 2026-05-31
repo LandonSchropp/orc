@@ -18,10 +18,11 @@ export function DeleteModal() {
     <Confirm
       title="Confirm"
       message={`Delete session "${session.session}"?`}
-      onYes={async () => {
+      onYes={() => {
         cancel();
-        await deleteSession(session.project, session.session);
-        removeSession(session.id);
+        void deleteSession(session.project, session.session).then(() => {
+          removeSession(session.id);
+        });
       }}
       onNo={cancel}
     />
