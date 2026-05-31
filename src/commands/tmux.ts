@@ -118,6 +118,7 @@ type CreateTmuxSessionOptions = {
  * @param name - The name for the new session.
  * @param command - The shell command the session's first pane runs.
  * @param options - Session creation options.
+ * @param options.statusBar - Whether the new session shows its status bar. Defaults to `true`.
  * @throws If tmux fails to create the session.
  */
 export async function createTmuxSession(
