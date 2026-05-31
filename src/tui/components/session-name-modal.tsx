@@ -6,17 +6,17 @@ import { Text } from "ink";
 
 /**
  * The session-name prompt modal. Reads the picked project from `activeModal`, derives a sensible
- * default name (`"main"` when the project's main worktree is free), and on submit closes the modal
- * and creates the session.
+ * default name (`"main"` when the project's main worktree is free), and on submit rejects names
+ * that already exist in the project; otherwise it closes the modal and creates the session.
  */
 export function SessionNameModal() {
   const { activeModal, projects, cancel } = useStore();
 
   if (activeModal?.type !== "session-name") return null;
 
-  const { project } = activeModal;
-  const projectData = projects.find((entry) => entry.project === project);
-  const mainInUse = projectData?.sessions.some(isMainWorktree) ?? false;
+  const { project: projectName } = activeModal;
+  const project = projects.find((entry) => entry.project === projectName);
+  const mainInUse = project?.sessions.some(isMainWorktree) ?? false;
   const defaultValue = mainInUse ? "" : MAIN_SESSION_NAME;
 
   return (
@@ -25,13 +25,20 @@ export function SessionNameModal() {
       message={[
         "What would you like to name the",
         <>
-          <Text color="blue">{project}</Text> session?
+          <Text color="blue">{projectName}</Text> session?
         </>,
       ]}
       defaultValue={defaultValue}
-      onSubmit={async (sessionName) => {
+      onValidate={(sessionName) => {
+        const existingNames = project?.sessions.map((session) => session.session) ?? [];
+
+        return existingNames.includes(sessionName)
+          ? `A session named "${sessionName}"\nalready exists.`
+          : null;
+      }}
+      onSubmit={(sessionName) => {
         cancel();
-        await createSession(project, sessionName);
+        void createSession(projectName, sessionName);
       }}
       onCancel={cancel}
     />

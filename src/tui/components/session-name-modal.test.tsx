@@ -1,5 +1,6 @@
 import { projectFactory } from "../../../test/factories/project.ts";
 import { storeFactory } from "../../../test/factories/store.ts";
+import { waitFor } from "../../../test/helpers/wait-for.ts";
 import * as storeModule from "../state/store.tsx";
 import { SessionNameModal } from "./session-name-modal.tsx";
 import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
@@ -99,10 +100,44 @@ describe("SessionNameModal", () => {
       const { stdin } = renderInViewport(<SessionNameModal />);
 
       stdin.write("\r");
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await waitFor(() => cancel.mock.calls.length > 0);
 
       expect(createSessionMock).toHaveBeenCalledWith("orc", "main");
       expect(cancel).toHaveBeenCalled();
+    });
+  });
+
+  describe("when a session with the entered name already exists", () => {
+    it("shows an error and does not create the session", async () => {
+      const cancel = mock(() => {});
+      const project = projectFactory.build(
+        { project: "orc" },
+        { transient: { sessions: ["main"] } },
+      );
+      spyOn(storeModule, "useStore").mockReturnValue(
+        storeFactory.build({
+          activeModal: { type: "session-name", project: "orc" },
+          projects: [project],
+          cancel,
+        }),
+      );
+
+      const { lastFrame, stdin } = renderInViewport(<SessionNameModal />);
+
+      stdin.write("main");
+      await waitFor(() => lastFrame()?.includes("main") ?? false);
+      stdin.write("\r");
+      await waitFor(() => lastFrame()?.includes("already exists") ?? false);
+
+      // The message breaks onto its own line at "already exists", so the name and the rest of the
+      // sentence land on separate rows.
+      const nameRow = (lastFrame() ?? "")
+        .split("\n")
+        .find((row) => row.includes("A session named"));
+      expect(nameRow).not.toContain("already exists");
+
+      expect(createSessionMock).not.toHaveBeenCalled();
+      expect(cancel).not.toHaveBeenCalled();
     });
   });
 
