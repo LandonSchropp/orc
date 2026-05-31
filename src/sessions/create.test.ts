@@ -14,7 +14,6 @@ const branchExistsMock = mock((): Promise<boolean> => Promise.resolve(false));
 const worktreeExistsMock = mock((): Promise<boolean> => Promise.resolve(false));
 const addWorktreeMock = mock((): Promise<void> => Promise.resolve());
 const switchSessionMock = mock((): Promise<void> => Promise.resolve());
-const isMainWorktreeInUseMock = mock((): Promise<boolean> => Promise.resolve(true));
 const mkdirSpy = mock((): Promise<string | undefined> => Promise.resolve(undefined));
 
 await mock.module("../commands/tmuxinator.ts", () => ({
@@ -33,10 +32,6 @@ await mock.module("./switch.ts", () => ({
   switchSession: switchSessionMock,
 }));
 
-await mock.module("./main-worktree.ts", () => ({
-  isMainWorktreeInUse: isMainWorktreeInUseMock,
-}));
-
 await mock.module("node:fs/promises", () => ({
   mkdir: mkdirSpy,
 }));
@@ -46,11 +41,29 @@ const worktreeParent = `${homedir()}/.cache/orc/worktrees/test-project`;
 const worktreePath = `${worktreeParent}/feature-a`;
 
 describe("createSession", () => {
-  describe("when the main worktree is in use", () => {
-    beforeEach(() => {
-      isMainWorktreeInUseMock.mockResolvedValue(true);
+  describe('when the session is named "main"', () => {
+    beforeEach(async () => {
+      await createSession("test-project", "main");
     });
 
+    it("does not look up the default branch", () => {
+      expect(defaultBranchMock).not.toHaveBeenCalled();
+    });
+
+    it("does not add a Git worktree", () => {
+      expect(addWorktreeMock).not.toHaveBeenCalled();
+    });
+
+    it("starts the tmuxinator project at the project root", () => {
+      expect(startTmuxinatorProjectMock).toHaveBeenCalledWith("test-project", "main", repoPath);
+    });
+
+    it("switches to the new session", () => {
+      expect(switchSessionMock).toHaveBeenCalledWith("test-project", "main");
+    });
+  });
+
+  describe('when the session is not named "main"', () => {
     describe("when the worktree does not yet exist", () => {
       beforeEach(() => {
         worktreeExistsMock.mockResolvedValue(false);
@@ -166,33 +179,6 @@ describe("createSession", () => {
       it("switches to the session", () => {
         expect(switchSessionMock).toHaveBeenCalledWith("test-project", "feature-a");
       });
-    });
-  });
-
-  describe("when the main worktree is free", () => {
-    beforeEach(async () => {
-      isMainWorktreeInUseMock.mockResolvedValue(false);
-      await createSession("test-project", "feature-a");
-    });
-
-    it("does not look up the default branch", () => {
-      expect(defaultBranchMock).not.toHaveBeenCalled();
-    });
-
-    it("does not add a Git worktree", () => {
-      expect(addWorktreeMock).not.toHaveBeenCalled();
-    });
-
-    it("starts the tmuxinator project at the project root", () => {
-      expect(startTmuxinatorProjectMock).toHaveBeenCalledWith(
-        "test-project",
-        "feature-a",
-        repoPath,
-      );
-    });
-
-    it("switches to the new session", () => {
-      expect(switchSessionMock).toHaveBeenCalledWith("test-project", "feature-a");
     });
   });
 });

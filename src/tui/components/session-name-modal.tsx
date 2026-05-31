@@ -1,5 +1,5 @@
 import { createSession } from "../../sessions/create.ts";
-import { isMainWorktree } from "../../sessions/main-worktree.ts";
+import { MAIN_SESSION_NAME, isMainWorktree } from "../../sessions/main-worktree.ts";
 import { useStore } from "../state/store.tsx";
 import { Prompt } from "./prompt.tsx";
 import { Text } from "ink";
@@ -17,7 +17,7 @@ export function SessionNameModal() {
   const { project } = activeModal;
   const projectData = projects.find((entry) => entry.project === project);
   const mainInUse = projectData?.sessions.some(isMainWorktree) ?? false;
-  const defaultValue = mainInUse ? "" : "main";
+  const defaultValue = mainInUse ? "" : MAIN_SESSION_NAME;
 
   return (
     <Prompt
