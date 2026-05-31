@@ -55,6 +55,12 @@ describe("deleteSession", () => {
     it("removes the agent state files for the session", () => {
       expect(removeSessionStateFilesMock).toHaveBeenCalledWith("test-project", "feature-a");
     });
+
+    it("kills the tmux session before removing the worktree", () => {
+      expect(killTmuxSessionMock.mock.invocationCallOrder[0]).toBeLessThan(
+        removeWorktreeMock.mock.invocationCallOrder[0],
+      );
+    });
   });
 
   describe("when the worktree does not exist", () => {

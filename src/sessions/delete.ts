@@ -7,14 +7,18 @@ import { worktreePath } from "./paths.ts";
 import { removeSessionStateFiles } from "./state.ts";
 
 /**
- * Deletes an orc session. Removes the Git worktree (if one exists at the orc cache path), kills the
- * tmux session, and cleans up any agent state files left behind. Does not delete the underlying
+ * Deletes an orc session. Kills the tmux session, removes the Git worktree (if one exists at the
+ * orc cache path), and cleans up any agent state files left behind. Does not delete the underlying
  * branch.
  *
  * @param project - The project name.
  * @param session - The session name within the project.
  */
 export async function deleteSession(project: string, session: string): Promise<void> {
+  // Kill the session first so an interruption can never leave a live session whose panes point at an
+  // already-deleted worktree directory.
+  await killTmuxSession(sessionId(project, session));
+
   const path = worktreePath(project, session);
 
   if (await exists(path)) {
@@ -22,6 +26,5 @@ export async function deleteSession(project: string, session: string): Promise<v
     await removeWorktree(repoPath, path);
   }
 
-  await killTmuxSession(sessionId(project, session));
   await removeSessionStateFiles(project, session);
 }
