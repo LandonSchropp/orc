@@ -12,6 +12,7 @@ import {
   killTmuxSession,
   listTmuxPanes,
   listTmuxSessions,
+  previousTmuxSession,
   switchTmuxSession,
 } from "./tmux.ts";
 import { describe, expect, it, mock } from "bun:test";
@@ -277,6 +278,37 @@ describe("createTmuxSession", () => {
       });
 
       expect(createTmuxSession("orc", "orc --tui")).rejects.toThrowError(/duplicate session/);
+    });
+  });
+});
+
+describe("previousTmuxSession", () => {
+  it("invokes `tmux display-message` for the client's last session", async () => {
+    runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "orc/feature-a\n", stderr: "" });
+
+    await previousTmuxSession();
+
+    expect(runCommandMock).toHaveBeenCalledWith([
+      "tmux",
+      "-L",
+      "orc",
+      "display-message",
+      "-p",
+      "#{client_last_session}",
+    ]);
+  });
+
+  describe("when the client has a previous session", () => {
+    it("returns its name", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "orc/feature-a\n", stderr: "" });
+      expect(await previousTmuxSession()).toBe("orc/feature-a");
+    });
+  });
+
+  describe("when the client has no previous session", () => {
+    it("returns null", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "\n", stderr: "" });
+      expect(await previousTmuxSession()).toBeNull();
     });
   });
 });

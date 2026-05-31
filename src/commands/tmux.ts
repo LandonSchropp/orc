@@ -68,6 +68,20 @@ export async function sessionId(paneId: string): Promise<string> {
 }
 
 /**
+ * Returns the name of the session the current client was attached to before its current one, read
+ * from tmux's `client_last_session`. Returns null when the client has no previous session.
+ *
+ * @returns The previous session name, or null.
+ */
+export async function previousTmuxSession(): Promise<string | null> {
+  const { exitCode, stdout } = await tmux(["display-message", "-p", "#{client_last_session}"]);
+
+  if (exitCode !== 0) return null;
+
+  return stdout.trim() || null;
+}
+
+/**
  * Checks whether a session with the given name exists on orc's isolated server.
  *
  * @param name - The session name to check.
