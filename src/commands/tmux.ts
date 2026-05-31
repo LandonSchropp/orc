@@ -68,6 +68,20 @@ export async function sessionId(paneId: string): Promise<string> {
 }
 
 /**
+ * Returns the name of the current client's session on orc's isolated server, read from tmux's
+ * `session_name`. Returns null when there is no current session.
+ *
+ * @returns The current session name, or null.
+ */
+export async function currentTmuxSession(): Promise<string | null> {
+  const { exitCode, stdout } = await tmux(["display-message", "-p", "#{session_name}"]);
+
+  if (exitCode !== 0) return null;
+
+  return stdout.trim() || null;
+}
+
+/**
  * Returns the name of the session the current client was attached to before its current one, read
  * from tmux's `client_last_session`. Returns null when the client has no previous session.
  *

@@ -10,6 +10,7 @@ import {
   isInsideOrcTmuxSession,
   isTmuxInstalled,
   killTmuxSession,
+  currentTmuxSession,
   listTmuxPanes,
   listTmuxSessions,
   previousTmuxSession,
@@ -278,6 +279,41 @@ describe("createTmuxSession", () => {
       });
 
       expect(createTmuxSession("orc", "orc --tui")).rejects.toThrowError(/duplicate session/);
+    });
+  });
+});
+
+describe("currentTmuxSession", () => {
+  it("invokes `tmux display-message` for the current session name", async () => {
+    runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "orc/feature-a\n", stderr: "" });
+
+    await currentTmuxSession();
+
+    expect(runCommandMock).toHaveBeenCalledWith([
+      "tmux",
+      "-L",
+      "orc",
+      "display-message",
+      "-p",
+      "#{session_name}",
+    ]);
+  });
+
+  describe("when there is a current session", () => {
+    it("returns its name", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "orc/feature-a\n", stderr: "" });
+      expect(await currentTmuxSession()).toBe("orc/feature-a");
+    });
+  });
+
+  describe("when there is no current session", () => {
+    it("returns null", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 1,
+        stdout: "",
+        stderr: "no current client\n",
+      });
+      expect(await currentTmuxSession()).toBeNull();
     });
   });
 });
