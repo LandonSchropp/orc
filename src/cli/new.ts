@@ -14,7 +14,7 @@ export const newCommand = defineCommand({
     },
     session: {
       type: "positional",
-      description: "Session name",
+      description: 'Session name ("main" runs on the project\'s main worktree)',
       required: true,
     },
   },

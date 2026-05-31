@@ -72,9 +72,10 @@ Orc operates at two levels:
 
 - **Project**: An Orc project groups related sessions and is created from a Tmuxinator project. Orc
   resolves the current project from the directory you're in (one project per repo).
-- **Session**: A tmux session spawned from a Tmuxinator project, paired with a Git worktree. When
-  the project's main worktree is free, the session runs there directly, on its current branch.
-  Otherwise it runs in its own linked worktree, isolated in a separate working directory.
+- **Session**: A tmux session spawned from a Tmuxinator project, paired with a Git worktree. The
+  session named `main` runs directly on the project's main worktree, on its current branch. Every
+  other session runs in its own linked worktree, isolated in a separate working directory on a
+  branch named after the session.
 
 ## Interfaces
 
@@ -89,8 +90,8 @@ Orc has two main interfaces:
 ## Commands
 
 - `orc new <project> <session>`: Spawn the project's Tmuxinator template as a new session and
-  attach. The session runs on the main worktree when it's free, otherwise in a dedicated linked
-  worktree.
+  attach. Name the session `main` to run on the project's main worktree; any other name gets a
+  dedicated linked worktree.
 - `orc list`: Plain-text list of sessions for piping into other tools or for checking state without
   entering the TUI.
 - `orc switch <project> <session>`: Switch to a session by name.
