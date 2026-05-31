@@ -162,18 +162,6 @@ export async function attachTmuxSession(name: string): Promise<void> {
 }
 
 /**
- * Opens a borderless, fullscreen tmux popup overlay running `command`. The popup closes when the
- * command exits. Runs against the caller's current tmux server (whichever socket the caller is
- * attached to via `$TMUX`), not the orc isolated socket — the popup is a UI overlay on whatever
- * pane the caller is in.
- *
- * @param command - The shell command to run inside the popup.
- */
-export async function openTmuxPopup(command: string): Promise<void> {
-  await runCommand(["tmux", "display-popup", "-E", "-B", "-w", "100%", "-h", "100%", command]);
-}
-
-/**
  * Lists the tmux sessions running on orc's isolated server. Returns an empty array when no server
  * is running. Sessions whose names do not follow orc's `project/session` convention are skipped so
  * foreign sessions on the orc socket do not break orc commands.

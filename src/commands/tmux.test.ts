@@ -12,7 +12,6 @@ import {
   killTmuxSession,
   listTmuxPanes,
   listTmuxSessions,
-  openTmuxPopup,
   switchTmuxSession,
 } from "./tmux.ts";
 import { describe, expect, it, mock } from "bun:test";
@@ -194,26 +193,6 @@ describe("attachTmuxSession", () => {
       "attach-session",
       "-t",
       "orc/feature-a",
-    ]);
-  });
-});
-
-describe("openTmuxPopup", () => {
-  it("invokes `tmux display-popup` with the borderless fullscreen flags", async () => {
-    runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
-
-    await openTmuxPopup("orc");
-
-    expect(runCommandMock).toHaveBeenCalledWith([
-      "tmux",
-      "display-popup",
-      "-E",
-      "-B",
-      "-w",
-      "100%",
-      "-h",
-      "100%",
-      "orc",
     ]);
   });
 });
