@@ -28,6 +28,16 @@ Orc has two interaction modes:
 
 Subcommands never fall back to interactive prompts. If a user needs interaction, they launch the TUI.
 
+## Stale TUI Session
+
+The TUI runs inside a hidden tmux session named `_tui` (the control session, see `src/sessions/control-session.ts`). That session launches orc once and keeps the same process alive, so it goes on running whatever binary it started with. When you change TUI code, a running `_tui` session is stale and will not reflect your edits until it is killed and recreated.
+
+When modifying the TUI, kill the stale control session before re-running orc:
+
+```bash
+tmux kill-session -t _tui
+```
+
 ## CLI Output
 
 Use `process.stdout.write` for command output, not `console.log`. CLI output is program data that should pipe cleanly to other tools — `console.log` is for diagnostics and goes through Node's console formatting layer. Remember to include the trailing `\n` since `process.stdout.write` does not append one.
