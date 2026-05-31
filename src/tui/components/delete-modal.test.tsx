@@ -13,7 +13,11 @@ await mock.module("../../sessions/delete.ts", () => ({
   deleteSession: deleteSessionMock,
 }));
 
-/** Wraps DeleteModal in a sized viewport so the modal overlay has a parent to anchor to. */
+/**
+ * Wraps DeleteModal in a sized viewport so the modal overlay has a parent to anchor to.
+ *
+ * @returns The ink-testing-library render result.
+ */
 function renderInViewport(children: ReactNode) {
   return render(
     <Box width={80} height={20}>

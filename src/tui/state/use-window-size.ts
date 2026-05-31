@@ -9,7 +9,11 @@ export type WindowSize = {
   rows: number;
 };
 
-/** Returns the current terminal window size, kept in sync with resize events. */
+/**
+ * Returns the current terminal window size, kept in sync with resize events.
+ *
+ * @returns The current terminal window size.
+ */
 export function useWindowSize(): WindowSize {
   const { stdout } = useStdout();
   const [size, setSize] = useState<WindowSize>({ columns: stdout.columns, rows: stdout.rows });

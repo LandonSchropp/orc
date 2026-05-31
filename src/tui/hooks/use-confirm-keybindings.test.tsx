@@ -15,6 +15,8 @@ const noop = () => {};
  * Yields to the event loop so React can flush a state update before the next assertion or write.
  * `ink-testing-library` does not expose Ink's `waitUntilRenderFlush`, and React's `act` emits its
  * own warnings against Ink's internal effects, so a plain `setTimeout(0)` is the cleanest option.
+ *
+ * @returns A promise that resolves on the next tick.
  */
 function flush() {
   return new Promise((resolve) => setTimeout(resolve, 0));

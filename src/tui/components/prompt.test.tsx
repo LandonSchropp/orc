@@ -5,7 +5,11 @@ import { Box } from "ink";
 import { render } from "ink-testing-library";
 import type { ReactNode } from "react";
 
-/** Wraps the prompt in a sized viewport so its full-window overlay has a parent to anchor to. */
+/**
+ * Wraps the prompt in a sized viewport so its full-window overlay has a parent to anchor to.
+ *
+ * @returns The ink-testing-library render result.
+ */
 function renderInViewport(children: ReactNode) {
   return render(
     <Box width={80} height={20}>

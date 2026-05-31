@@ -22,7 +22,11 @@ await mock.module("./session-name-modal.tsx", () => ({
   SessionNameModal: SessionNameModalMock,
 }));
 
-/** Wraps ActiveModal in a sized viewport so any modal overlay has a parent to anchor to. */
+/**
+ * Wraps ActiveModal in a sized viewport so any modal overlay has a parent to anchor to.
+ *
+ * @returns The ink-testing-library render result.
+ */
 function renderInViewport(children: ReactNode) {
   return render(
     <Box width={80} height={20}>

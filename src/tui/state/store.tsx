@@ -68,7 +68,11 @@ function Store({ selectedSessionId, children }: StoreProps) {
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
 
-/** Consumes the store. Throws if used outside a `StoreProvider`. */
+/**
+ * Consumes the store. Throws if used outside a `StoreProvider`.
+ *
+ * @returns The store's state and action callbacks.
+ */
 export function useStore(): StoreContextValue {
   const value = useContext(StoreContext);
 

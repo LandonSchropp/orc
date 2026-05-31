@@ -14,7 +14,11 @@ await mock.module("../../commands/tmuxinator.ts", () => ({
   listTmuxinatorProjects: listTmuxinatorProjectsMock,
 }));
 
-/** Wraps the modal in a sized viewport so its overlay has a parent to anchor to. */
+/**
+ * Wraps the modal in a sized viewport so its overlay has a parent to anchor to.
+ *
+ * @returns The ink-testing-library render result.
+ */
 function renderInViewport(children: ReactNode) {
   return render(
     <Box width={80} height={20}>

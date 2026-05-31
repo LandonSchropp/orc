@@ -11,7 +11,11 @@ function Harness({ totalRows, onCancel }: { totalRows: number; onCancel: () => v
 
 const noop = () => {};
 
-/** Yields to the event loop so React can flush a state update before the next assertion or write. */
+/**
+ * Yields to the event loop so React can flush a state update before the next assertion or write.
+ *
+ * @returns A promise that resolves on the next tick.
+ */
 function flush() {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }

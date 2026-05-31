@@ -4,7 +4,11 @@ import { Box, Text } from "ink";
 import { render } from "ink-testing-library";
 import type { ReactNode } from "react";
 
-/** Wraps the Modal in a sized viewport so its `position="absolute"` fill has a parent to anchor to. */
+/**
+ * Wraps the Modal in a sized viewport so its `position="absolute"` fill has a parent to anchor to.
+ *
+ * @returns The ink-testing-library render result.
+ */
 function renderInViewport(children: ReactNode) {
   return render(
     <Box width={80} height={20}>
