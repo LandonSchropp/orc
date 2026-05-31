@@ -1,4 +1,4 @@
-import { getCurrentSession } from "../../sessions/current.ts";
+import { previousTmuxSession } from "../../commands/tmux.ts";
 import { listSessions } from "../../sessions/list.ts";
 import { useEffectAsync } from "../hooks/use-effect-async.ts";
 import { useInterval } from "../hooks/use-interval.ts";
@@ -18,20 +18,19 @@ type StoreProviderProps = {
 };
 
 /**
- * Resolves the session this process is attached to, then mounts the store seeded to select it.
- * Renders nothing until the current session is known so the initial selection lands on it rather
- * than flashing the first session and then jumping.
+ * Resolves the session the client came from, then mounts the store seeded to select it. Renders
+ * nothing until the previous session is known so the initial selection lands on it rather than
+ * flashing the first session and then jumping.
  */
 export function StoreProvider({ children }: StoreProviderProps) {
-  // `undefined` while the current session is still being resolved; `null` once we know there's none.
+  // `undefined` while the previous session is still being resolved; `null` once we know there's none.
   const [selectedSessionId, setSelectedSessionId] = useState<string | null | undefined>(undefined);
 
   useEffectAsync(async () => {
-    const session = await getCurrentSession();
-    setSelectedSessionId(session?.id ?? null);
+    setSelectedSessionId(await previousTmuxSession());
   }, []);
 
-  // Hold off on mounting the store until the current session has resolved, so it can seed the
+  // Hold off on mounting the store until the previous session has resolved, so it can seed the
   // initial selection rather than flashing the first session and then jumping.
   if (selectedSessionId === undefined) {
     return null;

@@ -1,5 +1,5 @@
 import { sessionFactory } from "../../../test/factories/session.ts";
-import * as currentSessionModule from "../../sessions/current.ts";
+import * as tmuxModule from "../../commands/tmux.ts";
 import * as listSessionsModule from "../../sessions/list.ts";
 import { StoreProvider, useStore } from "./store.tsx";
 import * as useWindowSizeModule from "./use-window-size.ts";
@@ -13,7 +13,7 @@ GlobalRegistrator.register();
 beforeEach(() => {
   spyOn(useWindowSizeModule, "useWindowSize").mockReturnValue({ columns: 100, rows: 30 });
   spyOn(listSessionsModule, "listSessions").mockResolvedValue([]);
-  spyOn(currentSessionModule, "getCurrentSession").mockResolvedValue(null);
+  spyOn(tmuxModule, "previousTmuxSession").mockResolvedValue(null);
 });
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -60,11 +60,11 @@ describe("useStore", () => {
       });
     });
 
-    it("selects the current session on the first load", async () => {
+    it("selects the previous session on the first load", async () => {
       const a = sessionFactory.build({ project: "orc", session: "a" });
       const b = sessionFactory.build({ project: "orc", session: "b" });
       spyOn(listSessionsModule, "listSessions").mockResolvedValue([a, b]);
-      spyOn(currentSessionModule, "getCurrentSession").mockResolvedValue(b);
+      spyOn(tmuxModule, "previousTmuxSession").mockResolvedValue("orc/b");
 
       const { result } = renderHook(() => useStore(), { wrapper });
 
