@@ -2,8 +2,10 @@ import { stubEnv } from "../../test/helpers/env.ts";
 import { worktreePath } from "../sessions/paths.ts";
 import {
   attachTmuxSession,
+  createTmuxSession,
   sessionId,
   detachTmuxClient,
+  hasTmuxSession,
   isInsideOrcTmuxSession,
   isTmuxInstalled,
   killTmuxSession,
@@ -212,6 +214,90 @@ describe("openTmuxPopup", () => {
       "100%",
       "orc",
     ]);
+  });
+});
+
+describe("hasTmuxSession", () => {
+  describe("when the session exists", () => {
+    it("returns true", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+      expect(await hasTmuxSession("orc")).toBe(true);
+    });
+  });
+
+  describe("when the session does not exist", () => {
+    it("returns false", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 1,
+        stdout: "",
+        stderr: "can't find session: orc\n",
+      });
+      expect(await hasTmuxSession("orc")).toBe(false);
+    });
+  });
+
+  it("invokes `tmux has-session` against the orc server", async () => {
+    runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+
+    await hasTmuxSession("orc");
+
+    expect(runCommandMock).toHaveBeenCalledWith(["tmux", "-L", "orc", "has-session", "-t", "orc"]);
+  });
+});
+
+describe("createTmuxSession", () => {
+  it("invokes `tmux new-session` detached, running the given command", async () => {
+    runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+
+    await createTmuxSession("orc", "orc --tui");
+
+    expect(runCommandMock).toHaveBeenCalledWith([
+      "tmux",
+      "-L",
+      "orc",
+      "new-session",
+      "-d",
+      "-s",
+      "orc",
+      "orc --tui",
+    ]);
+  });
+
+  describe("when the status bar is disabled", () => {
+    it("hides the session's status bar in the same invocation", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+
+      await createTmuxSession("orc", "orc --tui", { statusBar: false });
+
+      expect(runCommandMock).toHaveBeenCalledWith([
+        "tmux",
+        "-L",
+        "orc",
+        "new-session",
+        "-d",
+        "-s",
+        "orc",
+        "orc --tui",
+        ";",
+        "set-option",
+        "-t",
+        "orc",
+        "status",
+        "off",
+      ]);
+    });
+  });
+
+  describe("when tmux fails", () => {
+    it("throws an error with the stderr message", () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 1,
+        stdout: "",
+        stderr: "duplicate session: orc\n",
+      });
+
+      expect(createTmuxSession("orc", "orc --tui")).rejects.toThrowError(/duplicate session/);
+    });
   });
 });
 

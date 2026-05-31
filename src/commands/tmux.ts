@@ -68,6 +68,49 @@ export async function sessionId(paneId: string): Promise<string> {
 }
 
 /**
+ * Checks whether a session with the given name exists on orc's isolated server.
+ *
+ * @param name - The session name to check.
+ * @returns `true` when the session exists, otherwise `false`.
+ */
+export async function hasTmuxSession(name: string): Promise<boolean> {
+  return (await tmux(["has-session", "-t", name])).exitCode === 0;
+}
+
+/** Options for {@link createTmuxSession}. */
+type CreateTmuxSessionOptions = {
+  /** Whether the new session shows its status bar. Defaults to `true`. */
+  statusBar?: boolean;
+};
+
+/**
+ * Creates a detached session on orc's isolated server that runs the given command. When `statusBar`
+ * is `false`, hides the session's status bar in the same invocation.
+ *
+ * @param name - The name for the new session.
+ * @param command - The shell command the session's first pane runs.
+ * @param options - Session creation options.
+ * @throws If tmux fails to create the session.
+ */
+export async function createTmuxSession(
+  name: string,
+  command: string,
+  { statusBar = true }: CreateTmuxSessionOptions = {},
+): Promise<void> {
+  const args = ["new-session", "-d", "-s", name, command];
+
+  if (!statusBar) {
+    args.push(";", "set-option", "-t", name, "status", "off");
+  }
+
+  const { exitCode, stderr } = await tmux(args);
+
+  if (exitCode !== 0) {
+    throw new Error(`Failed to create tmux session: ${stderr.trim()}`);
+  }
+}
+
+/**
  * Kills the orc tmux session with the given name.
  *
  * @param name - The full `project:session` name to kill.
