@@ -1,4 +1,4 @@
-import { openTmuxPopup } from "../commands/tmux.ts";
+import { attachOrSwitchToControlSession, shouldRenderTui } from "../sessions/control-session.ts";
 import { deleteCommand } from "./delete.ts";
 import { detachCommand } from "./detach.ts";
 import { hookCommand } from "./hook.ts";
@@ -6,23 +6,6 @@ import { listCommand } from "./list.ts";
 import { newCommand } from "./new.ts";
 import { switchCommand } from "./switch.ts";
 import { defineCommand } from "citty";
-
-/**
- * Env var set when invoking `orc` inside its own tmux popup so the recursive call skips the popup
- * dispatch and renders the TUI directly.
- */
-const POPUP_ENV = "ORC_POPUP";
-
-/**
- * Builds the shell command that re-invokes the current orc process with `ORC_POPUP=1` set. Uses
- * `process.execPath` and `process.argv` so we re-run the exact binary and script the user invoked.
- *
- * @returns The shell command suitable for passing to a tmux popup.
- */
-function popupCommand(): string {
-  const tokens = [process.execPath, ...process.argv.slice(1)].map((token) => Bun.$.escape(token));
-  return `${POPUP_ENV}=1 ${tokens.join(" ")}`;
-}
 
 export const orc = defineCommand({
   meta: {
@@ -43,17 +26,15 @@ export const orc = defineCommand({
     // exits and hangs the process.
     if (rawArgs.length > 0) return;
 
-    // When the caller is inside a tmux session and not already inside the orc popup, overlay orc as
-    // a fullscreen popup over their current pane. The popup re-invokes `orc` with `ORC_POPUP=1` so
-    // the recursive call renders the TUI in place instead of opening another popup.
-    if (process.env.TMUX !== undefined && process.env[POPUP_ENV] !== "1") {
-      await openTmuxPopup(popupCommand());
+    // When re-invoked from inside the control session, render the TUI directly. Otherwise enter the
+    // control session, which runs this command from inside itself.
+    if (shouldRenderTui()) {
+      // The import is lazy so subcommands never load the Ink/React module graph at all.
+      const { runTui } = await import("../tui/index.tsx");
+      await runTui();
       return;
     }
 
-    // The import is lazy so subcommands never load the Ink/React module graph at all.
-    const { runTui } = await import("../tui/index.tsx");
-
-    await runTui();
+    await attachOrSwitchToControlSession();
   },
 });
