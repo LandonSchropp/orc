@@ -10,9 +10,9 @@ import { dirname, join } from "node:path";
  * files are stored flat under `$XDG_CACHE_HOME/orc/state/`, with the project, session, and pane
  * encoded into the filename.
  *
- * @param project - The project name.
- * @param session - The session name within the project.
- * @param paneId - The tmux pane id (e.g. `%5`).
+ * @param project The project name.
+ * @param session The session name within the project.
+ * @param paneId The tmux pane id (e.g. `%5`).
  * @returns The absolute path under `$XDG_CACHE_HOME/orc/state/<project>-<session>-<paneId>.json`.
  */
 export function stateFilePath(project: string, session: string, paneId: string): string {
@@ -23,10 +23,10 @@ export function stateFilePath(project: string, session: string, paneId: string):
  * Writes the given status to the agent state file. Creates the state directory if needed and
  * overwrites any existing file.
  *
- * @param project - The project name.
- * @param session - The session name within the project.
- * @param paneId - The tmux pane id.
- * @param status - The agent status to record.
+ * @param project The project name.
+ * @param session The session name within the project.
+ * @param paneId The tmux pane id.
+ * @param status The agent status to record.
  */
 export async function writeStateFile(
   project: string,
@@ -43,9 +43,9 @@ export async function writeStateFile(
 /**
  * Reads the agent state file for the given project, session, and pane.
  *
- * @param project - The project name.
- * @param session - The session name within the project.
- * @param paneId - The tmux pane id.
+ * @param project The project name.
+ * @param session The session name within the project.
+ * @param paneId The tmux pane id.
  * @returns The parsed agent state, or `null` if the file does not exist.
  * @throws If the file exists but cannot be parsed or has an invalid shape.
  */
@@ -71,8 +71,8 @@ export async function readStateFile(
  * Removes every state file belonging to a session. Used to clean up after `orc delete`. No-op when
  * the state directory does not exist or has no matching files.
  *
- * @param project - The project name.
- * @param session - The session name within the project.
+ * @param project The project name.
+ * @param session The session name within the project.
  */
 export async function removeSessionStateFiles(project: string, session: string): Promise<void> {
   const directory = join(orcCacheDirectory(), "state");

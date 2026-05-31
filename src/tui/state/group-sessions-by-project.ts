@@ -5,8 +5,8 @@ import type { Project, Session } from "../../types.ts";
  * Orders sessions for display: the session on the main worktree comes first, then the rest
  * oldest-first by creation time.
  *
- * @param a - The first session to compare.
- * @param b - The second session to compare.
+ * @param a The first session to compare.
+ * @param b The second session to compare.
  * @returns A negative, zero, or positive number per the array sort contract.
  */
 function compareSessions(a: Session, b: Session): number {
@@ -23,7 +23,7 @@ function compareSessions(a: Session, b: Session): number {
  * Projects are returned sorted alphabetically by name. Within each project the main-worktree
  * session comes first, followed by the rest in order of creation.
  *
- * @param sessions - The flat list of sessions to group.
+ * @param sessions The flat list of sessions to group.
  * @returns The projects, each holding its sessions in display order.
  */
 export function groupSessionsByProject(sessions: Session[]): Project[] {

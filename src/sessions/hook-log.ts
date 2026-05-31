@@ -17,8 +17,8 @@ export function hookLogPath(): string {
  * file. Best-effort: any failure to write is swallowed so logging never blocks or breaks the hook
  * handler.
  *
- * @param paneId - The tmux pane id where the hook fired.
- * @param payload - The raw hook payload received from stdin.
+ * @param paneId The tmux pane id where the hook fired.
+ * @param payload The raw hook payload received from stdin.
  */
 export async function logHookEvent(paneId: string, payload: unknown): Promise<void> {
   const entry = { timestamp: new Date().toISOString(), paneId, payload };

@@ -54,7 +54,7 @@ export function Prompt({
   /**
    * Clears any visible error as the user edits, since the message no longer describes the input.
    *
-   * @param next - The updated input value.
+   * @param next The updated input value.
    */
   function handleChange(next: string) {
     setError(null);
@@ -65,7 +65,7 @@ export function Prompt({
    * Validates the submitted value and either surfaces the validation error below the input or
    * forwards a valid value to `onSubmit`.
    *
-   * @param submitted - The value entered when the user pressed enter.
+   * @param submitted The value entered when the user pressed enter.
    */
   function handleSubmit(submitted: string) {
     const validationError = onValidate(submitted);

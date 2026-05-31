@@ -11,7 +11,7 @@ import type { AgentState, AgentStatus, ClaudeSettings, HookPayload, JsonValue } 
  * Type guard for {@link AgentStatus}. Returns `true` when the value is one of the agent status
  * strings.
  *
- * @param value - The value to check.
+ * @param value The value to check.
  * @returns `true` if `value` is a valid {@link AgentStatus}, otherwise `false`.
  */
 export function isAgentStatus(value: unknown): value is AgentStatus {
@@ -22,7 +22,7 @@ export function isAgentStatus(value: unknown): value is AgentStatus {
  * Type guard for {@link AgentState}. Returns `true` when the value has a valid `status` and a string
  * `timestamp`.
  *
- * @param value - The value to check.
+ * @param value The value to check.
  * @returns `true` if `value` is a valid {@link AgentState}, otherwise `false`.
  */
 export function isAgentState(value: unknown): value is AgentState {
@@ -42,7 +42,7 @@ export function isAgentState(value: unknown): value is AgentState {
  * `Stop`, `PostToolUse`, `Notification`), and additionally requires a string `notification_type` on
  * `Notification` payloads so they narrow safely.
  *
- * @param value - The value to check.
+ * @param value The value to check.
  * @returns `true` if `value` is a valid {@link HookPayload}, otherwise `false`.
  */
 export function isHookPayload(value: unknown): value is HookPayload {
@@ -66,7 +66,7 @@ export function isHookPayload(value: unknown): value is HookPayload {
  * optional `hooks` field is itself an object of arrays. Does not deeply validate the matcher /
  * handler entries inside each event array — callers can iterate defensively.
  *
- * @param value - The parsed JSON value to check.
+ * @param value The parsed JSON value to check.
  * @returns `true` if `value` is a valid {@link ClaudeSettings}, otherwise `false`.
  */
 export function isClaudeSettings(value: JsonValue): value is ClaudeSettings {

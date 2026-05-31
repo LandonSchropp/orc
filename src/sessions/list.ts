@@ -9,9 +9,9 @@ import { readStateFile } from "./state.ts";
  * state file has not been written yet (e.g. Claude just started and no hook has fired), defaults to
  * {@link IDLE_AGENT_STATUS}.
  *
- * @param project - The project name owning the pane.
- * @param session - The session name within the project.
- * @param pane - The Claude-hosting pane to inspect.
+ * @param project The project name owning the pane.
+ * @param session The session name within the project.
+ * @param pane The Claude-hosting pane to inspect.
  * @returns The agent for that pane.
  */
 async function buildAgent(project: string, session: string, pane: TmuxPane): Promise<Agent> {

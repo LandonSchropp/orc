@@ -64,7 +64,7 @@ export function Picker({ title, options, initialSelection, onSelect, onCancel }:
   /**
    * Handles text-input changes: strips newlines, updates the query, and resets focus to the top.
    *
-   * @param newValue - The new value of the text input.
+   * @param newValue The new value of the text input.
    */
   function handleChange(newValue: string) {
     newValue = newValue.replace(/\n/g, "");

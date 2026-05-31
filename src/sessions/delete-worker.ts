@@ -19,8 +19,8 @@ export function isDeleteWorker(): boolean {
  * the worker flag set, in its own session with a stable working directory, so it finishes the
  * deletion even after the pane that launched it is killed.
  *
- * @param project - The project name.
- * @param session - The session name within the project.
+ * @param project The project name.
+ * @param session The session name within the project.
  */
 export function spawnDeleteWorker(project: string, session: string): void {
   runDetachedCommand([process.execPath, process.argv[1], "delete", project, session], {

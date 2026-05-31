@@ -13,7 +13,7 @@ export type RunCommandResult = {
 /**
  * Runs a command and captures its output. Returns exit code 127 if the command is not found.
  *
- * @param command - The command and its arguments, e.g. `["git", "--version"]`.
+ * @param command The command and its arguments, e.g. `["git", "--version"]`.
  * @returns The exit code, stdout, and stderr from the process.
  */
 export async function runCommand(command: string[]): Promise<RunCommandResult> {
@@ -42,7 +42,7 @@ export async function runCommand(command: string[]): Promise<RunCommandResult> {
  * `tmux attach-session`) that need to take over the terminal. Returns exit code 127 if the command
  * is not found.
  *
- * @param command - The command and its arguments.
+ * @param command The command and its arguments.
  * @returns The exit code from the process.
  */
 export async function runAttachedCommand(command: string[]): Promise<number> {
@@ -74,8 +74,8 @@ export type RunDetachedCommandOptions = {
  * it keeps running after the caller exits or the caller's tmux pane is killed. The caller cannot
  * observe the process, so the command is responsible for reporting its own failures.
  *
- * @param command - The command and its arguments.
- * @param options - The working directory and any extra environment variables.
+ * @param command The command and its arguments.
+ * @param options The working directory and any extra environment variables.
  */
 export function runDetachedCommand(command: string[], options: RunDetachedCommandOptions): void {
   const [executable, ...args] = command;

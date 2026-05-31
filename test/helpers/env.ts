@@ -10,8 +10,8 @@ const stubbed = new Map<string, string | undefined>();
  * Temporarily sets a `process.env` variable for the current test. Pass `undefined` to delete the
  * variable. The original value is restored automatically by `unstubAllEnvs` in `test/setup.ts`.
  *
- * @param key - The environment variable to stub.
- * @param value - The value to set, or `undefined` to delete the variable.
+ * @param key The environment variable to stub.
+ * @param value The value to set, or `undefined` to delete the variable.
  */
 export function stubEnv(key: string, value: string | undefined): void {
   if (!stubbed.has(key)) {

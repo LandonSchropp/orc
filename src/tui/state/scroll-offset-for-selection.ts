@@ -14,9 +14,9 @@ import {
  * blocks the ProjectList renders — a header then session rows chunked by `numberOfColumns` —
  * accumulating their fixed heights.
  *
- * @param projects - The projects rendered in the list, in display order.
- * @param selectedSessionId - The id of the selected session, or `null` when none is selected.
- * @param numberOfColumns - The number of session cards that fit in a row.
+ * @param projects The projects rendered in the list, in display order.
+ * @param selectedSessionId The id of the selected session, or `null` when none is selected.
+ * @param numberOfColumns The number of session cards that fit in a row.
  * @returns The selected row's top offset in rows, or `null` when nothing is selected.
  */
 function selectedRowTop(
@@ -44,8 +44,8 @@ function selectedRowTop(
 /**
  * The total height of every project's blocks, in rows.
  *
- * @param projects - The projects rendered in the list.
- * @param numberOfColumns - The number of session cards that fit in a row.
+ * @param projects The projects rendered in the list.
+ * @param numberOfColumns The number of session cards that fit in a row.
  * @returns The total content height in rows.
  */
 function contentHeight(projects: Project[], numberOfColumns: number): number {
@@ -66,11 +66,11 @@ function contentHeight(projects: Project[], numberOfColumns: number): number {
  * post-render measurement, so the move and the scroll land in a single render. Returns the current
  * offset unchanged when nothing is selected.
  *
- * @param projects - The projects rendered in the list, in display order.
- * @param selectedSessionId - The id of the selected session, or `null` when none is selected.
- * @param numberOfColumns - The number of session cards that fit in a row.
- * @param currentOffset - The viewport's current scroll offset, in rows from the top of the content.
- * @param windowHeight - The height of the terminal window, in rows.
+ * @param projects The projects rendered in the list, in display order.
+ * @param selectedSessionId The id of the selected session, or `null` when none is selected.
+ * @param numberOfColumns The number of session cards that fit in a row.
+ * @param currentOffset The viewport's current scroll offset, in rows from the top of the content.
+ * @param windowHeight The height of the terminal window, in rows.
  * @returns The scroll offset to apply, in rows from the top of the content.
  */
 export function scrollOffsetForSelection(

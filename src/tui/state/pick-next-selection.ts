@@ -38,9 +38,9 @@ function findProjectByName(projects: Project[], name: string): Project | undefin
  *
  * Returns `null` only when `nextProjects` is empty.
  *
- * @param previousProjects - The projects as they were before the change.
- * @param previousSelectionSessionId - The id of the previously selected session, or `null`.
- * @param nextProjects - The projects after the change.
+ * @param previousProjects The projects as they were before the change.
+ * @param previousSelectionSessionId The id of the previously selected session, or `null`.
+ * @param nextProjects The projects after the change.
  * @returns The id of the session to select, or `null` when there are no sessions.
  */
 export function pickNextSelection(

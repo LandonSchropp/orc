@@ -10,7 +10,7 @@ const CLAUDE_TITLE_PATTERN = /[⠀-⣿✳✻✽✶✢]/u;
  * Returns `true` when the given tmux pane is hosting a Claude agent, detected by the signature
  * characters Claude Code writes into the pane title.
  *
- * @param pane - The tmux pane to check.
+ * @param pane The tmux pane to check.
  * @returns `true` if the pane title contains a Claude signature character, otherwise `false`.
  */
 export function isAgentPane(pane: TmuxPane): boolean {

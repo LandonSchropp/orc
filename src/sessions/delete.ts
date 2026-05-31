@@ -11,8 +11,8 @@ import { removeSessionStateFiles } from "./state.ts";
  * orc cache path), and cleans up any agent state files left behind. Does not delete the underlying
  * branch.
  *
- * @param project - The project name.
- * @param session - The session name within the project.
+ * @param project The project name.
+ * @param session The session name within the project.
  */
 export async function deleteSession(project: string, session: string): Promise<void> {
   // Kill the session first so an interruption can never leave a live session whose panes point at an

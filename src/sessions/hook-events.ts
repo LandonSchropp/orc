@@ -23,7 +23,7 @@ const USER_INPUT_NOTIFICATION_TYPES = new Set(["permission_prompt", "elicitation
 /**
  * Reports whether a Notification's `notification_type` indicates Claude is blocked on the user.
  *
- * @param notificationType - The payload's `notification_type` field.
+ * @param notificationType The payload's `notification_type` field.
  * @returns `true` when the notification type means the agent is waiting on user input.
  */
 function isUserInputNotification(notificationType: string): boolean {
@@ -35,7 +35,7 @@ function isUserInputNotification(notificationType: string): boolean {
  * Notification payloads whose `notification_type` doesn't mean the agent is waiting on the user
  * (e.g. `idle_prompt`, which the Stop event already covers as Idle).
  *
- * @param payload - The hook payload from Claude Code.
+ * @param payload The hook payload from Claude Code.
  * @returns The corresponding agent status, or `null` if the payload should not change the status.
  */
 function payloadToStatus(payload: HookPayload): AgentStatus | null {
@@ -59,8 +59,8 @@ function payloadToStatus(payload: HookPayload): AgentStatus | null {
  * The state file is left untouched when its status already matches, so the recorded timestamp keeps
  * marking when the agent entered that status rather than when the latest event fired.
  *
- * @param payload - The validated hook payload from Claude Code.
- * @param paneId - The tmux pane id where the hook fired.
+ * @param payload The validated hook payload from Claude Code.
+ * @param paneId The tmux pane id where the hook fired.
  */
 export async function processHookEvent(payload: HookPayload, paneId: string): Promise<void> {
   const status = payloadToStatus(payload);

@@ -6,8 +6,8 @@ import { describe, expect, it } from "bun:test";
 /**
  * Builds a project with the given name and session names.
  *
- * @param name - The project name.
- * @param sessions - The session names to populate the project with.
+ * @param name The project name.
+ * @param sessions The session names to populate the project with.
  * @returns The built project.
  */
 function project(name: string, sessions: string[]): Project {

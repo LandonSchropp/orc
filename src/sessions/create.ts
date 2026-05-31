@@ -13,8 +13,8 @@ import { dirname } from "node:path";
  * when it does not. Starts the project's Tmuxinator template against the chosen directory and
  * switches to it.
  *
- * @param project - The name of an existing Tmuxinator project.
- * @param session - The session name within the project.
+ * @param project The name of an existing Tmuxinator project.
+ * @param session The session name within the project.
  * @throws If the project's default branch cannot be determined or any underlying operation fails.
  */
 export async function createSession(project: string, session: string): Promise<void> {
@@ -32,9 +32,9 @@ export async function createSession(project: string, session: string): Promise<v
 /**
  * Creates the session's Git worktree if it does not already exist.
  *
- * @param repoPath - The path to the project's main repository.
- * @param project - The project name.
- * @param session - The session name within the project.
+ * @param repoPath The path to the project's main repository.
+ * @param project The project name.
+ * @param session The session name within the project.
  * @returns The absolute path to the session's worktree.
  */
 async function createWorktree(repoPath: string, project: string, session: string): Promise<string> {

@@ -37,7 +37,7 @@ export function isInsideOrcTmuxSession(): boolean {
 /**
  * Runs a tmux command against orc's isolated server.
  *
- * @param args - Arguments to pass to tmux, after the socket flag.
+ * @param args Arguments to pass to tmux, after the socket flag.
  * @returns The exit code, stdout, and stderr from the command.
  */
 function tmux(args: string[]): Promise<RunCommandResult> {
@@ -53,7 +53,7 @@ export async function detachTmuxClient(): Promise<void> {
  * Returns the orc id for the session the given pane belongs to. Runs `tmux display-message` against
  * orc's isolated server.
  *
- * @param paneId - The tmux pane id (e.g. `%5`).
+ * @param paneId The tmux pane id (e.g. `%5`).
  * @returns The session id (e.g. `project/feature-a`).
  * @throws If tmux exits with an error.
  */
@@ -98,7 +98,7 @@ export async function previousTmuxSession(): Promise<string | null> {
 /**
  * Checks whether a session with the given name exists on orc's isolated server.
  *
- * @param name - The session name to check.
+ * @param name The session name to check.
  * @returns `true` when the session exists, otherwise `false`.
  */
 export async function hasTmuxSession(name: string): Promise<boolean> {
@@ -115,10 +115,10 @@ type CreateTmuxSessionOptions = {
  * Creates a detached session on orc's isolated server that runs the given command. When `statusBar`
  * is `false`, hides the session's status bar in the same invocation.
  *
- * @param name - The name for the new session.
- * @param command - The shell command the session's first pane runs.
- * @param options - Session creation options.
- * @param options.statusBar - Whether the new session shows its status bar. Defaults to `true`.
+ * @param name The name for the new session.
+ * @param command The shell command the session's first pane runs.
+ * @param options Session creation options.
+ * @param options.statusBar Whether the new session shows its status bar. Defaults to `true`.
  * @throws If tmux fails to create the session.
  */
 export async function createTmuxSession(
@@ -143,9 +143,9 @@ export async function createTmuxSession(
  * Creates a detached session on orc's isolated server only if one with the given name does not
  * already exist.
  *
- * @param name - The name for the session.
- * @param command - The shell command the session's first pane runs.
- * @param options - Session creation options.
+ * @param name The name for the session.
+ * @param command The shell command the session's first pane runs.
+ * @param options Session creation options.
  * @throws If tmux fails to create the session.
  */
 export async function createTmuxSessionUnlessExists(
@@ -160,7 +160,7 @@ export async function createTmuxSessionUnlessExists(
 /**
  * Kills the orc tmux session with the given name.
  *
- * @param name - The full `project:session` name to kill.
+ * @param name The full `project:session` name to kill.
  * @throws If tmux fails to kill the session.
  */
 export async function killTmuxSession(name: string): Promise<void> {
@@ -174,7 +174,7 @@ export async function killTmuxSession(name: string): Promise<void> {
 /**
  * Switches the current orc tmux client to the session with the given name.
  *
- * @param name - The full `project:session` name to switch to.
+ * @param name The full `project:session` name to switch to.
  */
 export async function switchTmuxSession(name: string): Promise<void> {
   await tmux(["switch-client", "-t", name]);
@@ -184,7 +184,7 @@ export async function switchTmuxSession(name: string): Promise<void> {
  * Attaches the calling process's terminal to the orc tmux session with the given name. Replaces
  * stdio for the duration of the session.
  *
- * @param name - The full `project:session` name to attach to.
+ * @param name The full `project:session` name to attach to.
  */
 export async function attachTmuxSession(name: string): Promise<void> {
   await runAttachedCommand(["tmux", "-L", ORC_SOCKET, "attach-session", "-t", name]);
@@ -218,7 +218,7 @@ export async function listTmuxSessions(): Promise<Session[]> {
  * Returns `null` for session names that do not contain a `/`, signalling a foreign session that
  * should be skipped.
  *
- * @param line - A line of tmux output: `name<TAB>created<TAB>attached<TAB>path`.
+ * @param line A line of tmux output: `name<TAB>created<TAB>attached<TAB>path`.
  * @returns The parsed session, or `null` if the name is not in `project/session` form.
  */
 function parseSessionLine(line: string): Session | null {
@@ -266,7 +266,7 @@ export async function listTmuxPanes(): Promise<TmuxPane[]> {
  * `null` for session names that do not contain a `/`, signalling a foreign session on the orc
  * socket that should be skipped.
  *
- * @param line - A line of tmux output: `sessionId<TAB>paneId<TAB>paneTitle`.
+ * @param line A line of tmux output: `sessionId<TAB>paneId<TAB>paneTitle`.
  * @returns The parsed pane, or `null` if the session is not in `project/session` form.
  */
 function parsePaneLine(line: string): TmuxPane | null {

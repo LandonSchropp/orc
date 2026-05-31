@@ -13,7 +13,7 @@ import { join } from "node:path";
  * Returns the path to the tmuxinator project config for the given project name. Honors
  * `$XDG_CONFIG_HOME`, falling back to `~/.config` when unset.
  *
- * @param project - The tmuxinator project name.
+ * @param project The tmuxinator project name.
  * @returns The absolute path to the project's YAML config file.
  */
 export function tmuxinatorConfigPath(project: string): string {
@@ -48,7 +48,7 @@ export async function listTmuxinatorProjects(): Promise<string[]> {
  * Reads and parses the tmuxinator project config for the given project name. Expands a leading `~/`
  * in the project's `root` to the user's home directory.
  *
- * @param project - The tmuxinator project name (the file in `~/.config/tmuxinator/<project>.yml`).
+ * @param project The tmuxinator project name (the file in `~/.config/tmuxinator/<project>.yml`).
  * @returns The parsed tmuxinator project with an absolute `root` path.
  * @throws If the file cannot be read, the YAML is invalid, or the project is missing a string
  *   `name` or `root` field.
@@ -73,9 +73,9 @@ export async function readTmuxinatorProject(project: string): Promise<Tmuxinator
  * tmux session `<project>:<session>`. Reads the project's YAML, writes a modified copy to a temp
  * file, then invokes tmuxinator. Does not attach the calling process — callers attach separately.
  *
- * @param project - The tmuxinator project name.
- * @param session - The session name within the project.
- * @param root - The root directory to override in the project config.
+ * @param project The tmuxinator project name.
+ * @param session The session name within the project.
+ * @param root The root directory to override in the project config.
  * @throws If the project config cannot be read, or tmuxinator fails to start the project.
  */
 export async function startTmuxinatorProject(

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 /**
  * Schedules a recurring interval and returns the number of ticks elapsed since mount.
  *
- * @param interval - Milliseconds between ticks.
+ * @param interval Milliseconds between ticks.
  * @returns The number of ticks elapsed since mount.
  */
 export function useInterval(interval: number): number {
