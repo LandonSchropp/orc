@@ -9,6 +9,7 @@ import {
   hasTmuxSession,
   isInsideOrcTmuxSession,
   isTmuxInstalled,
+  isTmuxSessionDead,
   killTmuxSession,
   currentTmuxSession,
   listTmuxPanes,
@@ -224,6 +225,50 @@ describe("hasTmuxSession", () => {
     await hasTmuxSession("orc");
 
     expect(runCommandMock).toHaveBeenCalledWith(["tmux", "-L", "orc", "has-session", "-t", "orc"]);
+  });
+});
+
+describe("isTmuxSessionDead", () => {
+  it("reads the session's pane_dead flag via display-message", async () => {
+    runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "1\n", stderr: "" });
+
+    await isTmuxSessionDead("orc");
+
+    expect(runCommandMock).toHaveBeenCalledWith([
+      "tmux",
+      "-L",
+      "orc",
+      "display-message",
+      "-p",
+      "-t",
+      "orc",
+      "#{pane_dead}",
+    ]);
+  });
+
+  describe("when the session's pane is dead", () => {
+    it("returns true", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "1\n", stderr: "" });
+      expect(await isTmuxSessionDead("orc")).toBe(true);
+    });
+  });
+
+  describe("when the session's pane is alive", () => {
+    it("returns false", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "0\n", stderr: "" });
+      expect(await isTmuxSessionDead("orc")).toBe(false);
+    });
+  });
+
+  describe("when the session does not exist", () => {
+    it("returns false", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 1,
+        stdout: "",
+        stderr: "can't find session: orc\n",
+      });
+      expect(await isTmuxSessionDead("orc")).toBe(false);
+    });
   });
 });
 

@@ -105,6 +105,18 @@ export async function hasTmuxSession(name: string): Promise<boolean> {
   return (await tmux(["has-session", "-t", name])).exitCode === 0;
 }
 
+/**
+ * Checks whether the session with the given name has a dead pane — a pane whose process has exited
+ * while the session is kept alive by `remain-on-exit`. Reads tmux's `pane_dead` flag.
+ *
+ * @param name The session name to check.
+ * @returns `true` when the session's pane is dead, otherwise `false`.
+ */
+export async function isTmuxSessionDead(name: string): Promise<boolean> {
+  const { exitCode, stdout } = await tmux(["display-message", "-p", "-t", name, "#{pane_dead}"]);
+  return exitCode === 0 && stdout.trim() === "1";
+}
+
 /** Options for {@link createTmuxSession}. */
 type CreateTmuxSessionOptions = {
   /** Whether the new session shows its status bar. Defaults to `true`. */
