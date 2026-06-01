@@ -270,6 +270,31 @@ describe("createTmuxSession", () => {
     });
   });
 
+  describe("when remainOnExit is set", () => {
+    it("sets the session's remain-on-exit option in the same invocation", async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+
+      await createTmuxSession("orc", "orc --tui", { remainOnExit: "failed" });
+
+      expect(runCommandMock).toHaveBeenCalledWith([
+        "tmux",
+        "-L",
+        "orc",
+        "new-session",
+        "-d",
+        "-s",
+        "orc",
+        "orc --tui",
+        ";",
+        "set-option",
+        "-t",
+        "orc",
+        "remain-on-exit",
+        "failed",
+      ]);
+    });
+  });
+
   describe("when tmux fails", () => {
     it("throws an error with the stderr message", () => {
       runCommandMock.mockResolvedValue({

@@ -109,6 +109,12 @@ export async function hasTmuxSession(name: string): Promise<boolean> {
 type CreateTmuxSessionOptions = {
   /** Whether the new session shows its status bar. Defaults to `true`. */
   statusBar?: boolean;
+  /**
+   * The session's tmux `remain-on-exit` setting, controlling whether its pane stays open after the
+   * pane's process exits. `"failed"` keeps the pane only when the process exits non-zero. Defaults
+   * to `"off"`, matching tmux's own default.
+   */
+  remainOnExit?: "off" | "on" | "failed";
 };
 
 /**
@@ -119,17 +125,22 @@ type CreateTmuxSessionOptions = {
  * @param command The shell command the session's first pane runs.
  * @param options Session creation options.
  * @param options.statusBar Whether the new session shows its status bar. Defaults to `true`.
+ * @param options.remainOnExit The session's tmux `remain-on-exit` setting. Defaults to `"off"`.
  * @throws If tmux fails to create the session.
  */
 export async function createTmuxSession(
   name: string,
   command: string,
-  { statusBar = true }: CreateTmuxSessionOptions = {},
+  { statusBar = true, remainOnExit = "off" }: CreateTmuxSessionOptions = {},
 ): Promise<void> {
   const args = ["new-session", "-d", "-s", name, command];
 
   if (!statusBar) {
     args.push(";", "set-option", "-t", name, "status", "off");
+  }
+
+  if (remainOnExit !== "off") {
+    args.push(";", "set-option", "-t", name, "remain-on-exit", remainOnExit);
   }
 
   const { exitCode, stderr } = await tmux(args);
