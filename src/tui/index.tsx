@@ -1,4 +1,5 @@
 import { App } from "./app.tsx";
+import { handleFatalErrors } from "./fatal-error.ts";
 import { StoreProvider } from "./state/store.tsx";
 import { render } from "ink";
 
@@ -17,5 +18,8 @@ export async function runTui() {
       alternateScreen: true,
     },
   );
+
+  handleFatalErrors(instance);
+
   await instance.waitUntilExit();
 }
