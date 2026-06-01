@@ -10,12 +10,18 @@ const createTmuxSessionUnlessExistsMock = mock((): Promise<void> => Promise.reso
 const switchTmuxSessionMock = mock((): Promise<void> => Promise.resolve());
 const attachTmuxSessionMock = mock((): Promise<void> => Promise.resolve());
 const isInsideOrcTmuxSessionMock = mock((): boolean => false);
+const hasTmuxSessionMock = mock((): Promise<boolean> => Promise.resolve(false));
+const isTmuxSessionDeadMock = mock((): Promise<boolean> => Promise.resolve(false));
+const killTmuxSessionMock = mock((): Promise<void> => Promise.resolve());
 
 await mock.module("../commands/tmux.ts", () => ({
   createTmuxSessionUnlessExists: createTmuxSessionUnlessExistsMock,
   switchTmuxSession: switchTmuxSessionMock,
   attachTmuxSession: attachTmuxSessionMock,
   isInsideOrcTmuxSession: isInsideOrcTmuxSessionMock,
+  hasTmuxSession: hasTmuxSessionMock,
+  isTmuxSessionDead: isTmuxSessionDeadMock,
+  killTmuxSession: killTmuxSessionMock,
 }));
 
 describe("shouldRenderTui", () => {
@@ -35,14 +41,40 @@ describe("shouldRenderTui", () => {
 });
 
 describe("attachOrSwitchToControlSession", () => {
-  it("runs the TUI in the control session with its status bar hidden", async () => {
+  it("runs the TUI in the control session with its status bar hidden, kept on a crash", async () => {
     await attachOrSwitchToControlSession();
 
     expect(createTmuxSessionUnlessExistsMock).toHaveBeenCalledWith(
       CONTROL_SESSION,
       expect.stringContaining("ORC_INTERNAL_RENDER_TUI=1"),
-      { statusBar: false },
+      { statusBar: false, remainOnExit: "failed" },
     );
+  });
+
+  describe("when the control session has a dead pane", () => {
+    beforeEach(() => {
+      hasTmuxSessionMock.mockResolvedValue(true);
+      isTmuxSessionDeadMock.mockResolvedValue(true);
+    });
+
+    it("kills the dead session before recreating it", async () => {
+      await attachOrSwitchToControlSession();
+
+      expect(killTmuxSessionMock).toHaveBeenCalledWith(CONTROL_SESSION);
+    });
+  });
+
+  describe("when the control session is alive", () => {
+    beforeEach(() => {
+      hasTmuxSessionMock.mockResolvedValue(true);
+      isTmuxSessionDeadMock.mockResolvedValue(false);
+    });
+
+    it("does not kill the session", async () => {
+      await attachOrSwitchToControlSession();
+
+      expect(killTmuxSessionMock).not.toHaveBeenCalled();
+    });
   });
 
   describe("when inside an orc tmux session", () => {
