@@ -68,6 +68,17 @@ describe("listTmuxinatorProjects", () => {
       expect(await listTmuxinatorProjects()).toEqual([]);
     });
   });
+
+  describe("when the built-in default project is present", () => {
+    it("filters out the default project", async () => {
+      runCommandMock.mockResolvedValue({
+        exitCode: 0,
+        stdout: "tmuxinator projects:\nagent-toolkit\ndefault\nnotes\n",
+        stderr: "",
+      });
+      expect(await listTmuxinatorProjects()).toEqual(["agent-toolkit", "notes"]);
+    });
+  });
 });
 
 describe("tmuxinatorConfigPath", () => {

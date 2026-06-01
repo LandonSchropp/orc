@@ -9,6 +9,9 @@ import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+/** The built-in tmuxinator scaffold project, which is not a real orc project. */
+const DEFAULT_PROJECT = "default";
+
 /**
  * Returns the path to the tmuxinator project config for the given project name. Honors
  * `$XDG_CONFIG_HOME`, falling back to `~/.config` when unset.
@@ -31,7 +34,8 @@ export async function isTmuxinatorInstalled(): Promise<boolean> {
 
 /**
  * Lists the available tmuxinator project names. Drops the `tmuxinator projects:` header that
- * `tmuxinator list --newline` prints before the names.
+ * `tmuxinator list --newline` prints before the names, along with the built-in `default` project,
+ * which is a tmuxinator scaffold rather than a real orc project.
  *
  * @returns The available tmuxinator project names.
  */
@@ -41,7 +45,8 @@ export async function listTmuxinatorProjects(): Promise<string[]> {
   return stdout
     .split("\n")
     .slice(1)
-    .filter((line) => line.length > 0);
+    .filter((line) => line.length > 0)
+    .filter((project) => project !== DEFAULT_PROJECT);
 }
 
 /**
