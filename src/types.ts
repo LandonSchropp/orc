@@ -42,6 +42,21 @@ export type Project = {
   sessions: Session[];
 };
 
+/**
+ * A project a session can be created in. The `kind` discriminates how the project is configured and
+ * started: a `tmuxinator` source is backed by a tmuxinator config, while a `directory` source is a
+ * local git repository discovered on disk. Both carry the project name and the absolute repository
+ * `root`.
+ */
+export type ProjectSource = {
+  /** Where the project's configuration comes from. */
+  kind: "tmuxinator" | "directory";
+  /** The project name. */
+  name: string;
+  /** The absolute path to the project's git repository. */
+  root: string;
+};
+
 /** The current status of a Claude agent running in an orc session. */
 export type AgentStatus = (typeof AGENT_STATUSES)[number];
 
