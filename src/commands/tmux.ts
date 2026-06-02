@@ -105,28 +105,10 @@ export async function hasTmuxSession(name: string): Promise<boolean> {
   return (await tmux(["has-session", "-t", name])).exitCode === 0;
 }
 
-/**
- * Checks whether the session with the given name has a dead pane — a pane whose process has exited
- * while the session is kept alive by `remain-on-exit`. Reads tmux's `pane_dead` flag.
- *
- * @param name The session name to check.
- * @returns `true` when the session's pane is dead, otherwise `false`.
- */
-export async function isTmuxSessionDead(name: string): Promise<boolean> {
-  const { exitCode, stdout } = await tmux(["display-message", "-p", "-t", name, "#{pane_dead}"]);
-  return exitCode === 0 && stdout.trim() === "1";
-}
-
 /** Options for {@link createTmuxSession}. */
 type CreateTmuxSessionOptions = {
   /** Whether the new session shows its status bar. Defaults to `true`. */
   statusBar?: boolean;
-  /**
-   * The session's tmux `remain-on-exit` setting, controlling whether its pane stays open after the
-   * pane's process exits. `"failed"` keeps the pane only when the process exits non-zero. Defaults
-   * to `"off"`, matching tmux's own default.
-   */
-  remainOnExit?: "off" | "on" | "failed";
 };
 
 /**
@@ -137,22 +119,17 @@ type CreateTmuxSessionOptions = {
  * @param command The shell command the session's first pane runs.
  * @param options Session creation options.
  * @param options.statusBar Whether the new session shows its status bar. Defaults to `true`.
- * @param options.remainOnExit The session's tmux `remain-on-exit` setting. Defaults to `"off"`.
  * @throws If tmux fails to create the session.
  */
 export async function createTmuxSession(
   name: string,
   command: string,
-  { statusBar = true, remainOnExit = "off" }: CreateTmuxSessionOptions = {},
+  { statusBar = true }: CreateTmuxSessionOptions = {},
 ): Promise<void> {
   const args = ["new-session", "-d", "-s", name, command];
 
   if (!statusBar) {
     args.push(";", "set-option", "-t", name, "status", "off");
-  }
-
-  if (remainOnExit !== "off") {
-    args.push(";", "set-option", "-t", name, "remain-on-exit", remainOnExit);
   }
 
   const { exitCode, stderr } = await tmux(args);

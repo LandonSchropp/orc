@@ -1,10 +1,7 @@
 import {
   attachTmuxSession,
   createTmuxSessionUnlessExists,
-  hasTmuxSession,
   isInsideOrcTmuxSession,
-  isTmuxSessionDead,
-  killTmuxSession,
   switchTmuxSession,
 } from "../commands/tmux.ts";
 
@@ -45,17 +42,11 @@ function controlSessionCommand(): string {
 /**
  * Ensures the hidden control session exists, creating it with its status bar hidden if needed, then
  * moves to it: switches the current client when already inside an orc tmux session, otherwise
- * attaches the terminal. A crashed control session is left as a dead pane by `remain-on-exit` so
- * its error stays readable; it is killed here so the next launch starts a fresh TUI.
+ * attaches the terminal.
  */
 export async function attachOrSwitchToControlSession(): Promise<void> {
-  if ((await hasTmuxSession(CONTROL_SESSION)) && (await isTmuxSessionDead(CONTROL_SESSION))) {
-    await killTmuxSession(CONTROL_SESSION);
-  }
-
   await createTmuxSessionUnlessExists(CONTROL_SESSION, controlSessionCommand(), {
     statusBar: false,
-    remainOnExit: "failed",
   });
 
   if (isInsideOrcTmuxSession()) {
