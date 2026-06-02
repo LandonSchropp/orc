@@ -14,8 +14,8 @@ export function SessionNameModal() {
 
   if (activeModal?.type !== "session-name") return null;
 
-  const { project: projectName } = activeModal;
-  const project = projects.find((entry) => entry.project === projectName);
+  const { source } = activeModal;
+  const project = projects.find((entry) => entry.project === source.name);
   const mainInUse = project?.sessions.some(isMainWorktree) ?? false;
   const defaultValue = mainInUse ? "" : MAIN_SESSION_NAME;
 
@@ -25,7 +25,7 @@ export function SessionNameModal() {
       message={[
         "What would you like to name the",
         <>
-          <Text color="blue">{projectName}</Text> session?
+          <Text color="blue">{source.name}</Text> session?
         </>,
       ]}
       defaultValue={defaultValue}
@@ -38,7 +38,7 @@ export function SessionNameModal() {
       }}
       onSubmit={(sessionName) => {
         cancel();
-        void createSession(projectName, sessionName);
+        void createSession(source, sessionName);
       }}
       onCancel={cancel}
     />

@@ -1,4 +1,5 @@
-import { listTmuxinatorProjects } from "../../commands/tmuxinator.ts";
+import { listProjectSources } from "../../sessions/project-sources.ts";
+import type { ProjectSource } from "../../types.ts";
 import { useEffectAsync } from "../hooks/use-effect-async.ts";
 import { findProjectContaining } from "../state/find-project-containing.ts";
 import { useStore } from "../state/store.tsx";
@@ -6,29 +7,39 @@ import { Picker } from "./picker.tsx";
 import { useState } from "react";
 
 /**
- * The project-picker modal. Loads the available Tmuxinator projects, renders a Picker for the user
- * to fuzzy-search and pick one, then advances the new-session flow to the session-name prompt.
- * Pre-selects the project of the currently selected session so the common "another session in this
- * project" path is one keystroke.
+ * The project-picker modal. Loads the available project sources, renders a Picker for the user to
+ * fuzzy-search and pick one by name, then advances the new-session flow to the session-name prompt
+ * with the chosen source. Pre-selects the project of the currently selected session so the common
+ * "another session in this project" path is one keystroke.
  */
 export function ProjectPickerModal() {
   const { selectedSessionId, projects, promptForSession, cancel } = useStore();
-  const [tmuxinatorProjects, setTmuxinatorProjects] = useState<string[] | null>(null);
+  const [sources, setSources] = useState<ProjectSource[] | null>(null);
 
   useEffectAsync(async () => {
-    setTmuxinatorProjects(await listTmuxinatorProjects());
+    setSources(await listProjectSources());
   }, []);
 
-  if (tmuxinatorProjects === null) return null;
+  if (sources === null) return null;
 
   const currentProject = findProjectContaining(projects, selectedSessionId)?.project;
+
+  /**
+   * Advances the flow to the session-name prompt for the picked project name.
+   *
+   * @param name The picked project name.
+   */
+  function handleSelect(name: string) {
+    const source = sources?.find((entry) => entry.name === name);
+    if (source) promptForSession(source);
+  }
 
   return (
     <Picker
       title="Pick a Project"
-      options={tmuxinatorProjects}
+      options={sources.map((source) => source.name)}
       initialSelection={currentProject}
-      onSelect={promptForSession}
+      onSelect={handleSelect}
       onCancel={cancel}
     />
   );

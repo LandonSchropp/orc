@@ -1,4 +1,4 @@
-import type { Session } from "../../types.ts";
+import type { ProjectSource, Session } from "../../types.ts";
 import { computeLayout } from "./compute-layout.ts";
 import { groupSessionsByProject } from "./group-sessions-by-project.ts";
 import * as move from "./move.ts";
@@ -156,7 +156,7 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
       return { ...state, activeModal: { type: "project-picker" } };
     }
     case "PROMPT_FOR_SESSION": {
-      return { ...state, activeModal: { type: "session-name", project: action.project } };
+      return { ...state, activeModal: { type: "session-name", source: action.source } };
     }
     case "CANCEL": {
       return { ...state, activeModal: null };
@@ -237,8 +237,8 @@ export function useStoreReducer(
   }, [dispatch]);
 
   const promptForSession = useCallback(
-    (project: string) => {
-      dispatch({ type: "PROMPT_FOR_SESSION", project });
+    (source: ProjectSource) => {
+      dispatch({ type: "PROMPT_FOR_SESSION", source });
     },
     [dispatch],
   );

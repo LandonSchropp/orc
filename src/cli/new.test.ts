@@ -1,12 +1,15 @@
 import { sessionFactory } from "../../test/factories/session.ts";
 import { exitSpy, stderrSpy } from "../../test/helpers/process.ts";
-import type { Session } from "../types.ts";
+import type { ProjectSource, Session } from "../types.ts";
 import { newCommand } from "./new.ts";
 import { describe, expect, it, mock } from "bun:test";
 import { runCommand } from "citty";
 
 const createSessionMock = mock((): Promise<void> => Promise.resolve());
 const findSessionMock = mock((): Promise<Session | null> => Promise.resolve(null));
+const tmuxinatorSourceMock = mock<(name: string) => Promise<ProjectSource>>((name) =>
+  Promise.resolve({ kind: "tmuxinator", name, root: `/repos/${name}` }),
+);
 
 await mock.module("../sessions/create.ts", () => ({
   createSession: createSessionMock,
@@ -14,6 +17,10 @@ await mock.module("../sessions/create.ts", () => ({
 
 await mock.module("../sessions/find.ts", () => ({
   findSession: findSessionMock,
+}));
+
+await mock.module("../sessions/project-sources.ts", () => ({
+  tmuxinatorSource: tmuxinatorSourceMock,
 }));
 
 describe("newCommand", () => {
@@ -24,7 +31,10 @@ describe("newCommand", () => {
       await runCommand(newCommand, { rawArgs: ["test-project", "feature-a"] });
 
       expect(findSessionMock).toHaveBeenCalledWith("test-project", "feature-a");
-      expect(createSessionMock).toHaveBeenCalledWith("test-project", "feature-a");
+      expect(createSessionMock).toHaveBeenCalledWith(
+        { kind: "tmuxinator", name: "test-project", root: "/repos/test-project" },
+        "feature-a",
+      );
     });
   });
 

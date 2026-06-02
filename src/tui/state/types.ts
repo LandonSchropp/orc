@@ -1,4 +1,4 @@
-import type { Project, Session } from "../../types.ts";
+import type { Project, ProjectSource, Session } from "../../types.ts";
 
 /**
  * The modal currently displayed over the TUI, or `null` if none. Variants only carry data that
@@ -7,7 +7,7 @@ import type { Project, Session } from "../../types.ts";
  */
 export type ActiveModal =
   | { type: "project-picker" }
-  | { type: "session-name"; project: string }
+  | { type: "session-name"; source: ProjectSource }
   | { type: "delete" }
   | null;
 
@@ -43,5 +43,5 @@ export type StoreAction =
   | { type: "MOVE_DOWN" }
   | { type: "CONFIRM_DELETE" }
   | { type: "SELECT_PROJECT" }
-  | { type: "PROMPT_FOR_SESSION"; project: string }
+  | { type: "PROMPT_FOR_SESSION"; source: ProjectSource }
   | { type: "CANCEL" };

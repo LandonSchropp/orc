@@ -1,3 +1,4 @@
+import { projectSourceFactory } from "../../../test/factories/project-source.ts";
 import { sessionFactory } from "../../../test/factories/session.ts";
 import { useStoreReducer } from "./use-store-reducer.ts";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
@@ -70,10 +71,11 @@ describe("useStoreReducer", () => {
   describe("when promptForSession is called", () => {
     it("opens the session-name prompt for the given project", () => {
       const { result } = renderHook(() => useStoreReducer(100, 30, null));
+      const source = projectSourceFactory.build({ name: "orc" });
 
-      act(() => result.current.promptForSession("orc"));
+      act(() => result.current.promptForSession(source));
 
-      expect(result.current.activeModal).toEqual({ type: "session-name", project: "orc" });
+      expect(result.current.activeModal).toEqual({ type: "session-name", source });
     });
   });
 

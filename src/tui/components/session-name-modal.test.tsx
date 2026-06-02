@@ -1,3 +1,4 @@
+import { projectSourceFactory } from "../../../test/factories/project-source.ts";
 import { projectFactory } from "../../../test/factories/project.ts";
 import { storeFactory } from "../../../test/factories/store.ts";
 import { waitFor } from "../../../test/helpers/wait-for.ts";
@@ -45,7 +46,10 @@ describe("SessionNameModal", () => {
   it("displays the project name in the message", () => {
     spyOn(storeModule, "useStore").mockReturnValue(
       storeFactory.build({
-        activeModal: { type: "session-name", project: "agent-toolkit" },
+        activeModal: {
+          type: "session-name",
+          source: projectSourceFactory.build({ name: "agent-toolkit" }),
+        },
         projects: [],
       }),
     );
@@ -59,7 +63,10 @@ describe("SessionNameModal", () => {
     it("defaults the input value to 'main'", () => {
       spyOn(storeModule, "useStore").mockReturnValue(
         storeFactory.build({
-          activeModal: { type: "session-name", project: "orc" },
+          activeModal: {
+            type: "session-name",
+            source: projectSourceFactory.build({ name: "orc" }),
+          },
           projects: [],
         }),
       );
@@ -79,7 +86,10 @@ describe("SessionNameModal", () => {
       // The factory builds sessions with worktree="main" by default.
       spyOn(storeModule, "useStore").mockReturnValue(
         storeFactory.build({
-          activeModal: { type: "session-name", project: "orc" },
+          activeModal: {
+            type: "session-name",
+            source: projectSourceFactory.build({ name: "orc" }),
+          },
           projects: [project],
         }),
       );
@@ -93,9 +103,10 @@ describe("SessionNameModal", () => {
   describe("when the user submits a session name", () => {
     it("creates the session and closes the modal", async () => {
       const cancel = mock(() => {});
+      const source = projectSourceFactory.build({ name: "orc" });
       spyOn(storeModule, "useStore").mockReturnValue(
         storeFactory.build({
-          activeModal: { type: "session-name", project: "orc" },
+          activeModal: { type: "session-name", source },
           projects: [],
           cancel,
         }),
@@ -106,7 +117,7 @@ describe("SessionNameModal", () => {
       stdin.write("\r");
       await waitFor(() => cancel.mock.calls.length > 0);
 
-      expect(createSessionMock).toHaveBeenCalledWith("orc", "main");
+      expect(createSessionMock).toHaveBeenCalledWith(source, "main");
       expect(cancel).toHaveBeenCalled();
     });
   });
@@ -120,7 +131,10 @@ describe("SessionNameModal", () => {
       );
       spyOn(storeModule, "useStore").mockReturnValue(
         storeFactory.build({
-          activeModal: { type: "session-name", project: "orc" },
+          activeModal: {
+            type: "session-name",
+            source: projectSourceFactory.build({ name: "orc" }),
+          },
           projects: [project],
           cancel,
         }),
@@ -150,7 +164,10 @@ describe("SessionNameModal", () => {
       const cancel = mock(() => {});
       spyOn(storeModule, "useStore").mockReturnValue(
         storeFactory.build({
-          activeModal: { type: "session-name", project: "orc" },
+          activeModal: {
+            type: "session-name",
+            source: projectSourceFactory.build({ name: "orc" }),
+          },
           projects: [],
           cancel,
         }),

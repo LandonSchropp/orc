@@ -1,13 +1,8 @@
+import { projectSourceFactory } from "../../test/factories/project-source.ts";
 import { createSession } from "./create.ts";
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { homedir } from "node:os";
 
-const readTmuxinatorProjectMock = mock(() =>
-  Promise.resolve({
-    name: "test-project",
-    root: "/repos/test-project",
-  }),
-);
 const startTmuxinatorProjectMock = mock((): Promise<void> => Promise.resolve());
 const defaultBranchMock = mock((): Promise<string | null> => Promise.resolve("main"));
 const branchExistsMock = mock((): Promise<boolean> => Promise.resolve(false));
@@ -17,7 +12,6 @@ const switchSessionMock = mock((): Promise<void> => Promise.resolve());
 const mkdirSpy = mock((): Promise<string | undefined> => Promise.resolve(undefined));
 
 await mock.module("../commands/tmuxinator.ts", () => ({
-  readTmuxinatorProject: readTmuxinatorProjectMock,
   startTmuxinatorProject: startTmuxinatorProjectMock,
 }));
 
@@ -39,11 +33,12 @@ await mock.module("node:fs/promises", () => ({
 const repoPath = "/repos/test-project";
 const worktreeParent = `${homedir()}/.cache/orc/worktrees/test-project`;
 const worktreePath = `${worktreeParent}/feature-a`;
+const source = projectSourceFactory.build({ name: "test-project", root: repoPath });
 
 describe("createSession", () => {
   describe('when the session is named "main"', () => {
     beforeEach(async () => {
-      await createSession("test-project", "main");
+      await createSession(source, "main");
     });
 
     it("does not look up the default branch", () => {
@@ -77,7 +72,7 @@ describe("createSession", () => {
         describe("when the default branch can be determined", () => {
           beforeEach(async () => {
             defaultBranchMock.mockResolvedValue("main");
-            await createSession("test-project", "feature-a");
+            await createSession(source, "feature-a");
           });
 
           it("creates the worktree parent directory", () => {
@@ -109,7 +104,7 @@ describe("createSession", () => {
         describe("when the default branch cannot be determined", () => {
           it("throws an error", () => {
             defaultBranchMock.mockResolvedValue(null);
-            expect(createSession("test-project", "feature-a")).rejects.toThrow(/default branch/i);
+            expect(createSession(source, "feature-a")).rejects.toThrow(/default branch/i);
           });
         });
       });
@@ -117,7 +112,7 @@ describe("createSession", () => {
       describe("when the branch already exists", () => {
         beforeEach(async () => {
           branchExistsMock.mockResolvedValue(true);
-          await createSession("test-project", "feature-a");
+          await createSession(source, "feature-a");
         });
 
         it("creates the worktree parent directory", () => {
@@ -149,7 +144,7 @@ describe("createSession", () => {
     describe("when the worktree already exists", () => {
       beforeEach(async () => {
         worktreeExistsMock.mockResolvedValue(true);
-        await createSession("test-project", "feature-a");
+        await createSession(source, "feature-a");
       });
 
       it("does not create the worktree parent directory", () => {

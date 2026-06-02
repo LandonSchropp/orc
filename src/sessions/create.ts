@@ -1,5 +1,6 @@
 import { addWorktree, branchExists, defaultBranch, worktreeExists } from "../commands/git.ts";
-import { readTmuxinatorProject, startTmuxinatorProject } from "../commands/tmuxinator.ts";
+import { startTmuxinatorProject } from "../commands/tmuxinator.ts";
+import type { ProjectSource } from "../types.ts";
 import { MAIN_SESSION_NAME } from "./main-worktree.ts";
 import { worktreePath } from "./paths.ts";
 import { switchSession } from "./switch.ts";
@@ -13,20 +14,18 @@ import { dirname } from "node:path";
  * when it does not. Starts the project's Tmuxinator template against the chosen directory and
  * switches to it.
  *
- * @param project The name of an existing Tmuxinator project.
+ * @param source The project to create the session in.
  * @param session The session name within the project.
  * @throws If the project's default branch cannot be determined or any underlying operation fails.
  */
-export async function createSession(project: string, session: string): Promise<void> {
-  const { root: mainDirectory } = await readTmuxinatorProject(project);
-
+export async function createSession(source: ProjectSource, session: string): Promise<void> {
   const sessionDirectory =
     session === MAIN_SESSION_NAME
-      ? mainDirectory
-      : await createWorktree(mainDirectory, project, session);
+      ? source.root
+      : await createWorktree(source.root, source.name, session);
 
-  await startTmuxinatorProject(project, session, sessionDirectory);
-  await switchSession(project, session);
+  await startTmuxinatorProject(source.name, session, sessionDirectory);
+  await switchSession(source.name, session);
 }
 
 /**

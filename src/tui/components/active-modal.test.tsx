@@ -1,3 +1,4 @@
+import { projectSourceFactory } from "../../../test/factories/project-source.ts";
 import { storeFactory } from "../../../test/factories/store.ts";
 import * as storeModule from "../state/store.tsx";
 import { ActiveModal } from "./active-modal.tsx";
@@ -76,7 +77,10 @@ describe("ActiveModal", () => {
     it("renders the SessionNameModal", () => {
       spyOn(storeModule, "useStore").mockReturnValue(
         storeFactory.build({
-          activeModal: { type: "session-name", project: "orc" },
+          activeModal: {
+            type: "session-name",
+            source: projectSourceFactory.build({ name: "orc" }),
+          },
         }),
       );
 
