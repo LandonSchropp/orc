@@ -1,4 +1,5 @@
 import { App } from "./app.tsx";
+import { Root } from "./components/root.tsx";
 import { StoreProvider } from "./state/store.tsx";
 import { describe, expect, it, mock } from "bun:test";
 
@@ -12,12 +13,14 @@ await mock.module("ink", () => ({
 const { runTui } = await import("./index.tsx");
 
 describe("runTui", () => {
-  it("renders the App inside the StoreProvider and waits for exit", async () => {
+  it("renders the App inside the StoreProvider, guarded by Root, and waits for exit", async () => {
     await runTui();
     expect(renderMock).toHaveBeenCalledWith(
-      <StoreProvider>
-        <App />
-      </StoreProvider>,
+      <Root>
+        <StoreProvider>
+          <App />
+        </StoreProvider>
+      </Root>,
       { incrementalRendering: true, alternateScreen: true },
     );
     expect(waitUntilExitMock).toHaveBeenCalled();
