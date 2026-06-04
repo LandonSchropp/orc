@@ -3,9 +3,7 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { homedir } from "node:os";
 
 const killTmuxSessionMock = mock((): Promise<void> => Promise.resolve());
-const readTmuxinatorProjectMock = mock(() =>
-  Promise.resolve({ name: "test-project", root: "/repos/test-project" }),
-);
+const mainWorktreeRootMock = mock((): Promise<string> => Promise.resolve("/repos/test-project"));
 const removeWorktreeMock = mock((): Promise<void> => Promise.resolve());
 const removeSessionStateFilesMock = mock((): Promise<void> => Promise.resolve());
 const existsMock = mock((): Promise<boolean> => Promise.resolve(true));
@@ -18,11 +16,8 @@ await mock.module("./id.ts", () => ({
   sessionId: (project: string, session: string) => `${project}/${session}`,
 }));
 
-await mock.module("../commands/tmuxinator.ts", () => ({
-  readTmuxinatorProject: readTmuxinatorProjectMock,
-}));
-
 await mock.module("../commands/git.ts", () => ({
+  mainWorktreeRoot: mainWorktreeRootMock,
   removeWorktree: removeWorktreeMock,
 }));
 
@@ -44,7 +39,11 @@ describe("deleteSession", () => {
       await deleteSession("test-project", "feature-a");
     });
 
-    it("removes the worktree", () => {
+    it("resolves the repository from the worktree path", () => {
+      expect(mainWorktreeRootMock).toHaveBeenCalledWith(worktreePath);
+    });
+
+    it("removes the worktree from the resolved repository", () => {
       expect(removeWorktreeMock).toHaveBeenCalledWith(repoPath, worktreePath);
     });
 
