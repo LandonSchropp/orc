@@ -1,5 +1,6 @@
 import { isMainWorktree } from "../../sessions/main-worktree.ts";
 import type { Project, Session } from "../../types.ts";
+import { compareStrings } from "../../utilities/string.ts";
 
 /**
  * Orders sessions for display: the session on the main worktree comes first, then the rest
@@ -38,5 +39,5 @@ export function groupSessionsByProject(sessions: Session[]): Project[] {
   return Array.from(groups, ([project, projectSessions]) => ({
     project,
     sessions: projectSessions.toSorted(compareSessions),
-  })).toSorted((a, b) => a.project.localeCompare(b.project));
+  })).toSorted((a, b) => compareStrings(a.project, b.project));
 }
