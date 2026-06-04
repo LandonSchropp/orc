@@ -1,3 +1,4 @@
+import { DEFAULT_PROJECT } from "../constants.ts";
 import { sessionId } from "../sessions/id.ts";
 import type { TmuxinatorProject, YamlObject } from "../types.ts";
 import { expandHome } from "../utilities/directory.ts";
@@ -8,9 +9,6 @@ import { YAML } from "bun";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-
-/** The built-in tmuxinator scaffold project, which is not a real orc project. */
-const DEFAULT_PROJECT = "default";
 
 /**
  * Returns the path to the tmuxinator project config for the given project name. Honors
@@ -74,21 +72,26 @@ export async function readTmuxinatorProject(project: string): Promise<Tmuxinator
 }
 
 /**
- * Starts a tmuxinator project, overriding the project's `root` with the given path and naming the
- * tmux session `<project>:<session>`. Reads the project's YAML, writes a modified copy to a temp
- * file, then invokes tmuxinator. Does not attach the calling process — callers attach separately.
+ * Starts a tmuxinator project, naming the tmux session `<project>/<session>` and overriding its
+ * `root` with the given path. Reads the `template` project's YAML for the window layout —
+ * defaulting to `project`, but a directory project passes `default` since it has no config of its
+ * own — writes a modified copy to a temp file, then invokes tmuxinator. Does not attach the calling
+ * process — callers attach separately.
  *
- * @param project The tmuxinator project name.
+ * @param project The orc project name, used for the session id.
  * @param session The session name within the project.
  * @param root The root directory to override in the project config.
- * @throws If the project config cannot be read, or tmuxinator fails to start the project.
+ * @param template The tmuxinator project whose config provides the window layout. Defaults to
+ *   `project`.
+ * @throws If the template config cannot be read, or tmuxinator fails to start the project.
  */
 export async function startTmuxinatorProject(
   project: string,
   session: string,
   root: string,
+  template: string = project,
 ): Promise<void> {
-  const tmuxinatorProject = await readTmuxinatorProject(project);
+  const tmuxinatorProject = await readTmuxinatorProject(template);
   const id = sessionId(project, session);
   const temporaryDirectory = await mkdtemp(join(tmpdir(), "orc-"));
   const configPath = join(temporaryDirectory, "project.yml");

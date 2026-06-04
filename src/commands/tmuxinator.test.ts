@@ -222,6 +222,34 @@ describe("startTmuxinatorProject", () => {
     });
   });
 
+  describe("when a template project is given", () => {
+    beforeEach(async () => {
+      runCommandMock.mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+      await Bun.write(
+        `${configHome}/tmuxinator/default.yml`,
+        dedent`
+          name: default
+          root: ~/
+          windows:
+            - editor: nvim
+        `,
+      );
+      await startTmuxinatorProject("my-directory", "feature-a", "/tmp/worktree", "default");
+    });
+
+    it("uses the template's layout but the project's session name and root", async () => {
+      const args = runCommandMock.mock.calls[0][0];
+      const configPath = args[args.indexOf("-p") + 1];
+
+      expect(YAML.parse(await Bun.file(configPath).text())).toEqual({
+        name: "my-directory/feature-a",
+        root: "/tmp/worktree",
+        tmux_options: "-L orc",
+        windows: [{ editor: "nvim" }],
+      });
+    });
+  });
+
   describe("when tmuxinator fails", () => {
     beforeEach(() => {
       runCommandMock.mockResolvedValue({

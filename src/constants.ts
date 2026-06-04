@@ -33,3 +33,10 @@ export const HOOK_EVENTS = [
   NOTIFICATION_HOOK_EVENT,
   POST_TOOL_USE_HOOK_EVENT,
 ] as const;
+
+/**
+ * The built-in tmuxinator scaffold project. It is not a real orc project — it is filtered out of
+ * the project list — but its config serves as the template for directory projects, which have no
+ * tmuxinator config of their own.
+ */
+export const DEFAULT_PROJECT = "default";

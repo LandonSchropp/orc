@@ -58,6 +58,49 @@ describe("createSession", () => {
     });
   });
 
+  describe("when the source is a directory project", () => {
+    const directorySource = projectSourceFactory.build({
+      kind: "directory",
+      name: "test-project",
+      root: repoPath,
+    });
+
+    describe('when the session is named "main"', () => {
+      beforeEach(async () => {
+        await createSession(directorySource, "main");
+      });
+
+      it("starts the project at the root using the default template", () => {
+        expect(startTmuxinatorProjectMock).toHaveBeenCalledWith(
+          "test-project",
+          "main",
+          repoPath,
+          "default",
+        );
+      });
+
+      it("switches to the new session", () => {
+        expect(switchSessionMock).toHaveBeenCalledWith("test-project", "main");
+      });
+    });
+
+    describe('when the session is not named "main"', () => {
+      beforeEach(async () => {
+        worktreeExistsMock.mockResolvedValue(true);
+        await createSession(directorySource, "feature-a");
+      });
+
+      it("starts the project at the worktree using the default template", () => {
+        expect(startTmuxinatorProjectMock).toHaveBeenCalledWith(
+          "test-project",
+          "feature-a",
+          worktreePath,
+          "default",
+        );
+      });
+    });
+  });
+
   describe('when the session is not named "main"', () => {
     describe("when the worktree does not yet exist", () => {
       beforeEach(() => {

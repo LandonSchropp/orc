@@ -1,5 +1,6 @@
 import { addWorktree, branchExists, defaultBranch, worktreeExists } from "../commands/git.ts";
 import { startTmuxinatorProject } from "../commands/tmuxinator.ts";
+import { DEFAULT_PROJECT } from "../constants.ts";
 import type { ProjectSource } from "../types.ts";
 import { MAIN_SESSION_NAME } from "./main-worktree.ts";
 import { worktreePath } from "./paths.ts";
@@ -11,8 +12,8 @@ import { dirname } from "node:path";
  * Creates a new orc session. The session named "main" runs on the project's main worktree; every
  * other session gets a dedicated Git worktree — reusing an existing worktree if present, checking
  * out the session's branch when it already exists, or branching from the project's default branch
- * when it does not. Starts the project's Tmuxinator template against the chosen directory and
- * switches to it.
+ * when it does not. Starts tmuxinator against the chosen directory — a tmuxinator source uses its
+ * own template, a directory source uses the `default` template — then switches to the new session.
  *
  * @param source The project to create the session in.
  * @param session The session name within the project.
@@ -24,7 +25,12 @@ export async function createSession(source: ProjectSource, session: string): Pro
       ? source.root
       : await createWorktree(source.root, source.name, session);
 
-  await startTmuxinatorProject(source.name, session, sessionDirectory);
+  if (source.kind === "directory") {
+    await startTmuxinatorProject(source.name, session, sessionDirectory, DEFAULT_PROJECT);
+  } else {
+    await startTmuxinatorProject(source.name, session, sessionDirectory);
+  }
+
   await switchSession(source.name, session);
 }
 
