@@ -1,6 +1,6 @@
 import { isAgentState } from "../type-guards.ts";
 import { type AgentState, type AgentStatus } from "../types.ts";
-import { exists } from "../utilities/exists.ts";
+import { safeGlob } from "../utilities/glob.ts";
 import { orcCacheDirectory } from "../utilities/xdg.ts";
 import { mkdir, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -76,9 +76,7 @@ export async function readStateFile(
  */
 export async function removeSessionStateFiles(project: string, session: string): Promise<void> {
   const directory = join(orcCacheDirectory(), "state");
-  if (!(await exists(directory))) return;
+  const names = await safeGlob(`${project}-${session}-*.json`, { cwd: directory });
 
-  const glob = new Bun.Glob(`${project}-${session}-*.json`);
-  const names = await Array.fromAsync(glob.scan({ cwd: directory }));
   await Promise.all(names.map((name) => rm(join(directory, name), { force: true })));
 }
