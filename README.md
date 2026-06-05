@@ -70,12 +70,34 @@ The symlink points at your local checkout, so edits to the source are picked up 
 
 Orc operates at two levels:
 
-- **Project**: An Orc project groups related sessions and is created from a Tmuxinator project. Orc
-  resolves the current project from the directory you're in (one project per repo).
+- **Project**: An Orc project groups related sessions. It comes from either a Tmuxinator project or
+  a local Git repository discovered under your configured [project paths](#configuration). One
+  project per repo.
 - **Session**: A tmux session spawned from a Tmuxinator project, paired with a Git worktree. The
   session named `main` runs directly on the project's main worktree, on its current branch. Every
   other session runs in its own linked worktree, isolated in a separate working directory on a
   branch named after the session.
+
+## Configuration
+
+Orc reads optional settings from `$XDG_CONFIG_HOME/orc/settings.json` (defaulting to
+`~/.config/orc/settings.json`).
+
+- **`projectPaths`**: A list of globs pointing at local Git repositories to offer as projects
+  alongside your Tmuxinator ones. Each match that contains a `.git` entry becomes a project named
+  after its directory. A leading `~/` expands to your home directory.
+
+  ```json
+  {
+    "projectPaths": ["~/Development/*"]
+  }
+  ```
+
+  With the example above, every Git repository directly under `~/Development` appears in the TUI's
+  project picker. These directory projects have no Tmuxinator config of their own, so they launch
+  from your `default` Tmuxinator project with its root overridden. A repository that already has a
+  Tmuxinator project at the same path is offered as that Tmuxinator project rather than duplicated,
+  and paths that don't exist are ignored.
 
 ## Interfaces
 
