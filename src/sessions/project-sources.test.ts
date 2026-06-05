@@ -1,3 +1,4 @@
+import type { ProjectSource } from "../types.ts";
 import { listProjectSources, tmuxinatorSource } from "./project-sources.ts";
 import { describe, expect, it, mock } from "bun:test";
 
@@ -5,10 +6,24 @@ const listTmuxinatorProjectsMock = mock<() => Promise<string[]>>(() => Promise.r
 const readTmuxinatorProjectMock = mock<(name: string) => Promise<{ root: string }>>(() =>
   Promise.resolve({ root: "" }),
 );
+const listDirectoryProjectsMock = mock<
+  (projectPaths: string[], sources: ProjectSource[]) => Promise<ProjectSource[]>
+>(() => Promise.resolve([]));
+const readConfigMock = mock<() => Promise<{ projectPaths: string[] }>>(() =>
+  Promise.resolve({ projectPaths: [] }),
+);
 
 await mock.module("../commands/tmuxinator.ts", () => ({
   listTmuxinatorProjects: listTmuxinatorProjectsMock,
   readTmuxinatorProject: readTmuxinatorProjectMock,
+}));
+
+await mock.module("./directory-projects.ts", () => ({
+  listDirectoryProjects: listDirectoryProjectsMock,
+}));
+
+await mock.module("../config/read.ts", () => ({
+  readConfig: readConfigMock,
 }));
 
 describe("tmuxinatorSource", () => {
@@ -25,22 +40,72 @@ describe("tmuxinatorSource", () => {
 
 describe("listProjectSources", () => {
   describe("when tmuxinator projects exist", () => {
-    it("returns a tmuxinator source for each project", async () => {
+    it("returns a tmuxinator source for each project, sorted by name", async () => {
       listTmuxinatorProjectsMock.mockResolvedValue(["orc", "notes"]);
       readTmuxinatorProjectMock.mockImplementation((name) =>
         Promise.resolve({ root: `/repos/${name}` }),
       );
+      listDirectoryProjectsMock.mockResolvedValue([]);
 
       expect(await listProjectSources()).toEqual([
-        { kind: "tmuxinator", name: "orc", root: "/repos/orc" },
         { kind: "tmuxinator", name: "notes", root: "/repos/notes" },
+        { kind: "tmuxinator", name: "orc", root: "/repos/orc" },
       ]);
+    });
+  });
+
+  describe("when local repos are discovered", () => {
+    it("merges the directory sources with the tmuxinator ones, sorted by name", async () => {
+      listTmuxinatorProjectsMock.mockResolvedValue(["orc"]);
+      readTmuxinatorProjectMock.mockImplementation((name) =>
+        Promise.resolve({ root: `/repos/${name}` }),
+      );
+      const directorySource: ProjectSource = {
+        kind: "directory",
+        name: "agents",
+        root: "/repos/agents",
+      };
+      listDirectoryProjectsMock.mockResolvedValue([directorySource]);
+
+      expect(await listProjectSources()).toEqual([
+        directorySource,
+        { kind: "tmuxinator", name: "orc", root: "/repos/orc" },
+      ]);
+    });
+
+    it("drops a directory source that shares a root with a tmuxinator project", async () => {
+      listTmuxinatorProjectsMock.mockResolvedValue(["orc-work"]);
+      readTmuxinatorProjectMock.mockResolvedValue({ root: "/repos/orc" });
+      listDirectoryProjectsMock.mockResolvedValue([
+        { kind: "directory", name: "orc", root: "/repos/orc" },
+      ]);
+
+      expect(await listProjectSources()).toEqual([
+        { kind: "tmuxinator", name: "orc-work", root: "/repos/orc" },
+      ]);
+    });
+
+    it("discovers directory sources for the configured project paths", async () => {
+      readConfigMock.mockResolvedValue({ projectPaths: ["/repos/*"] });
+      listTmuxinatorProjectsMock.mockResolvedValue(["orc"]);
+      readTmuxinatorProjectMock.mockImplementation((name) =>
+        Promise.resolve({ root: `/repos/${name}` }),
+      );
+      listDirectoryProjectsMock.mockResolvedValue([]);
+
+      await listProjectSources();
+
+      expect(listDirectoryProjectsMock).toHaveBeenCalledWith(
+        ["/repos/*"],
+        [{ kind: "tmuxinator", name: "orc", root: "/repos/orc" }],
+      );
     });
   });
 
   describe("when no tmuxinator projects exist", () => {
     it("returns an empty array", async () => {
       listTmuxinatorProjectsMock.mockResolvedValue([]);
+      listDirectoryProjectsMock.mockResolvedValue([]);
 
       expect(await listProjectSources()).toEqual([]);
     });
