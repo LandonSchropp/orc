@@ -49,8 +49,8 @@ describe("listDirectoryProjects", () => {
       );
 
       expect(projects.toSorted((a, b) => a.name.localeCompare(b.name))).toEqual([
-        { kind: "directory", name: "notes", root: join(base, "notes") },
-        { kind: "directory", name: "orc", root: join(base, "orc") },
+        { kind: "directory", name: "notes", repositoryRoot: join(base, "notes") },
+        { kind: "directory", name: "orc", repositoryRoot: join(base, "orc") },
       ]);
     });
   });
@@ -76,7 +76,7 @@ describe("listDirectoryProjects", () => {
     it("ignores the missing path and still returns repos from the others", async () => {
       expect(
         await listDirectoryProjects(["/tmp/orc-test-directory-projects-gone/*", `${base}/*`], []),
-      ).toEqual([{ kind: "directory", name: "orc", root: join(base, "orc") }]);
+      ).toEqual([{ kind: "directory", name: "orc", repositoryRoot: join(base, "orc") }]);
     });
   });
 

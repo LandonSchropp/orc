@@ -8,7 +8,7 @@ import { runCommand } from "citty";
 const createSessionMock = mock((): Promise<void> => Promise.resolve());
 const findSessionMock = mock((): Promise<Session | null> => Promise.resolve(null));
 const tmuxinatorSourceMock = mock<(name: string) => Promise<ProjectSource>>((name) =>
-  Promise.resolve({ kind: "tmuxinator", name, root: `/repos/${name}` }),
+  Promise.resolve({ kind: "tmuxinator", name, repositoryRoot: `/repos/${name}` }),
 );
 
 await mock.module("../sessions/create.ts", () => ({
@@ -32,7 +32,7 @@ describe("newCommand", () => {
 
       expect(findSessionMock).toHaveBeenCalledWith("test-project", "feature-a");
       expect(createSessionMock).toHaveBeenCalledWith(
-        { kind: "tmuxinator", name: "test-project", root: "/repos/test-project" },
+        { kind: "tmuxinator", name: "test-project", repositoryRoot: "/repos/test-project" },
         "feature-a",
       );
     });

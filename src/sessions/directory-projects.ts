@@ -40,7 +40,7 @@ export async function listDirectoryProjects(
   const projects: ProjectSource[] = roots.map((root) => ({
     kind: "directory",
     name: basename(root),
-    root,
+    repositoryRoot: root,
   }));
 
   return projects.filter((project) => !tmuxinatorNames.has(project.name));

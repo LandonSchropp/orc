@@ -30,10 +30,10 @@ await mock.module("node:fs/promises", () => ({
   mkdir: mkdirSpy,
 }));
 
-const repoPath = "/repos/test-project";
+const repositoryRoot = "/repos/test-project";
 const worktreeParent = `${homedir()}/.cache/orc/worktrees/test-project`;
 const worktreePath = `${worktreeParent}/feature-a`;
-const source = projectSourceFactory.build({ name: "test-project", root: repoPath });
+const source = projectSourceFactory.build({ name: "test-project", repositoryRoot });
 
 describe("createSession", () => {
   describe('when the session is named "main"', () => {
@@ -50,7 +50,11 @@ describe("createSession", () => {
     });
 
     it("starts the tmuxinator project at the project root", () => {
-      expect(startTmuxinatorProjectMock).toHaveBeenCalledWith("test-project", "main", repoPath);
+      expect(startTmuxinatorProjectMock).toHaveBeenCalledWith(
+        "test-project",
+        "main",
+        repositoryRoot,
+      );
     });
 
     it("switches to the new session", () => {
@@ -62,7 +66,7 @@ describe("createSession", () => {
     const directorySource = projectSourceFactory.build({
       kind: "directory",
       name: "test-project",
-      root: repoPath,
+      repositoryRoot,
     });
 
     describe('when the session is named "main"', () => {
@@ -74,7 +78,7 @@ describe("createSession", () => {
         expect(startTmuxinatorProjectMock).toHaveBeenCalledWith(
           "test-project",
           "main",
-          repoPath,
+          repositoryRoot,
           "default",
         );
       });
@@ -124,7 +128,7 @@ describe("createSession", () => {
 
           it("adds a Git worktree with a new branch from the default branch", () => {
             expect(addWorktreeMock).toHaveBeenCalledWith(
-              repoPath,
+              repositoryRoot,
               worktreePath,
               "feature-a",
               "main",
@@ -163,7 +167,7 @@ describe("createSession", () => {
         });
 
         it("checks out the existing branch in the worktree", () => {
-          expect(addWorktreeMock).toHaveBeenCalledWith(repoPath, worktreePath, "feature-a");
+          expect(addWorktreeMock).toHaveBeenCalledWith(repositoryRoot, worktreePath, "feature-a");
         });
 
         it("does not look up the default branch", () => {

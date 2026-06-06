@@ -29,7 +29,7 @@ await mock.module("../utilities/exists.ts", () => ({
   exists: existsMock,
 }));
 
-const repoPath = "/repos/test-project";
+const repositoryRoot = "/repos/test-project";
 const worktreePath = `${homedir()}/.cache/orc/worktrees/test-project/feature-a`;
 
 describe("deleteSession", () => {
@@ -44,7 +44,7 @@ describe("deleteSession", () => {
     });
 
     it("removes the worktree from the resolved repository", () => {
-      expect(removeWorktreeMock).toHaveBeenCalledWith(repoPath, worktreePath);
+      expect(removeWorktreeMock).toHaveBeenCalledWith(repositoryRoot, worktreePath);
     });
 
     it("kills the tmux session", () => {

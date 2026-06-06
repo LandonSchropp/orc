@@ -22,8 +22,8 @@ import { dirname } from "node:path";
 export async function createSession(source: ProjectSource, session: string): Promise<void> {
   const sessionDirectory =
     session === MAIN_SESSION_NAME
-      ? source.root
-      : await createWorktree(source.root, source.name, session);
+      ? source.repositoryRoot
+      : await createWorktree(source.repositoryRoot, source.name, session);
 
   if (source.kind === "directory") {
     await startTmuxinatorProject(source.name, session, sessionDirectory, DEFAULT_PROJECT);
@@ -37,31 +37,35 @@ export async function createSession(source: ProjectSource, session: string): Pro
 /**
  * Creates the session's Git worktree if it does not already exist.
  *
- * @param repoPath The path to the project's main repository.
+ * @param repositoryRoot The path to the project's main repository.
  * @param project The project name.
  * @param session The session name within the project.
  * @returns The absolute path to the session's worktree.
  */
-async function createWorktree(repoPath: string, project: string, session: string): Promise<string> {
+async function createWorktree(
+  repositoryRoot: string,
+  project: string,
+  session: string,
+): Promise<string> {
   const path = worktreePath(project, session);
 
-  if (await worktreeExists(repoPath, path)) {
+  if (await worktreeExists(repositoryRoot, path)) {
     return path;
   }
 
   await mkdir(dirname(path), { recursive: true });
 
-  if (await branchExists(repoPath, session)) {
-    await addWorktree(repoPath, path, session);
+  if (await branchExists(repositoryRoot, session)) {
+    await addWorktree(repositoryRoot, path, session);
     return path;
   }
 
-  const branch = await defaultBranch(repoPath);
+  const branch = await defaultBranch(repositoryRoot);
 
   if (!branch) {
-    throw new Error(`Could not determine default branch for ${repoPath}`);
+    throw new Error(`Could not determine default branch for ${repositoryRoot}`);
   }
 
-  await addWorktree(repoPath, path, session, branch);
+  await addWorktree(repositoryRoot, path, session, branch);
   return path;
 }

@@ -12,7 +12,7 @@ import { listDirectoryProjects } from "./directory-projects.ts";
  */
 export async function tmuxinatorSource(name: string): Promise<ProjectSource> {
   const { root } = await readTmuxinatorProject(name);
-  return { kind: "tmuxinator", name, root };
+  return { kind: "tmuxinator", name, repositoryRoot: root };
 }
 
 /**
@@ -29,9 +29,9 @@ export async function listProjectSources(): Promise<ProjectSource[]> {
   // A discovered repo that resolves to the same root as a tmuxinator project is the same project;
   // the tmuxinator source wins. Only the directory sources are deduplicated, so multiple tmuxinator
   // projects may share a root.
-  const tmuxinatorRoots = new Set(tmuxinatorSources.map(({ root }) => root));
+  const tmuxinatorRoots = new Set(tmuxinatorSources.map(({ repositoryRoot }) => repositoryRoot));
   const directorySources = (await listDirectoryProjects(projectPaths, tmuxinatorSources)).filter(
-    ({ root }) => !tmuxinatorRoots.has(root),
+    ({ repositoryRoot }) => !tmuxinatorRoots.has(repositoryRoot),
   );
 
   return [...tmuxinatorSources, ...directorySources].sort((a, b) => compareStrings(a.name, b.name));

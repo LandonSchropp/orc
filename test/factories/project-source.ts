@@ -5,5 +5,5 @@ import { Factory } from "fishery";
 export const projectSourceFactory = Factory.define<ProjectSource>(({ sequence }) => ({
   kind: "tmuxinator",
   name: `project-${sequence}`,
-  root: `/repos/project-${sequence}`,
+  repositoryRoot: `/repos/project-${sequence}`,
 }));

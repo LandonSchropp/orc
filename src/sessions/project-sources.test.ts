@@ -33,7 +33,7 @@ describe("tmuxinatorSource", () => {
     expect(await tmuxinatorSource("orc")).toEqual({
       kind: "tmuxinator",
       name: "orc",
-      root: "/repos/orc",
+      repositoryRoot: "/repos/orc",
     });
   });
 });
@@ -48,8 +48,8 @@ describe("listProjectSources", () => {
       listDirectoryProjectsMock.mockResolvedValue([]);
 
       expect(await listProjectSources()).toEqual([
-        { kind: "tmuxinator", name: "notes", root: "/repos/notes" },
-        { kind: "tmuxinator", name: "orc", root: "/repos/orc" },
+        { kind: "tmuxinator", name: "notes", repositoryRoot: "/repos/notes" },
+        { kind: "tmuxinator", name: "orc", repositoryRoot: "/repos/orc" },
       ]);
     });
   });
@@ -63,13 +63,13 @@ describe("listProjectSources", () => {
       const directorySource: ProjectSource = {
         kind: "directory",
         name: "agents",
-        root: "/repos/agents",
+        repositoryRoot: "/repos/agents",
       };
       listDirectoryProjectsMock.mockResolvedValue([directorySource]);
 
       expect(await listProjectSources()).toEqual([
         directorySource,
-        { kind: "tmuxinator", name: "orc", root: "/repos/orc" },
+        { kind: "tmuxinator", name: "orc", repositoryRoot: "/repos/orc" },
       ]);
     });
 
@@ -77,11 +77,11 @@ describe("listProjectSources", () => {
       listTmuxinatorProjectsMock.mockResolvedValue(["orc-work"]);
       readTmuxinatorProjectMock.mockResolvedValue({ root: "/repos/orc" });
       listDirectoryProjectsMock.mockResolvedValue([
-        { kind: "directory", name: "orc", root: "/repos/orc" },
+        { kind: "directory", name: "orc", repositoryRoot: "/repos/orc" },
       ]);
 
       expect(await listProjectSources()).toEqual([
-        { kind: "tmuxinator", name: "orc-work", root: "/repos/orc" },
+        { kind: "tmuxinator", name: "orc-work", repositoryRoot: "/repos/orc" },
       ]);
     });
 
@@ -97,7 +97,7 @@ describe("listProjectSources", () => {
 
       expect(listDirectoryProjectsMock).toHaveBeenCalledWith(
         ["/repos/*"],
-        [{ kind: "tmuxinator", name: "orc", root: "/repos/orc" }],
+        [{ kind: "tmuxinator", name: "orc", repositoryRoot: "/repos/orc" }],
       );
     });
   });
