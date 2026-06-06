@@ -16,6 +16,26 @@ export type TmuxPane = {
   paneTitle: string;
 };
 
+/**
+ * The persisted core of a session — the basics needed to recreate it after the tmux server is gone.
+ * A session's state file holds these fields; everything else on {@link Session} is derived at read
+ * time.
+ */
+export type SessionInfo = {
+  /** The project name. */
+  project: string;
+  /** The session name within the project. */
+  session: string;
+  /** The fully qualified session id, `project/session`. */
+  id: string;
+  /** How the project is configured, which determines how its session is started. */
+  kind: ProjectKind;
+  /** The absolute path to the project's main git repository (not the session's worktree). */
+  repositoryRoot: string;
+  /** When the session was first created. */
+  createdAt: Date;
+};
+
 /** An Orc session. */
 export type Session = {
   /** The project the session belongs to. */
