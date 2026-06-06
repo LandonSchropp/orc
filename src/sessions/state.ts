@@ -13,10 +13,10 @@ import { dirname, join } from "node:path";
  * @param project The project name.
  * @param session The session name within the project.
  * @param paneId The tmux pane id (e.g. `%5`).
- * @returns The absolute path under `$XDG_CACHE_HOME/orc/state/<project>-<session>-<paneId>.json`.
+ * @returns The absolute path under `$XDG_CACHE_HOME/orc/state/<project>:<session>:<paneId>.json`.
  */
 export function stateFilePath(project: string, session: string, paneId: string): string {
-  return join(orcCacheDirectory(), "state", `${project}-${session}-${paneId}.json`);
+  return join(orcCacheDirectory(), "state", `${project}:${session}:${paneId}.json`);
 }
 
 /**
@@ -76,7 +76,7 @@ export async function readStateFile(
  */
 export async function removeSessionStateFiles(project: string, session: string): Promise<void> {
   const directory = join(orcCacheDirectory(), "state");
-  const names = await safeGlob(`${project}-${session}-*.json`, { cwd: directory });
+  const names = await safeGlob(`${project}:${session}:*.json`, { cwd: directory });
 
   await Promise.all(names.map((name) => rm(join(directory, name), { force: true })));
 }
