@@ -7,6 +7,7 @@ const mainWorktreeRootMock = mock((): Promise<string> => Promise.resolve("/repos
 const removeWorktreeMock = mock((): Promise<void> => Promise.resolve());
 const removeSessionStateFilesMock = mock((): Promise<void> => Promise.resolve());
 const existsMock = mock((): Promise<boolean> => Promise.resolve(true));
+const removeSessionFileMock = mock((): Promise<void> => Promise.resolve());
 
 await mock.module("../commands/tmux.ts", () => ({
   killTmuxSession: killTmuxSessionMock,
@@ -27,6 +28,10 @@ await mock.module("./state.ts", () => ({
 
 await mock.module("../utilities/exists.ts", () => ({
   exists: existsMock,
+}));
+
+await mock.module("./session-file.ts", () => ({
+  removeSessionFile: removeSessionFileMock,
 }));
 
 const repositoryRoot = "/repos/test-project";
@@ -53,6 +58,10 @@ describe("deleteSession", () => {
 
     it("removes the agent state files for the session", () => {
       expect(removeSessionStateFilesMock).toHaveBeenCalledWith("test-project", "feature-a");
+    });
+
+    it("removes the session file", () => {
+      expect(removeSessionFileMock).toHaveBeenCalledWith("test-project", "feature-a");
     });
 
     it("kills the tmux session before removing the worktree", () => {

@@ -3,13 +3,14 @@ import { killTmuxSession } from "../commands/tmux.ts";
 import { exists } from "../utilities/exists.ts";
 import { sessionId } from "./id.ts";
 import { worktreePath } from "./paths.ts";
+import { removeSessionFile } from "./session-file.ts";
 import { removeSessionStateFiles } from "./state.ts";
 
 /**
  * Deletes an orc session. Kills the tmux session, removes the Git worktree (if one exists at the
- * orc cache path), and cleans up any agent state files left behind. Resolves the repository from
- * the worktree itself, so it works for both tmuxinator and directory projects. Does not delete the
- * underlying branch.
+ * orc cache path), and cleans up its session file and any agent state files left behind. Resolves
+ * the repository from the worktree itself, so it works for both tmuxinator and directory projects.
+ * Does not delete the underlying branch.
  *
  * @param project The project name.
  * @param session The session name within the project.
@@ -26,4 +27,5 @@ export async function deleteSession(project: string, session: string): Promise<v
   }
 
   await removeSessionStateFiles(project, session);
+  await removeSessionFile(project, session);
 }
