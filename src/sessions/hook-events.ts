@@ -14,11 +14,18 @@ import { readStateFile, writeStateFile } from "./state.ts";
 
 /**
  * Notification types Claude Code uses when it actually needs the user — a tool permission prompt or
- * an MCP elicitation dialog. Other documented types (`idle_prompt`, `auth_success`,
+ * an MCP elicitation dialog. The remaining documented types (`auth_success`,
  * `elicitation_complete`, `elicitation_response`) are informational and must not flip the agent
  * into Waiting.
  */
 const USER_INPUT_NOTIFICATION_TYPES = new Set(["permission_prompt", "elicitation_dialog"]);
+
+/**
+ * The Notification type Claude Code fires when it is sitting idle at the prompt. It is the only
+ * signal orc receives after the user cancels a turn — Claude Code fires no Stop hook on user
+ * interrupts — so it is what unsticks a pane left in Waiting or Working by a cancellation.
+ */
+const IDLE_NOTIFICATION_TYPE = "idle_prompt";
 
 /**
  * Reports whether a Notification's `notification_type` indicates Claude is blocked on the user.
@@ -31,9 +38,21 @@ function isUserInputNotification(notificationType: string): boolean {
 }
 
 /**
+ * Maps a Notification's `notification_type` to the agent status it represents.
+ *
+ * @param notificationType The payload's `notification_type` field.
+ * @returns Waiting when Claude needs the user, Idle when Claude is idle at the prompt, or `null`
+ *   for informational notifications that should not change the status.
+ */
+function notificationToStatus(notificationType: string): AgentStatus | null {
+  if (isUserInputNotification(notificationType)) return WAITING_AGENT_STATUS;
+  if (notificationType === IDLE_NOTIFICATION_TYPE) return IDLE_AGENT_STATUS;
+  return null;
+}
+
+/**
  * Maps a Claude Code hook payload to the agent status it represents. Returns `null` for
- * Notification payloads whose `notification_type` doesn't mean the agent is waiting on the user
- * (e.g. `idle_prompt`, which the Stop event already covers as Idle).
+ * informational Notification payloads (e.g. `auth_success`) that should not change the status.
  *
  * @param payload The hook payload from Claude Code.
  * @returns The corresponding agent status, or `null` if the payload should not change the status.
@@ -46,15 +65,14 @@ function payloadToStatus(payload: HookPayload): AgentStatus | null {
     case STOP_HOOK_EVENT:
       return IDLE_AGENT_STATUS;
     case NOTIFICATION_HOOK_EVENT:
-      return isUserInputNotification(payload.notification_type) ? WAITING_AGENT_STATUS : null;
+      return notificationToStatus(payload.notification_type);
   }
 }
 
 /**
  * Processes a Claude Code hook payload for the given firing pane. Looks up the session name for the
  * pane and writes the corresponding agent status to its state file. Silently skips payloads that do
- * not map to a status change, including informational Notifications (like the idle reminder) that
- * the Stop event already covers as Idle.
+ * not map to a status change, such as informational Notifications.
  *
  * The state file is left untouched when its status already matches, so the recorded timestamp keeps
  * marking when the agent entered that status rather than when the latest event fired.

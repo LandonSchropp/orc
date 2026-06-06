@@ -67,9 +67,19 @@ describe("processHookEvent", () => {
     });
 
     describe("when the notification type is idle_prompt", () => {
-      it("does not write a state file", async () => {
+      it("writes Idle status for the firing pane", async () => {
         await processHookEvent(
           { hook_event_name: "Notification", notification_type: "idle_prompt" },
+          "%5",
+        );
+        expect(writeStateFileMock).toHaveBeenCalledWith("test-project", "feature-a", "%5", "Idle");
+      });
+    });
+
+    describe("when the notification type is informational", () => {
+      it("does not write a state file", async () => {
+        await processHookEvent(
+          { hook_event_name: "Notification", notification_type: "auth_success" },
           "%5",
         );
         expect(writeStateFileMock).not.toHaveBeenCalled();
