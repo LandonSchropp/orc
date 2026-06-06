@@ -14,6 +14,9 @@ export const AGENT_STATUSES = [
   IDLE_AGENT_STATUS,
 ] as const;
 
+/** All valid project kinds. Source of truth for both the type and runtime validation. */
+export const PROJECT_KINDS = ["tmuxinator", "directory"] as const;
+
 /** Claude Code hook event fired when the user submits a prompt. */
 export const USER_PROMPT_SUBMIT_HOOK_EVENT = "UserPromptSubmit";
 

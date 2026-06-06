@@ -2,6 +2,7 @@ import {
   AGENT_STATUSES,
   NOTIFICATION_HOOK_EVENT,
   POST_TOOL_USE_HOOK_EVENT,
+  PROJECT_KINDS,
   STOP_HOOK_EVENT,
   USER_PROMPT_SUBMIT_HOOK_EVENT,
 } from "./constants.ts";
@@ -63,7 +64,7 @@ export type Project = {
 };
 
 /** How a project is configured: backed by a tmuxinator config, or a plain git repository directory. */
-export type ProjectKind = "tmuxinator" | "directory";
+export type ProjectKind = (typeof PROJECT_KINDS)[number];
 
 /**
  * A project a session can be created in. The `kind` discriminates how the project is configured and
