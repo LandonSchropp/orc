@@ -135,6 +135,12 @@ flight at once.
 - **Inline lifecycle**: Create, attach, and delete sessions with single-key shortcuts. No need to
   drop back to the CLI.
 
+## Contributing
+
+Orc is an opinionated personal tool, but issues and pull requests are welcome. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for setup, the checks to run, and the project's
+architecture and conventions.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
