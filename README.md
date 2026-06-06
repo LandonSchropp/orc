@@ -1,5 +1,7 @@
 # Orc
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Orc is an _opinionated_ personal CLI orchestrator for running parallel Claude Code sessions. It's
 built tightly around Git worktrees, tmux, and Tmuxinator.
 
@@ -132,3 +134,7 @@ flight at once.
   alongside its Git branch and time since last pane output.
 - **Inline lifecycle**: Create, attach, and delete sessions with single-key shortcuts. No need to
   drop back to the CLI.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

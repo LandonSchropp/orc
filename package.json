@@ -3,7 +3,7 @@
   "description": "CLI orchestrator for parallel agents using Git worktrees, tmux and Tmuxinator.",
   "author": "Landon Schropp <schroppl@gmail.com>",
   "repository": "https://github.com/LandonSchropp/orc",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "bin": {
