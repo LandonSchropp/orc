@@ -10,6 +10,8 @@ const worktreeExistsMock = mock((): Promise<boolean> => Promise.resolve(false));
 const addWorktreeMock = mock((): Promise<void> => Promise.resolve());
 const switchSessionMock = mock((): Promise<void> => Promise.resolve());
 const mkdirSpy = mock((): Promise<string | undefined> => Promise.resolve(undefined));
+const writeSessionFileMock = mock((): Promise<void> => Promise.resolve());
+const sessionFileExistsMock = mock((): Promise<boolean> => Promise.resolve(false));
 
 await mock.module("../commands/tmuxinator.ts", () => ({
   startTmuxinatorProject: startTmuxinatorProjectMock,
@@ -28,6 +30,11 @@ await mock.module("./switch.ts", () => ({
 
 await mock.module("node:fs/promises", () => ({
   mkdir: mkdirSpy,
+}));
+
+await mock.module("./session-file.ts", () => ({
+  writeSessionFile: writeSessionFileMock,
+  sessionFileExists: sessionFileExistsMock,
 }));
 
 const repositoryRoot = "/repos/test-project";
@@ -59,6 +66,29 @@ describe("createSession", () => {
 
     it("switches to the new session", () => {
       expect(switchSessionMock).toHaveBeenCalledWith("test-project", "main");
+    });
+
+    it("writes a session file for the session", () => {
+      expect(writeSessionFileMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          project: "test-project",
+          session: "main",
+          id: "test-project/main",
+          kind: "tmuxinator",
+          repositoryRoot: "/repos/test-project",
+        }),
+      );
+    });
+  });
+
+  describe("when a session file already exists", () => {
+    beforeEach(async () => {
+      sessionFileExistsMock.mockResolvedValue(true);
+      await createSession(source, "main");
+    });
+
+    it("does not overwrite the existing session file", () => {
+      expect(writeSessionFileMock).not.toHaveBeenCalled();
     });
   });
 

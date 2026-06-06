@@ -2,8 +2,10 @@ import { addWorktree, branchExists, defaultBranch, worktreeExists } from "../com
 import { startTmuxinatorProject } from "../commands/tmuxinator.ts";
 import { DEFAULT_PROJECT } from "../constants.ts";
 import type { ProjectSource } from "../types.ts";
+import { sessionId } from "./id.ts";
 import { MAIN_SESSION_NAME } from "./main-worktree.ts";
 import { worktreePath } from "./paths.ts";
+import { sessionFileExists, writeSessionFile } from "./session-file.ts";
 import { switchSession } from "./switch.ts";
 import { mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
@@ -12,8 +14,10 @@ import { dirname } from "node:path";
  * Creates a new orc session. The session named "main" runs on the project's main worktree; every
  * other session gets a dedicated Git worktree — reusing an existing worktree if present, checking
  * out the session's branch when it already exists, or branching from the project's default branch
- * when it does not. Starts tmuxinator against the chosen directory — a tmuxinator source uses its
- * own template, a directory source uses the `default` template — then switches to the new session.
+ * when it does not. Records the session in a state file when it is first created — leaving any
+ * existing file untouched — so it can be listed and resumed after a restart. Starts tmuxinator
+ * against the chosen directory — a tmuxinator source uses its own template, a directory source uses
+ * the `default` template — then switches to the new session.
  *
  * @param source The project to create the session in.
  * @param session The session name within the project.
@@ -24,6 +28,17 @@ export async function createSession(source: ProjectSource, session: string): Pro
     session === MAIN_SESSION_NAME
       ? source.repositoryRoot
       : await createWorktree(source.repositoryRoot, source.name, session);
+
+  if (!(await sessionFileExists(source.name, session))) {
+    await writeSessionFile({
+      project: source.name,
+      session,
+      id: sessionId(source.name, session),
+      kind: source.kind,
+      repositoryRoot: source.repositoryRoot,
+      createdAt: new Date(),
+    });
+  }
 
   if (source.kind === "directory") {
     await startTmuxinatorProject(source.name, session, sessionDirectory, DEFAULT_PROJECT);
