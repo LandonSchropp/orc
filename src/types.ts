@@ -42,6 +42,9 @@ export type Project = {
   sessions: Session[];
 };
 
+/** How a project is configured: backed by a tmuxinator config, or a plain git repository directory. */
+export type ProjectKind = "tmuxinator" | "directory";
+
 /**
  * A project a session can be created in. The `kind` discriminates how the project is configured and
  * started: a `tmuxinator` source is backed by a tmuxinator config, while a `directory` source is a
@@ -50,7 +53,7 @@ export type Project = {
  */
 export type ProjectSource = {
   /** Where the project's configuration comes from. */
-  kind: "tmuxinator" | "directory";
+  kind: ProjectKind;
   /** The project name. */
   name: string;
   /** The absolute path to the project's git repository. */
