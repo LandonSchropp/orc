@@ -1,5 +1,5 @@
+import { sessionInfoFactory } from "../../test/factories/session-info.ts";
 import { stubEnv } from "../../test/helpers/env.ts";
-import type { SessionInfo } from "../types.ts";
 import {
   listSessionFiles,
   readSessionFile,
@@ -13,14 +13,12 @@ import { rm } from "node:fs/promises";
 
 const cacheHome = "/tmp/orc-test-session-file";
 
-const info: SessionInfo = {
+const info = sessionInfoFactory.build({
   project: "test-project",
   session: "feature-a",
-  id: "test-project/feature-a",
-  kind: "tmuxinator",
   repositoryRoot: "/repos/test-project",
   createdAt: new Date("2026-06-06T18:00:00.000Z"),
-};
+});
 
 beforeEach(() => {
   stubEnv("XDG_CACHE_HOME", cacheHome);
