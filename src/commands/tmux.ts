@@ -1,4 +1,4 @@
-import type { Session, TmuxPane } from "../types.ts";
+import type { TmuxPane, TmuxSession } from "../types.ts";
 import { orcWorktreesDirectory } from "../utilities/xdg.ts";
 import { runAttachedCommand, runCommand, type RunCommandResult } from "./shell.ts";
 import { sep } from "node:path";
@@ -198,7 +198,7 @@ export async function attachTmuxSession(name: string): Promise<void> {
  * @returns The parsed tmux sessions.
  * @throws If tmux exits with an unexpected error.
  */
-export async function listTmuxSessions(): Promise<Session[]> {
+export async function listTmuxSessions(): Promise<TmuxSession[]> {
   const { exitCode, stdout, stderr } = await tmux(["list-sessions", "-F", SESSION_FORMAT]);
 
   if (exitCode !== 0) {
@@ -221,7 +221,7 @@ export async function listTmuxSessions(): Promise<Session[]> {
  * @param line A line of tmux output: `name<TAB>created<TAB>attached<TAB>path`.
  * @returns The parsed session, or `null` if the name is not in `project/session` form.
  */
-function parseSessionLine(line: string): Session | null {
+function parseSessionLine(line: string): TmuxSession | null {
   const [id, createdAt, attached, path] = line.split("\t");
   const separatorIndex = id.indexOf("/");
 
@@ -234,7 +234,6 @@ function parseSessionLine(line: string): Session | null {
     createdAt: new Date(Number(createdAt) * 1000),
     attached: attached === "1",
     worktree: path.startsWith(`${orcWorktreesDirectory()}${sep}`) ? "linked" : "main",
-    agents: [],
   };
 }
 

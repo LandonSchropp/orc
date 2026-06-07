@@ -37,23 +37,32 @@ export type SessionInfo = {
   createdAt: Date;
 };
 
-/** An Orc session. */
-export type Session = {
-  /** The project the session belongs to. */
-  project: string;
-  /** The session name within the project. */
-  session: string;
-  /** The fully qualified session id, `project/session`. */
-  id: string;
-  /** When the session was created. */
-  createdAt: Date;
-  /** True if a client is currently attached to the session. */
+/**
+ * A session's lifecycle state: `running` (a live tmux session backs it), `stopped` (recorded but
+ * not live), or `deleted` (recorded, but its worktree has been removed).
+ */
+export type SessionStatus = "running" | "stopped" | "deleted";
+
+/** An Orc session: its persisted {@link SessionInfo} plus live state derived from tmux at read time. */
+export type Session = SessionInfo & {
+  /** The session's lifecycle state. */
+  status: SessionStatus;
+  /** True if a client is currently attached. Always false unless the session is running. */
   attached: boolean;
   /** Which worktree the session runs on: the project's main worktree or a dedicated linked one. */
   worktree: "main" | "linked";
-  /** Claude agents currently running in this session. Empty when there are none. */
+  /** Claude agents currently running in this session. Empty when not running. */
   agents: Agent[];
 };
+
+/**
+ * The tmux-observable fields of a session. Returned by the tmux command layer; the sessions layer
+ * joins it with the session's persisted {@link SessionInfo} to build a full {@link Session}.
+ */
+export type TmuxSession = Pick<
+  Session,
+  "project" | "session" | "id" | "createdAt" | "attached" | "worktree"
+>;
 
 /** A group of sessions that share a Tmuxinator project. */
 export type Project = {

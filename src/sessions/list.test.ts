@@ -1,10 +1,12 @@
 import { paneFactory } from "../../test/factories/pane.ts";
-import { sessionFactory } from "../../test/factories/session.ts";
-import type { AgentState, Session, TmuxPane } from "../types.ts";
+import { sessionInfoFactory } from "../../test/factories/session-info.ts";
+import { tmuxSessionFactory } from "../../test/factories/tmux-session.ts";
+import type { AgentState, SessionInfo, TmuxPane, TmuxSession } from "../types.ts";
 import { listSessions } from "./list.ts";
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
-const listTmuxSessionsMock = mock((): Promise<Session[]> => Promise.resolve([]));
+const listSessionFilesMock = mock((): Promise<SessionInfo[]> => Promise.resolve([]));
+const listTmuxSessionsMock = mock((): Promise<TmuxSession[]> => Promise.resolve([]));
 const listTmuxPanesMock = mock((): Promise<TmuxPane[]> => Promise.resolve([]));
 const readStateFileMock = mock((): Promise<AgentState | null> => Promise.resolve(null));
 
@@ -13,49 +15,87 @@ await mock.module("../commands/tmux.ts", () => ({
   listTmuxPanes: listTmuxPanesMock,
 }));
 
+await mock.module("./session-file.ts", () => ({
+  listSessionFiles: listSessionFilesMock,
+}));
+
 await mock.module("./state.ts", () => ({
   readStateFile: readStateFileMock,
 }));
 
 beforeEach(() => {
+  listSessionFilesMock.mockResolvedValue([]);
   listTmuxSessionsMock.mockResolvedValue([]);
   listTmuxPanesMock.mockResolvedValue([]);
   readStateFileMock.mockResolvedValue(null);
 });
 
 describe("listSessions", () => {
-  describe("when there are no sessions", () => {
+  describe("when there are no session files", () => {
     it("returns an empty array", async () => {
       expect(await listSessions()).toEqual([]);
     });
   });
 
-  describe("when a session has no agent panes", () => {
-    it("returns the session with an empty agents array", async () => {
+  describe("when a session file has a live tmux session", () => {
+    beforeEach(() => {
+      listSessionFilesMock.mockResolvedValue([
+        sessionInfoFactory.build({
+          project: "orc",
+          session: "feature-a",
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        }),
+      ]);
       listTmuxSessionsMock.mockResolvedValue([
-        sessionFactory.build({ project: "orc", session: "feature-a" }),
+        tmuxSessionFactory.build({ project: "orc", session: "feature-a", attached: true }),
       ]);
-      listTmuxPanesMock.mockResolvedValue([
-        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%1", paneTitle: "nvim" }),
-        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%2", paneTitle: "zsh" }),
-      ]);
+    });
 
+    it("marks the session running and attached", async () => {
       const [session] = await listSessions();
+
+      expect(session.status).toBe("running");
+      expect(session.attached).toBe(true);
+    });
+
+    it("carries the project info from the session file", async () => {
+      const [session] = await listSessions();
+
+      expect(session).toMatchObject({
+        kind: "tmuxinator",
+        repositoryRoot: "/repos/orc",
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      });
+    });
+  });
+
+  describe("when a session file has no live tmux session", () => {
+    beforeEach(() => {
+      listSessionFilesMock.mockResolvedValue([
+        sessionInfoFactory.build({ project: "orc", session: "feature-a" }),
+      ]);
+      listTmuxSessionsMock.mockResolvedValue([]);
+    });
+
+    it("marks the session stopped with no agents", async () => {
+      const [session] = await listSessions();
+
+      expect(session.status).toBe("stopped");
+      expect(session.attached).toBe(false);
       expect(session.agents).toEqual([]);
     });
   });
 
-  describe("when a session has one agent pane with a state file", () => {
+  describe("when a running session has an agent pane with a state file", () => {
     it("uses the status and start time from the state file", async () => {
+      listSessionFilesMock.mockResolvedValue([
+        sessionInfoFactory.build({ project: "orc", session: "feature-a" }),
+      ]);
       listTmuxSessionsMock.mockResolvedValue([
-        sessionFactory.build({ project: "orc", session: "feature-a" }),
+        tmuxSessionFactory.build({ project: "orc", session: "feature-a" }),
       ]);
       listTmuxPanesMock.mockResolvedValue([
-        paneFactory.build({
-          sessionId: "orc/feature-a",
-          paneId: "%3",
-          paneTitle: "⠂ Working",
-        }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%3", paneTitle: "⠂ Working" }),
       ]);
       readStateFileMock.mockResolvedValue({
         status: "Waiting",
@@ -63,51 +103,41 @@ describe("listSessions", () => {
       });
 
       const [session] = await listSessions();
+
       expect(session.agents).toEqual([
         { paneId: "%3", status: "Waiting", updatedAt: new Date("2026-05-17T00:00:00.000Z") },
       ]);
     });
   });
 
-  describe("when an agent pane has no state file yet", () => {
+  describe("when a running session's agent pane has no state file yet", () => {
     it("defaults the status to Idle", async () => {
+      listSessionFilesMock.mockResolvedValue([
+        sessionInfoFactory.build({ project: "orc", session: "feature-a" }),
+      ]);
       listTmuxSessionsMock.mockResolvedValue([
-        sessionFactory.build({ project: "orc", session: "feature-a" }),
+        tmuxSessionFactory.build({ project: "orc", session: "feature-a" }),
       ]);
       listTmuxPanesMock.mockResolvedValue([
-        paneFactory.build({
-          sessionId: "orc/feature-a",
-          paneId: "%3",
-          paneTitle: "✳ Idle",
-        }),
+        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%3", paneTitle: "✳ Idle" }),
       ]);
       readStateFileMock.mockResolvedValue(null);
 
       const [session] = await listSessions();
+
       expect(session.agents).toMatchObject([{ paneId: "%3", status: "Idle" }]);
     });
   });
 
-  describe("when a session has multiple agent panes", () => {
-    it("returns one agent per Claude pane", async () => {
-      listTmuxSessionsMock.mockResolvedValue([
-        sessionFactory.build({ project: "orc", session: "feature-a" }),
-      ]);
-      listTmuxPanesMock.mockResolvedValue([
-        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%3", paneTitle: "⠂ A" }),
-        paneFactory.build({ sessionId: "orc/feature-a", paneId: "%4", paneTitle: "✳ B" }),
-      ]);
-
-      const [session] = await listSessions();
-      expect(session.agents.map((agent) => agent.paneId)).toEqual(["%3", "%4"]);
-    });
-  });
-
-  describe("when there are multiple sessions", () => {
+  describe("when there are multiple running sessions", () => {
     it("assigns each agent pane to the correct session", async () => {
+      listSessionFilesMock.mockResolvedValue([
+        sessionInfoFactory.build({ project: "orc", session: "feature-a" }),
+        sessionInfoFactory.build({ project: "orc", session: "feature-b" }),
+      ]);
       listTmuxSessionsMock.mockResolvedValue([
-        sessionFactory.build({ project: "orc", session: "feature-a" }),
-        sessionFactory.build({ project: "orc", session: "feature-b" }),
+        tmuxSessionFactory.build({ project: "orc", session: "feature-a" }),
+        tmuxSessionFactory.build({ project: "orc", session: "feature-b" }),
       ]);
       listTmuxPanesMock.mockResolvedValue([
         paneFactory.build({ sessionId: "orc/feature-a", paneId: "%3", paneTitle: "⠂ A" }),
@@ -115,12 +145,37 @@ describe("listSessions", () => {
       ]);
 
       const sessions = await listSessions();
+
       expect(sessions.find((session) => session.id === "orc/feature-a")?.agents).toMatchObject([
         { paneId: "%3", status: "Idle" },
       ]);
       expect(sessions.find((session) => session.id === "orc/feature-b")?.agents).toMatchObject([
         { paneId: "%5", status: "Idle" },
       ]);
+    });
+  });
+
+  describe('when the session is named "main"', () => {
+    it("runs on the main worktree", async () => {
+      listSessionFilesMock.mockResolvedValue([
+        sessionInfoFactory.build({ project: "orc", session: "main" }),
+      ]);
+
+      const [session] = await listSessions();
+
+      expect(session.worktree).toBe("main");
+    });
+  });
+
+  describe('when the session is not named "main"', () => {
+    it("runs on a linked worktree", async () => {
+      listSessionFilesMock.mockResolvedValue([
+        sessionInfoFactory.build({ project: "orc", session: "feature-a" }),
+      ]);
+
+      const [session] = await listSessions();
+
+      expect(session.worktree).toBe("linked");
     });
   });
 });

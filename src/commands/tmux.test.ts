@@ -118,7 +118,6 @@ describe("listTmuxSessions", () => {
           id: "orc/feature-a",
           createdAt: new Date(1_700_000_000 * 1000),
           attached: false,
-          agents: [],
           worktree: "linked",
         },
         {
@@ -127,7 +126,6 @@ describe("listTmuxSessions", () => {
           id: "orc/feature-b",
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
-          agents: [],
           worktree: "main",
         },
       ]);
@@ -150,7 +148,6 @@ describe("listTmuxSessions", () => {
           id: "orc/feature-a",
           createdAt: new Date(1_700_000_100 * 1000),
           attached: true,
-          agents: [],
           worktree: "main",
         },
       ]);

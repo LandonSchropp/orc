@@ -1,7 +1,8 @@
-import type { Session } from "../../src/types.ts";
+import type { TmuxSession } from "../../src/types.ts";
 import { Factory } from "fishery";
 
-export const sessionFactory = Factory.define<Session>(({ sequence, afterBuild }) => {
+/** Builds a {@link TmuxSession} for tests, deriving its id from the project and session. */
+export const tmuxSessionFactory = Factory.define<TmuxSession>(({ sequence, afterBuild }) => {
   afterBuild((session) => {
     session.id = `${session.project}/${session.session}`;
   });
@@ -9,12 +10,8 @@ export const sessionFactory = Factory.define<Session>(({ sequence, afterBuild })
     project: "orc",
     session: `feature-${sequence}`,
     id: "",
-    kind: "tmuxinator",
-    repositoryRoot: "/repos/orc",
     createdAt: new Date(),
-    status: "running",
     attached: false,
     worktree: "main",
-    agents: [],
   };
 });

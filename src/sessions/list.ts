@@ -1,7 +1,9 @@
 import { listTmuxPanes, listTmuxSessions } from "../commands/tmux.ts";
 import { IDLE_AGENT_STATUS } from "../constants.ts";
-import type { Agent, Session, TmuxPane } from "../types.ts";
+import type { Agent, Session, SessionInfo, TmuxPane, TmuxSession } from "../types.ts";
 import { isAgentPane } from "./agents.ts";
+import { MAIN_SESSION_NAME } from "./main-worktree.ts";
+import { listSessionFiles } from "./session-file.ts";
 import { readStateFile } from "./state.ts";
 
 /**
@@ -27,24 +29,51 @@ async function buildAgent(project: string, session: string, pane: TmuxPane): Pro
 }
 
 /**
- * Lists every orc session with its currently-running Claude agents attached. Combines tmux session
- * metadata with pane enumeration: panes whose titles match the agent signature are turned into
- * {@link Agent} entries, grouped under the session that owns them.
+ * Builds a full {@link Session} by joining a session's persisted info with its live tmux state. A
+ * session is `running` when a live tmux session backs it — its agents come from that session's
+ * agent panes — and `stopped` otherwise. A stopped session has no live panes, so its agents come
+ * out empty.
  *
- * @returns The orc sessions, each with its agents array populated.
+ * @param sessionInfo The session's persisted info.
+ * @param tmuxSession The live tmux session backing it, or `undefined` when the session is stopped.
+ * @param tmuxPanes Every tmux pane across all sessions; this session's agent panes are selected
+ *   from them.
+ * @returns The session with its live state and agents populated.
+ */
+async function buildSession(
+  sessionInfo: SessionInfo,
+  tmuxSession: TmuxSession | undefined,
+  tmuxPanes: TmuxPane[],
+): Promise<Session> {
+  const agents = await Promise.all(
+    tmuxPanes
+      .filter((pane) => pane.sessionId === sessionInfo.id && isAgentPane(pane))
+      .map((pane) => buildAgent(sessionInfo.project, sessionInfo.session, pane)),
+  );
+
+  return {
+    ...sessionInfo,
+    status: tmuxSession !== undefined ? "running" : "stopped",
+    attached: tmuxSession?.attached ?? false,
+    worktree: sessionInfo.session === MAIN_SESSION_NAME ? "main" : "linked",
+    agents,
+  };
+}
+
+/**
+ * Lists every recorded orc session by joining its session file with live tmux state. Sessions are
+ * sourced from their files, so they survive a restart even though their tmux sessions do not.
+ *
+ * @returns The orc sessions, each with its live state and agents populated.
  */
 export async function listSessions(): Promise<Session[]> {
-  const [sessions, panes] = await Promise.all([listTmuxSessions(), listTmuxPanes()]);
-  const agentPanes = panes.filter(isAgentPane);
+  const [infos, tmuxSessions, panes] = await Promise.all([
+    listSessionFiles(),
+    listTmuxSessions(),
+    listTmuxPanes(),
+  ]);
 
-  return Promise.all(
-    sessions.map(async (session) => ({
-      ...session,
-      agents: await Promise.all(
-        agentPanes
-          .filter((pane) => pane.sessionId === session.id)
-          .map((pane) => buildAgent(session.project, session.session, pane)),
-      ),
-    })),
-  );
+  const liveSessionsById = new Map(tmuxSessions.map((session) => [session.id, session]));
+
+  return Promise.all(infos.map((info) => buildSession(info, liveSessionsById.get(info.id), panes)));
 }
