@@ -107,8 +107,8 @@ describe("listTmuxSessions", () => {
       runCommandMock.mockResolvedValue({
         exitCode: 0,
         stdout:
-          `orc/feature-a\t1700000000\t0\t${worktreePath("orc", "feature-a")}\n` +
-          `orc/feature-b\t1700000100\t1\t/repos/orc\n`,
+          `orc/feature-a\t1700000000\t${worktreePath("orc", "feature-a")}\n` +
+          `orc/feature-b\t1700000100\t/repos/orc\n`,
         stderr: "",
       });
       expect(await listTmuxSessions()).toEqual([
@@ -117,7 +117,6 @@ describe("listTmuxSessions", () => {
           session: "feature-a",
           id: "orc/feature-a",
           createdAt: new Date(1_700_000_000 * 1000),
-          attached: false,
           worktree: "linked",
         },
         {
@@ -125,7 +124,6 @@ describe("listTmuxSessions", () => {
           session: "feature-b",
           id: "orc/feature-b",
           createdAt: new Date(1_700_000_100 * 1000),
-          attached: true,
           worktree: "main",
         },
       ]);
@@ -137,8 +135,7 @@ describe("listTmuxSessions", () => {
       runCommandMock.mockResolvedValue({
         exitCode: 0,
         stdout:
-          `dotfiles\t1700000000\t0\t/repos/dotfiles\n` +
-          `orc/feature-a\t1700000100\t1\t/repos/orc\n`,
+          `dotfiles\t1700000000\t/repos/dotfiles\n` + `orc/feature-a\t1700000100\t/repos/orc\n`,
         stderr: "",
       });
       expect(await listTmuxSessions()).toEqual([
@@ -147,7 +144,6 @@ describe("listTmuxSessions", () => {
           session: "feature-a",
           id: "orc/feature-a",
           createdAt: new Date(1_700_000_100 * 1000),
-          attached: true,
           worktree: "main",
         },
       ]);

@@ -54,7 +54,6 @@ async function buildSession(
   return {
     ...sessionInfo,
     status: tmuxSession !== undefined ? "running" : "stopped",
-    attached: tmuxSession?.attached ?? false,
     worktree: sessionInfo.session === MAIN_SESSION_NAME ? "main" : "linked",
     agents,
   };

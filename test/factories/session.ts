@@ -13,7 +13,6 @@ export const sessionFactory = Factory.define<Session>(({ sequence, afterBuild })
     repositoryRoot: "/repos/orc",
     createdAt: new Date(),
     status: "running",
-    attached: false,
     worktree: "main",
     agents: [],
   };

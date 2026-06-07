@@ -47,8 +47,6 @@ export type SessionStatus = "running" | "stopped" | "deleted";
 export type Session = SessionInfo & {
   /** The session's lifecycle state. */
   status: SessionStatus;
-  /** True if a client is currently attached. Always false unless the session is running. */
-  attached: boolean;
   /** Which worktree the session runs on: the project's main worktree or a dedicated linked one. */
   worktree: "main" | "linked";
   /** Claude agents currently running in this session. Empty when not running. */
@@ -59,10 +57,7 @@ export type Session = SessionInfo & {
  * The tmux-observable fields of a session. Returned by the tmux command layer; the sessions layer
  * joins it with the session's persisted {@link SessionInfo} to build a full {@link Session}.
  */
-export type TmuxSession = Pick<
-  Session,
-  "project" | "session" | "id" | "createdAt" | "attached" | "worktree"
->;
+export type TmuxSession = Pick<Session, "project" | "session" | "id" | "createdAt" | "worktree">;
 
 /** A group of sessions that share a Tmuxinator project. */
 export type Project = {

@@ -11,7 +11,6 @@ export const tmuxSessionFactory = Factory.define<TmuxSession>(({ sequence, after
     session: `feature-${sequence}`,
     id: "",
     createdAt: new Date(),
-    attached: false,
     worktree: "main",
   };
 });

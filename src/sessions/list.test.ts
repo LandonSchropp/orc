@@ -47,15 +47,14 @@ describe("listSessions", () => {
         }),
       ]);
       listTmuxSessionsMock.mockResolvedValue([
-        tmuxSessionFactory.build({ project: "orc", session: "feature-a", attached: true }),
+        tmuxSessionFactory.build({ project: "orc", session: "feature-a" }),
       ]);
     });
 
-    it("marks the session running and attached", async () => {
+    it("marks the session running", async () => {
       const [session] = await listSessions();
 
       expect(session.status).toBe("running");
-      expect(session.attached).toBe(true);
     });
 
     it("carries the project info from the session file", async () => {
@@ -81,7 +80,6 @@ describe("listSessions", () => {
       const [session] = await listSessions();
 
       expect(session.status).toBe("stopped");
-      expect(session.attached).toBe(false);
       expect(session.agents).toEqual([]);
     });
   });

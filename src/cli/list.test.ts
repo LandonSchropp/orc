@@ -34,17 +34,5 @@ describe("listCommand", () => {
       expect(stdoutSpy).toHaveBeenCalledWith("orc/feature-a\n");
       expect(stdoutSpy).toHaveBeenCalledWith("orc/feature-b\n");
     });
-
-    describe("and a session is attached", () => {
-      it("marks it as attached", async () => {
-        listTmuxSessionsMock.mockResolvedValue([
-          sessionFactory.build({ session: "feature-a", attached: true }),
-        ]);
-
-        await runCommand(listCommand, { rawArgs: [] });
-
-        expect(stdoutSpy).toHaveBeenCalledWith("orc/feature-a (attached)\n");
-      });
-    });
   });
 });
